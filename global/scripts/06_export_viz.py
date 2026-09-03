@@ -29,9 +29,14 @@ XMAX, YMAX = 17005833.0, 8625155.0
 H = int(round(W * YMAX / XMAX))
 SIMPLIFY = {"03": 8000, "04": 4000}
 
-# HydroBASINS encodes its region in the first digit of HYBAS_ID.
-REGION = {1: "Africa", 2: "Europe", 3: "Siberia", 4: "Asia", 5: "Australasia",
-          6: "South America", 7: "North America", 8: "Arctic", 9: "Greenland"}
+# HydroBASINS encodes its region in the first digit of HYBAS_ID. These are
+# HydroSHEDS' own region names, not shortened versions of them: region 2 covers
+# the Middle East as well as Europe, which is why the Arabian Peninsula sits
+# there, and region 4 stops at Central and South-East Asia.
+REGION = {1: "Africa", 2: "Europe and Middle East", 3: "Siberia",
+          4: "Central and SE Asia", 5: "Australia and Oceania",
+          6: "South America", 7: "North America", 8: "North American Arctic",
+          9: "Greenland"}
 
 geo = load_geometry()
 land = terrestrial(geo)
@@ -89,6 +94,11 @@ for level in ("03", "04"):
     basins = gpd.GeoDataFrame(basins, geometry="geometry", crs="EPSG:4326")
     basins["basin_idx"] = np.arange(len(basins))
     tr = pd.read_csv(ROOT / "trends" / f"basins_lev{level}_trends.csv").set_index("basin_idx")
+    # Glacier cover, so a ranked list can drop basins whose storage trend is ice
+    # loss rather than groundwater. GSFC's own ice codes miss Svalbard, Novaya
+    # Zemlya, Iceland and Patagonia, so they cannot answer this.
+    gl = pd.read_csv(ROOT / "trends" / f"glacier_fraction_lev{level}.csv").set_index("HYBAS_ID")
+    gl = gl["glacier_fraction"].to_dict()
 
     joined = gpd.sjoin(cells, basins[["basin_idx", "geometry"]], how="inner", predicate="within")
     wmat = joined.groupby(["basin_idx", "mascon_id"])["w"].sum().reset_index()
@@ -127,6 +137,7 @@ for level in ("03", "04"):
             "area": int(round(float(basins.SUB_AREA.iloc[bi]))),
             "nm": int(row["n_mascons"]),
             "ice": round(float(row.get("ice_fraction", 0) or 0), 3),
+            "gl": round(float(gl.get(hid, 0.0)), 3),
             "tt": round(float(row["tws_trend_mm_yr"]), 2),
             "tp": round(float(row["tws_p"]), 4),
             "gt": None if not np.isfinite(row.get("gws_trend_mm_yr", np.nan)) else round(float(row["gws_trend_mm_yr"]), 2),

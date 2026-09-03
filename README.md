@@ -62,6 +62,7 @@ regions/     six regional studies, each with scripts, tables, figures, and a rep
 | `global/scripts/04_crosscheck.py` | global pipeline versus the regional Arabia run |
 | `global/scripts/05_level_compare.py` | level 3 versus level 4 |
 | `global/scripts/06_export_viz.py` | the payload the page reads |
+| `global/scripts/08_glacier_fraction.py` | glacier cover per basin, for the ice filter |
 
 ```powershell
 cd C:\path\to\dark-water
@@ -157,5 +158,6 @@ the write-good, Microsoft, and Google style packages. Run it with `vale README.m
 - GLDAS 2.1 monthly Noah, VIC, and CLSM, from the Goddard Earth Sciences data center
 - HydroSHEDS HydroBASINS v1c, https://www.hydrosheds.org
 - CHIRPS v2.0, Climate Hazards Center
+- Natural Earth 10m glaciated areas, public domain, https://www.naturalearthdata.com
 - Reservoir and water-balance records from Mexico's national water commission, the Texas
   Water Development Board, and California's Department of Water Resources
