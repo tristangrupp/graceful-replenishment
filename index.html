@@ -20,7 +20,6 @@
 
 <header>
   <div>
-    <span class="eyebrow">Goddard mascons RL06v2.0, land surface models, HydroSHEDS basins</span>
     <h1>How fast each basin is gaining or losing water</h1>
     <p>Color is a <b>rate</b>. It shows the slope of one line fitted through all 92 monthly
        solutions from the Gravity Recovery and Climate Experiment (GRACE), in millimeters of water
@@ -30,8 +29,6 @@
   </div>
   <div class="window">
     <div><span class="eyebrow">Window</span><b id="w-window">&nbsp;</b></div>
-    <div><span class="eyebrow">Solutions</span><b id="w-months">&nbsp;</b></div>
-    <div><span class="eyebrow">Basins</span><b id="w-basins">&nbsp;</b></div>
   </div>
 </header>
 
@@ -46,6 +43,8 @@
     <button data-v="03" aria-pressed="true">Level 3</button>
     <button data-v="04" aria-pressed="false">Level 4</button>
   </div>
+  <button class="btn" id="drop" type="button" aria-pressed="false"
+          title="Remove basins whose rate the test cannot separate from zero, and basins withheld from this layer">Drop unresolved</button>
   <span class="hint" id="hint"></span>
 </div>
 

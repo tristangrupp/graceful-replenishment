@@ -2,7 +2,7 @@ const D = window.GRACE;
 const MONTHS = D.months;
 const NM = MONTHS.length;
 const CLIP = 30;
-const state = { product: "t", level: "03", sel: [] };
+const state = { product: "t", level: "03", sel: [], dropUnresolved: false };
 const SERIES = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
 
 const RAMP_LIGHT = ["#8a3b12", "#c86a2c", "#e3a869", "#d9d7cf", "#7fb3d5", "#2a78d6", "#104281"];
@@ -66,11 +66,16 @@ function paint() {
     const v = b[tk];
     const f = fills[i];
     const missing = v === null || v === undefined;
+    const unresolved = missing || b[pk] >= 0.05;
+    /* Dropped basins leave the map entirely, so what remains is only what the
+       record resolves. Hatching says the same thing more quietly. */
+    const drop = state.dropUnresolved && unresolved;
+    f.classList.toggle("dropped", drop);
     f.style.fill = missing ? "var(--nodata)" : colorFor(v);
     const k = state.sel.indexOf(b.id);
     f.classList.toggle("sel", k >= 0);
     f.style.stroke = k >= 0 ? "var(" + SERIES[k] + ")" : "";
-    hats[i].style.display = (!missing && b[pk] >= 0.05) ? "" : "none";
+    hats[i].style.display = (!drop && !missing && b[pk] >= 0.05) ? "" : "none";
   });
   document.getElementById("ramp").style.background =
     "linear-gradient(90deg," + ramp().join(",") + ")";
@@ -80,9 +85,9 @@ function paint() {
   const sig = withVal.filter(b => b[pk] < 0.05).length;
   document.getElementById("map-title").textContent =
     state.product === "t" ? "Total water storage trend" : "Groundwater estimate trend";
-  document.getElementById("map-sub").textContent =
-    withVal.length + " basins mapped, " + sig + " separable from zero";
-  document.getElementById("w-basins").textContent = withVal.length;
+  document.getElementById("map-sub").textContent = state.dropUnresolved
+    ? sig + " basins shown, the rest dropped"
+    : withVal.length + " basins mapped, " + sig + " separable from zero";
   document.getElementById("movers-sub").textContent =
     (state.product === "t" ? "total water storage" : "groundwater estimate") +
     ", level " + Number(state.level);
@@ -329,8 +334,6 @@ document.getElementById("seg-level").addEventListener("click", e => {
   Array.from(e.currentTarget.children).forEach(x =>
     x.setAttribute("aria-pressed", String(x === b)));
   state.sel = [];
-  document.getElementById("w-months").textContent =
-    cur().global_t.filter(v => v !== null).length + " / " + NM;
   buildMap();
   defaults();
   render();
@@ -338,6 +341,13 @@ document.getElementById("seg-level").addEventListener("click", e => {
 document.getElementById("clear").addEventListener("click", () => {
   state.sel = [];
   render();
+});
+const dropBtn = document.getElementById("drop");
+dropBtn.addEventListener("click", () => {
+  state.dropUnresolved = !state.dropUnresolved;
+  dropBtn.setAttribute("aria-pressed", String(state.dropUnresolved));
+  dropBtn.textContent = state.dropUnresolved ? "Show all basins" : "Drop unresolved";
+  paint();
 });
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
   buildMap();
@@ -357,8 +367,6 @@ function defaults() {
 }
 
 document.getElementById("w-window").textContent = MONTHS[0] + " to " + MONTHS[NM - 1];
-document.getElementById("w-months").textContent =
-  cur().global_t.filter(v => v !== null).length + " / " + NM;
 buildMap();
 defaults();
 render();
