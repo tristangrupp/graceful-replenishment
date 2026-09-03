@@ -99,26 +99,37 @@
 <div id="tip" role="status" aria-live="polite"></div>
 
 <footer>
-  <p><b>What deseasonalized means here.</b> For each basin, the code takes the average of every
-  January in the record and removes it from every January. It repeats that for each month of the
-  year. What's left in each month is the part its own time of year fails to explain. This matters
-  for annual figures, because 2018 holds only June to December and 2026 only January to March.
-  Averaging raw months would put one year's summer beside another year's winter. Those two years
-  wear a dashed outline in the year buttons.</p>
-  <p><b>The three frames.</b> Level gives an anomaly, so zero means that basin's own record mean
-  rather than any absolute amount of water. Change from last year takes the difference between two
-  annual means. No such difference exists for 2018, the first year, which leaves the map colorless
-  on that frame. First year to last runs the whole record end to end, the 2026 annual mean minus
-  the 2018 one, and it holds still as the animation runs.</p>
-  <p><b>Read the endpoint difference with care.</b> It rests on the 5 solved months of 2018 and the
-  3 of 2026, so 8 of the 92 solutions in the record. It throws away everything between them. The
-  fitted rate on the other page uses all 92, so the two answers can disagree. Where they do, a wet
-  or dry patch at one end has usually pushed the endpoint difference around. The tooltip and the
-  table show both numbers together, which keeps the disagreement visible rather than hidden.</p>
-  <p><b>Limits to know.</b> An annual mean from 7 to 12 monthly solutions still holds the
-  measurement error of those solutions. No significance test runs on a single year, so read the
-  frames as a sequence rather than as year-by-year verdicts. A Goddard mascon spans about
-  <code>12,400&nbsp;km&sup2;</code>, so small basins share their signal with their neighbors.</p>
+  <h3>What deseasonalized means</h3>
+  <p>For each basin, the code averages every January in the record and removes that average
+  from every January. It repeats this for each month of the year. What remains in a given
+  month is the part its time of year doesn't explain.</p>
+  <p>This matters for annual figures. 2018 holds only June to December, and 2026 only January
+  to March. Averaging raw months would set one year's summer beside another year's winter.
+  Both partial years have a dashed outline in the year buttons.</p>
+
+  <h3>The three frames</h3>
+  <ul>
+    <li><b>Level.</b> How far a year sits from that basin's own record mean. Zero means the
+      mean, not an absolute amount of water.</li>
+    <li><b>Change from last year.</b> The difference between two annual means. 2018 has no
+      earlier year, so the map is blank on that frame.</li>
+    <li><b>First year to last.</b> The 2026 annual mean minus the 2018 one. It holds still
+      while the animation runs.</li>
+  </ul>
+
+  <h3>Read the endpoint difference with care</h3>
+  <p>It uses 8 of the 92 monthly solutions: 5 from 2018 and 3 from 2026. It throws away
+  everything between them. The fitted rate on the other page uses all 92.</p>
+  <p>The two can disagree, and a wet or dry patch at either end is usually the reason. The tooltip and the table show both numbers together.</p>
+
+  <h3>Limits</h3>
+  <ul>
+    <li>An annual mean from 7 to 12 solutions still holds their measurement error.</li>
+    <li>No significance test runs on a single year. Read the frames as a sequence, not as
+      year-by-year verdicts.</li>
+    <li>One mascon covers about <code>12,400&nbsp;km&sup2;</code>, so small basins share a
+      signal with their neighbors.</li>
+  </ul>
 </footer>
 
 <script src="data.js"></script>
