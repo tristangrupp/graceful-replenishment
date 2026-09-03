@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>GRACE Basin Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Rate of change</a>
+  <a href="years.html" aria-current="page">Year by year</a>
+  <span class="site">GRACE-FO basin storage</span>
+</nav>
+
+<header>
+  <div>
+    <span class="eyebrow">GSFC mascons RL06v2.0 &middot; GLDAS 2.1 &middot; HydroSHEDS basins</span>
+    <h1>Year by year, 2018 to 2026</h1>
+    <p>Each frame is storage itself, not a rate. <b>Level</b> shows how far a year sat above or
+       below the record mean. <b>Change from last year</b> shows the step from the year before it.
+       <b>First year to last</b> compares the two ends of the record, 2026 against 2018, and holds
+       still while the animation runs. All three are built from the deseasonalised monthly series,
+       so a year is never flattered or punished by which months of it GRACE happened to solve.</p>
+  </div>
+  <div class="window">
+    <div><span class="eyebrow">Years</span><b id="w-years">...</b></div>
+    <div><span class="eyebrow">Basins</span><b id="w-basins">...</b></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="eyebrow">Layer</span>
+  <div class="seg" id="seg-product">
+    <button data-v="t" aria-pressed="true">Total water storage</button>
+    <button data-v="g" aria-pressed="false">Groundwater estimate</button>
+  </div>
+  <span class="eyebrow">Basin level</span>
+  <div class="seg" id="seg-level">
+    <button data-v="03" aria-pressed="true">Level 3</button>
+    <button data-v="04" aria-pressed="false">Level 4</button>
+  </div>
+  <span class="eyebrow">Frame</span>
+  <div class="seg" id="seg-mode">
+    <button data-v="level" aria-pressed="true">Level</button>
+    <button data-v="delta" aria-pressed="false">Change from last year</button>
+    <button data-v="endpoints" aria-pressed="false">First year to last</button>
+  </div>
+</div>
+
+<div class="grid">
+  <section class="panel map-panel">
+    <div class="playline">
+      <div class="stage"><span id="stage-year">2018</span><small id="stage-note">annual level</small></div>
+      <button class="btn" id="play" type="button">Play</button>
+      <div class="rail" aria-hidden="true"><span class="on" id="rail-on"></span></div>
+      <div class="years" id="year-buttons"></div>
+    </div>
+    <svg id="map" class="map" role="img" aria-label="World map of annual basin storage"></svg>
+    <div class="bar">
+      <div style="flex:1 1 260px;min-width:200px">
+        <div class="ramp" id="ramp"></div>
+        <div class="ticks" id="ramp-ticks"></div>
+      </div>
+      <div class="keys">
+        <span class="key"><span class="sw" style="background:var(--nodata)"></span>no value this frame</span>
+        <span class="key" id="scale-note"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel series-panel">
+    <div class="panel-head">
+      <h2 id="pick-title">Pick a basin</h2>
+      <button class="btn" id="clear" type="button">Clear</button>
+    </div>
+    <p class="panel-note" id="pick-sub">Click any basin on the map to open its deseasonalised record.</p>
+
+    <span class="eyebrow">Deseasonalised monthly series, one line per year</span>
+    <svg id="cycle" class="chart" role="img" aria-label="Deseasonalised monthly series folded by year"></svg>
+    <div class="swatch-row" id="year-swatches" aria-hidden="true"></div>
+    <div class="legendrow"><span class="eyebrow" id="cycle-span"></span></div>
+
+    <div style="margin-top:16px">
+      <span class="eyebrow">Annual mean, deseasonalised</span>
+      <svg id="bars" class="chart" role="img" aria-label="Annual mean storage by year"></svg>
+    </div>
+
+    <table>
+      <thead><tr><th>Year</th><th>Months</th><th>Annual mean</th><th>Change</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<footer>
+  <p><b>What deseasonalised means here.</b> For each basin the average of every January in the
+  record is subtracted from every January, every February from every February, and so on. What is
+  left is the part of each month that its own time of year does not explain. This matters for annual
+  figures because 2018 has only June to December and 2026 only January to March: averaging raw
+  months would compare one year&rsquo;s summer against another year&rsquo;s winter. Those two years
+  are drawn with a dashed outline in the year buttons.</p>
+  <p><b>The three frames.</b> Level is an anomaly, so zero means the record mean of that basin
+  rather than any absolute amount of water. Change from last year is the difference between two
+  annual means and is undefined for 2018, the first year, which is why the map has no colour on
+  that frame. First year to last is the whole record end to end, the 2026 annual mean minus the
+  2018 one, and it does not change as the animation runs.</p>
+  <p><b>Read the endpoint difference carefully.</b> It rests on the 5 solved months of 2018 and the
+  3 of 2026, which is 8 of the 92 solutions in the record. Everything in between is discarded. The
+  fitted rate on the other page uses all 92, so the two answers can disagree, and where they do it
+  is usually the endpoint difference that is being pushed around by a wet or dry patch at one end.
+  Both numbers are given together in the tooltip and the table so the disagreement is visible
+  rather than hidden.</p>
+  <p><b>Limits to know.</b> An annual mean from 7 to 12 monthly solutions still has the measurement
+  error of those solutions in it, and no significance test is applied to a single year, so read the
+  frames as a sequence rather than year-by-year verdicts. GSFC mascons are roughly
+  <code>12,400&nbsp;km&sup2;</code>, so small basins share their signal with their neighbours.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="years.js"></script>
+</body>
+</html>

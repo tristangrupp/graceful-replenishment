@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>GRACE Basin Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" aria-current="page">Rate of change</a>
+  <a href="years.html">Year by year</a>
+  <span class="site">GRACE-FO basin storage</span>
+</nav>
+
+<header>
+  <div>
+    <span class="eyebrow">GSFC mascons RL06v2.0 &middot; GLDAS 2.1 &middot; HydroSHEDS basins</span>
+    <h1>How fast each basin is gaining or losing water</h1>
+    <p>Colour is a <b>rate</b>: the slope of one line fitted through all 92 monthly solutions at once,
+       in millimetres of equivalent water height per year. A basin at &minus;20 mm/yr lost about 20 mm
+       of stored water in an average year of this record. It is <i>not</i> the difference between 2018
+       and 2026, and it is not change within a year. For those, see
+       <a href="years.html">Year by year</a>.</p>
+  </div>
+  <div class="window">
+    <div><span class="eyebrow">Window</span><b id="w-window">...</b></div>
+    <div><span class="eyebrow">Solutions</span><b id="w-months">...</b></div>
+    <div><span class="eyebrow">Basins</span><b id="w-basins">...</b></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="eyebrow">Layer</span>
+  <div class="seg" id="seg-product">
+    <button data-v="t" aria-pressed="true">Total water storage</button>
+    <button data-v="g" aria-pressed="false">Groundwater estimate</button>
+  </div>
+  <span class="eyebrow">Basin level</span>
+  <div class="seg" id="seg-level">
+    <button data-v="03" aria-pressed="true">Level 3</button>
+    <button data-v="04" aria-pressed="false">Level 4</button>
+  </div>
+  <span class="hint" id="hint"></span>
+</div>
+
+<div class="grid">
+  <section class="panel map-panel">
+    <div class="panel-head">
+      <h2 id="map-title">Total water storage trend</h2>
+      <span class="eyebrow" id="map-sub"></span>
+    </div>
+    <p class="panel-note">Average rate over 2018-06 to 2026-03, seasonal cycle removed by fitting
+       annual and semi-annual harmonics alongside the slope.</p>
+    <svg id="map" class="map" role="img" aria-label="World map of basin storage rates"></svg>
+    <div class="bar">
+      <div style="flex:1 1 260px;min-width:200px">
+        <div class="ramp" id="ramp"></div>
+        <div class="ticks"><span>&minus;30</span><span>&minus;15</span><span>0</span><span>+15</span><span>+30</span></div>
+      </div>
+      <div class="keys">
+        <span class="key"><span class="sw" id="sw-hatch"></span>not separable from zero</span>
+        <span class="key"><span class="sw" style="background:var(--nodata)"></span>withheld</span>
+        <span class="key">mm/yr, clipped at &plusmn;30</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel series-panel">
+    <div class="panel-head">
+      <h2>Monthly record</h2>
+      <button class="btn" id="clear" type="button">Clear</button>
+    </div>
+    <p class="panel-note" id="chart-sub"></p>
+    <svg id="chart" class="chart" role="img" aria-label="Monthly storage anomaly for the selected basins"></svg>
+    <table>
+      <thead><tr><th>Basin</th><th>Rate</th><th>p</th><th>Mascons</th><th>Area</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="panel-head">
+    <h2>The extremes</h2>
+    <span class="eyebrow" id="movers-sub"></span>
+  </div>
+  <div class="movers">
+    <div>
+      <span class="eyebrow">Losing fastest</span>
+      <ul class="mv" id="mv-loss"></ul>
+    </div>
+    <div>
+      <span class="eyebrow">Gaining fastest</span>
+      <ul class="mv" id="mv-gain"></ul>
+    </div>
+  </div>
+</section>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<footer>
+  <p><b>How to read it.</b> Total water storage is everything GRACE senses: groundwater, soil
+  moisture, snow, surface water and ice. The groundwater estimate subtracts soil moisture, snow
+  water equivalent and canopy storage modelled by GLDAS, averaged over the NOAH, VIC and CLSM
+  land-surface models, so it is a difference between a measurement and a model ensemble rather
+  than a measurement. Basins more than a fifth glacier or ice sheet are withheld from it, because
+  subtracting modelled snowpack from ice-sheet mass loss does not give groundwater.</p>
+  <p><b>What the marks mean.</b> Hatching marks a basin whose rate cannot be separated from zero
+  at p&nbsp;&lt;&nbsp;0.05 after correcting for month-to-month autocorrelation. The dashed line on
+  the chart is that fitted rate, drawn through the record mean; the faint dotted line is the
+  area-weighted global land mean, for scale.</p>
+  <p><b>Limits to know.</b> The window is short for a rate and about half of all basins
+  are hatched. GSFC mascons are roughly <code>12,400&nbsp;km&sup2;</code>, so a basin backed by
+  only a few of them is reporting its mascons&rsquo; number rather than its own, and that count
+  is in the table. Neighbouring basins share mascons and are not independent measurements.
+  Leakage is shipped by GSFC as an uncertainty rather than a correction, so every magnitude here
+  is a floor.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="explorer.js"></script>
+</body>
+</html>
