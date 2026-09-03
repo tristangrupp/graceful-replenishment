@@ -15,22 +15,22 @@
 <nav>
   <a href="index.html">Rate of change</a>
   <a href="years.html" aria-current="page">Year by year</a>
-  <span class="site">GRACE-FO basin storage</span>
+  <span class="site">Basin storage, 2018 to 2026</span>
 </nav>
 
 <header>
   <div>
-    <span class="eyebrow">GSFC mascons RL06v2.0 &middot; GLDAS 2.1 &middot; HydroSHEDS basins</span>
+    <span class="eyebrow">Goddard mascons RL06v2.0, land surface models, HydroSHEDS basins</span>
     <h1>Year by year, 2018 to 2026</h1>
-    <p>Each frame is storage itself, not a rate. <b>Level</b> shows how far a year sat above or
-       below the record mean. <b>Change from last year</b> shows the step from the year before it.
-       <b>First year to last</b> compares the two ends of the record, 2026 against 2018, and holds
-       still while the animation runs. All three are built from the deseasonalised monthly series,
-       so a year is never flattered or punished by which months of it GRACE happened to solve.</p>
+    <p>Each frame shows storage itself, not a rate. <b>Level</b> gives how far a year sat over or
+       under the record mean. <b>Change from last year</b> gives the step from the year before it.
+       <b>First year to last</b> compares the two ends of the record, 2026 with 2018, and holds
+       still while the animation runs. All three come from the deseasonalized monthly series. No
+       year gets flattered or punished by which of its months the satellites solved.</p>
   </div>
   <div class="window">
-    <div><span class="eyebrow">Years</span><b id="w-years">...</b></div>
-    <div><span class="eyebrow">Basins</span><b id="w-basins">...</b></div>
+    <div><span class="eyebrow">Years</span><b id="w-years">&nbsp;</b></div>
+    <div><span class="eyebrow">Basins</span><b id="w-basins">&nbsp;</b></div>
   </div>
 </header>
 
@@ -79,15 +79,15 @@
       <h2 id="pick-title">Pick a basin</h2>
       <button class="btn" id="clear" type="button">Clear</button>
     </div>
-    <p class="panel-note" id="pick-sub">Click any basin on the map to open its deseasonalised record.</p>
+    <p class="panel-note" id="pick-sub">Select any basin on the map to open its deseasonalized record.</p>
 
-    <span class="eyebrow">Deseasonalised monthly series, one line per year</span>
-    <svg id="cycle" class="chart" role="img" aria-label="Deseasonalised monthly series folded by year"></svg>
+    <span class="eyebrow">Deseasonalized monthly series, one line per year</span>
+    <svg id="cycle" class="chart" role="img" aria-label="Deseasonalized monthly series folded by year"></svg>
     <div class="swatch-row" id="year-swatches" aria-hidden="true"></div>
     <div class="legendrow"><span class="eyebrow" id="cycle-span"></span></div>
 
     <div style="margin-top:16px">
-      <span class="eyebrow">Annual mean, deseasonalised</span>
+      <span class="eyebrow">Annual mean, deseasonalized</span>
       <svg id="bars" class="chart" role="img" aria-label="Annual mean storage by year"></svg>
     </div>
 
@@ -101,27 +101,26 @@
 <div id="tip" role="status" aria-live="polite"></div>
 
 <footer>
-  <p><b>What deseasonalised means here.</b> For each basin the average of every January in the
-  record is subtracted from every January, every February from every February, and so on. What is
-  left is the part of each month that its own time of year does not explain. This matters for annual
-  figures because 2018 has only June to December and 2026 only January to March: averaging raw
-  months would compare one year&rsquo;s summer against another year&rsquo;s winter. Those two years
-  are drawn with a dashed outline in the year buttons.</p>
-  <p><b>The three frames.</b> Level is an anomaly, so zero means the record mean of that basin
-  rather than any absolute amount of water. Change from last year is the difference between two
-  annual means and is undefined for 2018, the first year, which is why the map has no colour on
-  that frame. First year to last is the whole record end to end, the 2026 annual mean minus the
-  2018 one, and it does not change as the animation runs.</p>
-  <p><b>Read the endpoint difference carefully.</b> It rests on the 5 solved months of 2018 and the
-  3 of 2026, which is 8 of the 92 solutions in the record. Everything in between is discarded. The
-  fitted rate on the other page uses all 92, so the two answers can disagree, and where they do it
-  is usually the endpoint difference that is being pushed around by a wet or dry patch at one end.
-  Both numbers are given together in the tooltip and the table so the disagreement is visible
-  rather than hidden.</p>
-  <p><b>Limits to know.</b> An annual mean from 7 to 12 monthly solutions still has the measurement
-  error of those solutions in it, and no significance test is applied to a single year, so read the
-  frames as a sequence rather than year-by-year verdicts. GSFC mascons are roughly
-  <code>12,400&nbsp;km&sup2;</code>, so small basins share their signal with their neighbours.</p>
+  <p><b>What deseasonalized means here.</b> For each basin, the code takes the average of every
+  January in the record and removes it from every January. It repeats that for each month of the
+  year. What's left in each month is the part its own time of year fails to explain. This matters
+  for annual figures, because 2018 holds only June to December and 2026 only January to March.
+  Averaging raw months would put one year's summer beside another year's winter. Those two years
+  wear a dashed outline in the year buttons.</p>
+  <p><b>The three frames.</b> Level gives an anomaly, so zero means that basin's own record mean
+  rather than any absolute amount of water. Change from last year takes the difference between two
+  annual means. No such difference exists for 2018, the first year, which leaves the map colorless
+  on that frame. First year to last runs the whole record end to end, the 2026 annual mean minus
+  the 2018 one, and it holds still as the animation runs.</p>
+  <p><b>Read the endpoint difference with care.</b> It rests on the 5 solved months of 2018 and the
+  3 of 2026, so 8 of the 92 solutions in the record. It throws away everything between them. The
+  fitted rate on the other page uses all 92, so the two answers can disagree. Where they do, a wet
+  or dry patch at one end has usually pushed the endpoint difference around. The tooltip and the
+  table show both numbers together, which keeps the disagreement visible rather than hidden.</p>
+  <p><b>Limits to know.</b> An annual mean from 7 to 12 monthly solutions still holds the
+  measurement error of those solutions. No significance test runs on a single year, so read the
+  frames as a sequence rather than as year-by-year verdicts. A Goddard mascon spans about
+  <code>12,400&nbsp;km&sup2;</code>, so small basins share their signal with their neighbors.</p>
 </footer>
 
 <script src="data.js"></script>
