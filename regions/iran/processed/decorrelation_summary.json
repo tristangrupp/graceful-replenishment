@@ -1,0 +1,24 @@
+{
+  "region": "Iran",
+  "lat_range": [
+    25.0,
+    39.5
+  ],
+  "lon_range": [
+    44.0,
+    63.0
+  ],
+  "n_land_mascons": 292,
+  "n_usable": 292,
+  "median_mascon_area_km2": 12393.06,
+  "n_months": 255,
+  "adjacent_km": 130,
+  "n_adjacent_pairs": 680,
+  "adjacent_r_mean": 0.9454248588508142,
+  "adjacent_r_min": -0.3276870473143427,
+  "r07_km": 375.0,
+  "r05_km": 1025.0,
+  "first_eof_variance_frac": 0.8778647272959567,
+  "effective_dof": 1.2914940677676312,
+  "mascons_per_effective_dof": 226.09472802668526
+}

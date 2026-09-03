@@ -1,0 +1,46 @@
+{
+  "level": "04",
+  "n_basins": 1342,
+  "n_with_tws": 1283,
+  "n_with_gws": 1177,
+  "n_gws_dropped": 106,
+  "n_gws_dropped_low_coverage": 59,
+  "n_gws_dropped_ice": 47,
+  "share_of_level_area_covered": 0.9969260583926517,
+  "basin_area_km2": {
+    "median": 56832.15,
+    "min": 0.2,
+    "max": 2216665.3
+  },
+  "mascons_per_basin": {
+    "median": 12.0,
+    "min": 1,
+    "max": 218,
+    "n_basins_under_3_mascons": 80
+  },
+  "median_tws_mm_yr": -0.9751645226727845,
+  "median_gws_mm_yr": -1.1418350957797072,
+  "n_tws_significant": 646,
+  "n_gws_significant": 654,
+  "tws_range": [
+    -489.7962850080942,
+    64.77564565001248
+  ],
+  "gws_range": [
+    -238.2705786407938,
+    64.56371217277064
+  ],
+  "median_model_spread_mm_yr": 4.020952049781191,
+  "endpoint": {
+    "first_year": 2018,
+    "last_year": 2026,
+    "n_months_first_year": 5,
+    "n_months_last_year": 3,
+    "span_years": 7.748117727583847,
+    "median_tws_endpoint_change_mm": -18.190052360665767,
+    "median_tws_trend_implied_change_mm": -7.555689525431842,
+    "median_gws_endpoint_change_mm": -13.99458991961157,
+    "median_gws_trend_implied_change_mm": -8.847072747588149,
+    "corr_endpoint_vs_trend_implied_tws": 0.9771960437024115
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "window": [
+    "2016-01",
+    "2025-12"
+  ],
+  "n_months": 120,
+  "n_mascons": 8,
+  "smap_product": "SPL4SMGP v008 sm_rootzone (0-100 cm), monthly means",
+  "smap_ease_cells_per_mascon": {
+    "min": 15,
+    "max": 156
+  },
+  "note_short_window": "Reservoir-only trends are recomputed on this same 2016-2025 window, so they differ from the 2002-2026 headline.",
+  "trend_tws_mm_yr": -8.248746488126901,
+  "p_tws": 8.64809692544484e-06,
+  "std_tws_mm": 31.37250065871273,
+  "trend_reservoir_mm_yr": -2.293402666978251,
+  "p_reservoir": 0.15303621438227877,
+  "std_reservoir_mm": 10.371481411646279,
+  "trend_soil_moisture_mm_yr": -1.2098240204066857,
+  "p_soil_moisture": 0.2383229204283636,
+  "std_soil_moisture_mm": 15.821697889719715,
+  "trend_residual_mm_yr": -4.404181013662191,
+  "p_residual": 0.02453326012834442,
+  "std_residual_mm": 25.657251610190322,
+  "trend_tws_minus_reservoir_only_mm_yr": -5.1035816948620365,
+  "p_tws_minus_reservoir_only": 0.0033921974767017046,
+  "std_tws_minus_reservoir_only_mm": 25.12486371237771,
+  "trend_csr_tws_mm_yr": -5.50632751557141,
+  "p_csr_tws": 0.0005314252442146409,
+  "std_csr_tws_mm": 29.923484191237332,
+  "trend_csr_residual_mm_yr": -1.9387007917330012,
+  "p_csr_residual": 0.013540308876347475,
+  "std_csr_residual_mm": 19.20188103987478,
+  "reservoir_share_of_tws_trend": 0.2780304462355988,
+  "soilmoisture_share_of_tws_trend": 0.1466676206073353,
+  "residual_share_of_tws_trend": 0.5339212473072715
+}

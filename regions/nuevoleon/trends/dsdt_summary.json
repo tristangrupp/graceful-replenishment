@@ -1,0 +1,13 @@
+{
+  "n_months_with_dSdt": 241,
+  "n_grace_months": 255,
+  "max_gap_days_allowed": 80,
+  "monthly_sd_mm_per_yr": 184.37046333811594,
+  "mean_grace_era_mm_per_yr": -8.13469556769116,
+  "mean_gracefo_era_mm_per_yr": -11.872309631690541,
+  "smoothed_min_mm_per_yr": -158.41461300160518,
+  "smoothed_min_month": "2016-06-01",
+  "smoothed_max_mm_per_yr": 111.96778643152547,
+  "smoothed_mean_drought_window_mm_per_yr": -22.494572287789744,
+  "smoothed_mean_2020_on_mm_per_yr": -4.8165083641819235
+}

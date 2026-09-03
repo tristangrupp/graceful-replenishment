@@ -1,0 +1,14 @@
+{
+  "n_mascons": 379,
+  "n_observed_months": 254,
+  "peninsula": {
+    "n": 222,
+    "median_trend_cm_per_yr": -0.33737586932469243,
+    "n_significant_decline": 200,
+    "median_residual_over_noise": 1.989694694879304,
+    "median_lag1_autocorr": 0.4090549239480068,
+    "median_abs_intermission_step_cm": 1.3832699668260897,
+    "n_significant_intermission_step": 150,
+    "median_fraction_unexplained_by_precip": 0.9781444910720511
+  }
+}

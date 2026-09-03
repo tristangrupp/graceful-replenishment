@@ -1,0 +1,10 @@
+{
+  "pre_drought_mean_mm": 15.756186288690719,
+  "trough_mm": -57.44800692410112,
+  "trough_month": "2023-12",
+  "post_2025_mean_mm": -11.6555426818004,
+  "pct_of_drop_recovered": 62.554427871624796,
+  "linear_trend_mm_yr": -4.404181013662191,
+  "leakage_trend_uncertainty_mm_yr": 3.7518398233847186,
+  "caution": "The linear trend is dominated by a single drought excursion that has since largely recovered; it is not a secular depletion rate."
+}

@@ -1,0 +1,24 @@
+{
+  "region": "California Central Valley",
+  "lat_range": [
+    34.8,
+    40.5
+  ],
+  "lon_range": [
+    -122.4,
+    -118.6
+  ],
+  "n_land_mascons": 40,
+  "n_usable": 40,
+  "median_mascon_area_km2": 12387.74,
+  "n_months": 255,
+  "adjacent_km": 130,
+  "n_adjacent_pairs": 65,
+  "adjacent_r_mean": 0.979774000789521,
+  "adjacent_r_min": 0.8961994918391479,
+  "r07_km": NaN,
+  "r05_km": NaN,
+  "first_eof_variance_frac": 0.9105779287372894,
+  "effective_dof": 1.1997459733784113,
+  "mascons_per_effective_dof": 33.340391122432735
+}

@@ -1,0 +1,95 @@
+{
+  "window_full": [
+    "2002-10",
+    "2025-04"
+  ],
+  "n_months_full": 240,
+  "n_mascons": 15,
+  "models": [
+    "noah",
+    "vic",
+    "clsm"
+  ],
+  "full_record": {
+    "trend_tws_mm_yr": -1.6262827342162491,
+    "p_tws": 0.11489416908783034,
+    "std_tws_mm": 36.11634503779517,
+    "trend_reservoir_mm_yr": -1.0899320205790008,
+    "p_reservoir": 0.05570777588750763,
+    "std_reservoir_mm": 11.337533856443045,
+    "trend_soil_moisture_mm_yr": -1.325622595071112,
+    "p_soil_moisture": 0.09964321660899178,
+    "std_soil_moisture_mm": 27.38626326767946,
+    "trend_groundwater_mm_yr": 0.7891300758992295,
+    "p_groundwater": 0.07391023303066933,
+    "std_groundwater_mm": 21.848294330998062,
+    "trend_tws_minus_reservoir_only_mm_yr": -0.5364532906056589,
+    "p_tws_minus_reservoir_only": 0.5188641961420738,
+    "std_tws_minus_reservoir_only_mm": 30.59729894046044,
+    "reservoir_share_of_tws_trend": 0.6701983595148167,
+    "soil_moisture_share_of_tws_trend": 0.8151243121387293,
+    "groundwater_share_of_tws_trend": -0.48523547553957963
+  },
+  "per_model_trends": {
+    "noah": {
+      "trend_tws_mm_yr": -1.6262827342162491,
+      "trend_reservoir_mm_yr": -1.0899320205790008,
+      "trend_soil_moisture_mm_yr": -2.2843831449941745,
+      "trend_groundwater_mm_yr": 1.7478992903104933,
+      "trend_tws_minus_reservoir_only_mm_yr": -0.5364532906056589
+    },
+    "vic": {
+      "trend_tws_mm_yr": -1.6262827342162491,
+      "trend_reservoir_mm_yr": -1.0899320205790008,
+      "trend_soil_moisture_mm_yr": -1.4169541648759703,
+      "trend_groundwater_mm_yr": 0.8804320224674107,
+      "trend_tws_minus_reservoir_only_mm_yr": -0.5364532906056589
+    },
+    "clsm": {
+      "trend_tws_mm_yr": -1.6262827342162491,
+      "trend_reservoir_mm_yr": -1.0899320205790008,
+      "trend_soil_moisture_mm_yr": -0.27553059008527053,
+      "trend_groundwater_mm_yr": -0.2609409703723847,
+      "trend_tws_minus_reservoir_only_mm_yr": -0.5364532906056589
+    }
+  },
+  "smap_window": {
+    "months": 95,
+    "gldas": {
+      "trend_tws_mm_yr": -7.667087947798757,
+      "p_tws": 0.0002207124065157754,
+      "std_tws_mm": 29.271822911587453,
+      "trend_reservoir_mm_yr": -1.5988890084351182,
+      "p_reservoir": 0.3557254635105843,
+      "std_reservoir_mm": 6.617104286405356,
+      "trend_soil_moisture_mm_yr": -2.3659976672628593,
+      "p_soil_moisture": 0.24874161262310876,
+      "std_soil_moisture_mm": 19.731191069244517,
+      "trend_groundwater_mm_yr": -3.7024369624203013,
+      "p_groundwater": 0.04010532452787367,
+      "std_groundwater_mm": 22.40621751874836,
+      "trend_tws_minus_reservoir_only_mm_yr": -6.06834517224317,
+      "p_tws_minus_reservoir_only": 0.0011228320006829678,
+      "std_tws_minus_reservoir_only_mm": 25.827314207509144,
+      "reservoir_share_of_tws_trend": 0.20853928105704903,
+      "soil_moisture_share_of_tws_trend": 0.30859143437139575,
+      "groundwater_share_of_tws_trend": 0.4829000250979619
+    },
+    "smap_soil_trend_mm_yr": -0.7503767282829847,
+    "smap_soil_p": 0.5988096487468697,
+    "soil_series_correlation_smap_vs_gldas": 0.8010249721577389
+  },
+  "groundwater_excursion": {
+    "pre_2020_mean_mm": -0.8311280822174648,
+    "trough_mm": -53.84381123233765,
+    "trough_month": "2024-09",
+    "post_trough_mean_mm": -22.41349792241296,
+    "n_months_after_trough": 7,
+    "post_trough_window": [
+      "2024-10",
+      "2025-04"
+    ],
+    "pct_of_drop_recovered": 59.288289975666764,
+    "leakage_trend_floor_mm_yr": 3.7518398233847177
+  }
+}

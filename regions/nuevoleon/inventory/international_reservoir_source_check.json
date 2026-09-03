@@ -1,0 +1,20 @@
+[
+  {
+    "dam": "amistad",
+    "sina_key": "29.45_-101.06",
+    "n_months_overlap": 264,
+    "pre_2018_04_median_ratio_sina_over_twdb": 0.9985509822770475,
+    "post_2018_05_median_ratio_sina_over_twdb": 0.22820688196087685,
+    "pre_2018_04_r": 0.5077869732140634,
+    "post_2018_05_r": 0.49757690087554535
+  },
+  {
+    "dam": "falcon",
+    "sina_key": "26.56_-99.17",
+    "n_months_overlap": 264,
+    "pre_2018_04_median_ratio_sina_over_twdb": 0.9907307650913255,
+    "post_2018_05_median_ratio_sina_over_twdb": 0.26884152811013096,
+    "pre_2018_04_r": 0.8026273646260295,
+    "post_2018_05_r": 0.4943598905889834
+  }
+]

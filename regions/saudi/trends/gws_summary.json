@@ -1,0 +1,35 @@
+{
+  "n_peninsula": 222,
+  "n_mascons_with_fewer_than_3_models": 10,
+  "area_weighted_mm_per_yr": {
+    "tws": -5.542368739758511,
+    "gws_ensemble": -6.272469518003402,
+    "gws_noah": -6.84437010782781,
+    "gws_vic": -6.438744478978949,
+    "gws_clsm": -5.733174240757636,
+    "model_spread": 1.7296879286885156,
+    "leakage_floor": 2.4538214827693334
+  },
+  "peninsula_area_km2": 2660737.444105954,
+  "gws_volume_km3_per_yr": -16.689394513564874,
+  "n_gws_steeper_than_tws": 210,
+  "n_common_months": 254,
+  "median_tws_trend_cm_yr": -0.33749988696644245,
+  "median_gws_trend_cm_yr": -0.4185910278173984,
+  "median_gldas_storage_trend_cm_yr": {
+    "noah": 0.12820000751023988,
+    "vic": 0.03612505568275208,
+    "clsm": 0.00251734625107854
+  },
+  "median_gws_trend_by_model_cm_yr": {
+    "noah": -0.47065242317442424,
+    "vic": -0.44699127708168607,
+    "clsm": -0.3580984436555922
+  },
+  "median_model_spread_cm_yr": 0.15792851963080476,
+  "median_leakage_uncert_cm_yr": 0.18237265340171238,
+  "n_gws_significant_decline": 213,
+  "n_gws_trend_exceeds_model_spread": 174,
+  "median_gws_fraction_unexplained_by_gldas_precip": 1.000688699821299,
+  "median_chirps_fraction_unexplained_prev": 0.9781444910720511
+}

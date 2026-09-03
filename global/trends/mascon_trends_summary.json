@@ -1,0 +1,13 @@
+{
+  "window": [
+    "2018-06",
+    "2026-03"
+  ],
+  "n_months": 92,
+  "n_mascons": 41168,
+  "n_land_mascons": 13028,
+  "n_land_with_gws": 10804,
+  "median_land_tws_trend_mm_yr": 0.2165071160075513,
+  "median_land_gws_trend_mm_yr": -1.3811764884858633,
+  "median_model_spread_mm_yr": 3.461108537842259
+}

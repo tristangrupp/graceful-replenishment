@@ -1,0 +1,76 @@
+{
+  "n_mascons": 40,
+  "basin_codes": {
+    "2001": 11,
+    "2005": 10,
+    "1004": 9,
+    "2004": 9,
+    "2007": 1
+  },
+  "gsfc_trend": {
+    "eta2_basin_code": 0.6089961070012293,
+    "eta2_us_vs_mexico": 0.46527524090396255,
+    "r2_latitude": 0.2827988591096535,
+    "mean_us": -10.161935231129455,
+    "mean_mexico": -2.8825330763748607
+  },
+  "csr_trend": {
+    "eta2_basin_code": 0.3959225242017302,
+    "eta2_us_vs_mexico": 0.04025269980098627,
+    "r2_latitude": 0.005244228727778211,
+    "mean_us": -2.5282917626931702,
+    "mean_mexico": -3.6175460945441476
+  },
+  "gsfc_post2020_level": {
+    "eta2_basin_code": 0.5933919733426497,
+    "eta2_us_vs_mexico": 0.43987112593925853,
+    "r2_latitude": 0.28376952101279507,
+    "mean_us": -170.91985798938154,
+    "mean_mexico": -56.50473377261084
+  },
+  "csr_post2020_level": {
+    "eta2_basin_code": 0.3908144677748104,
+    "eta2_us_vs_mexico": 0.04982238895005879,
+    "r2_latitude": 0.0010188732925215215,
+    "mean_us": -47.76658727759102,
+    "mean_mexico": -69.28246967093146
+  },
+  "cross_border_neighbour_pairs": [
+    {
+      "us_mascon": 1814,
+      "mx_mascon": 3140,
+      "lat": 29.0,
+      "gsfc_trend_us": -9.400955005693913,
+      "gsfc_trend_mx": -6.278420938659857,
+      "csr_trend_us": -5.569149833898761,
+      "csr_trend_mx": -6.175522315690018
+    },
+    {
+      "us_mascon": 1819,
+      "mx_mascon": 3145,
+      "lat": 28.0,
+      "gsfc_trend_us": -10.954266032757918,
+      "gsfc_trend_mx": -8.220368354396369,
+      "csr_trend_us": -3.9681090550293847,
+      "csr_trend_mx": -5.041559645610223
+    },
+    {
+      "us_mascon": 1822,
+      "mx_mascon": 3150,
+      "lat": 27.0,
+      "gsfc_trend_us": -7.914377990627493,
+      "gsfc_trend_mx": -6.573197808274404,
+      "csr_trend_us": -1.5153371824640638,
+      "csr_trend_mx": -2.966046404534127
+    },
+    {
+      "us_mascon": 1824,
+      "mx_mascon": 3153,
+      "lat": 26.0,
+      "gsfc_trend_us": -2.614660270464846,
+      "gsfc_trend_mx": -2.0917161472574897,
+      "csr_trend_us": 0.0843212412067693,
+      "csr_trend_mx": -1.0956403595799382
+    }
+  ]
+}

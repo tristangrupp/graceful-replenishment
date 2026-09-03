@@ -1,0 +1,24 @@
+{
+  "n_mascons": 222,
+  "n_common_months": 253,
+  "regional_trend_cm_yr": {
+    "gsfc": -0.5205498819284884,
+    "csr": -0.44737116255653275
+  },
+  "regional_trend_pre_2012": {
+    "gsfc": -0.6268374752599681,
+    "csr": -0.4986253792783474
+  },
+  "regional_trend_2012_on": {
+    "gsfc": -0.42066971976418943,
+    "csr": -0.42562745343741265
+  },
+  "regional_series_r": 0.9699305507086201,
+  "regional_series_r_pre_2012": 0.9372244018382941,
+  "regional_series_r_2012_on": 0.9032870794557125,
+  "per_mascon_trend_r": 0.9378688432272532,
+  "mean_trend_diff_cm_yr": 0.0731672226934765,
+  "median_abs_trend_diff_cm_yr": 0.1060090292317788,
+  "n_sign_disagreement": 19,
+  "median_per_mascon_series_r": 0.7361766318525835
+}

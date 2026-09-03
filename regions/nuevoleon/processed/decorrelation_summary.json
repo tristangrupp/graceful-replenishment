@@ -1,0 +1,24 @@
+{
+  "region": "Nuevo Leon, Mexico",
+  "lat_range": [
+    23.2,
+    27.8
+  ],
+  "lon_range": [
+    -101.2,
+    -98.4
+  ],
+  "n_land_mascons": 40,
+  "n_usable": 40,
+  "median_mascon_area_km2": 12400.84,
+  "n_months": 255,
+  "adjacent_km": 130,
+  "n_adjacent_pairs": 74,
+  "adjacent_r_mean": 0.9345488316985272,
+  "adjacent_r_min": 0.7029370034813751,
+  "r07_km": 325.0,
+  "r05_km": 475.0,
+  "first_eof_variance_frac": 0.790234694177409,
+  "effective_dof": 1.532692550845491,
+  "mascons_per_effective_dof": 26.09786286097267
+}

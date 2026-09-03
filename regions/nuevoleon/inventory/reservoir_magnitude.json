@@ -1,0 +1,26 @@
+{
+  "monterrey_system_dams": [
+    "El Cuchillo",
+    "Cerro Prieto",
+    "La Boca"
+  ],
+  "monterrey_system_namo_hm3": 1458.14594433594,
+  "monterrey_system_mm_over_one_median_mascon": 117.58444946761186,
+  "monterrey_system_observed_range_hm3": 1848.104,
+  "monterrey_system_observed_range_mm_over_one_mascon": 149.03054954341803,
+  "monterrey_system_min_hm3": 299.249,
+  "monterrey_system_min_date": "2013-08-01",
+  "monterrey_system_max_hm3": 2147.353,
+  "monterrey_system_max_date": "2004-01-01",
+  "median_mascon_area_km2": 12400.84,
+  "mm_per_hm3": 0.0806396986010625,
+  "median_grace_noise_2sigma_mm": 16.73024211210359,
+  "monterrey_capacity_over_grace_noise": 7.028257492014698,
+  "monterrey_range_over_grace_noise": 8.90785372649216,
+  "all_dams_in_window_namo_hm3": 16728.120619899648,
+  "all_dams_in_window_namo_mm_over_region": 33.73335059493148,
+  "largest_single_mascon_namo_mm": 324.50005575270495,
+  "largest_single_mascon_res_anom_range_mm": 311.84943378094243,
+  "n_mascons_with_dams": 13,
+  "n_mascons_res_sd_exceeds_half_tws_sd": 4
+}

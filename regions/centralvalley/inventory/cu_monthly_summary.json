@@ -1,0 +1,27 @@
+{
+  "n_eto_month_mascon_gapfilled": 4776,
+  "n_ppt_month_mascon_gapfilled_for_weights": 240,
+  "core_mascon_ids": [
+    1850,
+    1837,
+    1840,
+    1845,
+    1844,
+    1849,
+    1855,
+    1834
+  ],
+  "core_area_km2": 99092.0,
+  "months_with_cu": 252,
+  "cu_time_range": [
+    "2001-10-01",
+    "2022-09-01"
+  ],
+  "core_cu_mm_month_mean": 18.7240648763691,
+  "core_cu_peak_month": 7,
+  "core_cu_peak_mm": 40.65857862447731,
+  "core_cu_min_mm": 1.0518571621147061,
+  "core_ppt_mm_yr": 412.0128047894665,
+  "core_eto_mm_yr": 1425.0646555966337,
+  "corr_cu_vs_cuclim": 0.9682450685955107
+}
