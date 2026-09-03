@@ -2,7 +2,8 @@ const D = window.GRACE;
 const MONTHS = D.months;
 const NM = MONTHS.length;
 const CLIP = 30;
-const state = { product: "t", level: "03", sel: [], dropUnresolved: false };
+const state = { product: "t", level: "03", sel: [], dropUnresolved: false, hideGlaciers: false };
+const GLACIER_CUTOFF = 0.05;
 const SERIES = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
 
 const RAMP_LIGHT = ["#8a3b12", "#c86a2c", "#e3a869", "#d9d7cf", "#7fb3d5", "#2a78d6", "#104281"];
@@ -88,9 +89,6 @@ function paint() {
   document.getElementById("map-sub").textContent = state.dropUnresolved
     ? sig + " basins shown, the rest dropped"
     : withVal.length + " basins mapped, " + sig + " separable from zero";
-  document.getElementById("movers-sub").textContent =
-    (state.product === "t" ? "total water storage" : "groundwater estimate") +
-    ", level " + Number(state.level);
 }
 
 /* ------------------------------------------------------------- the tooltip */
@@ -294,7 +292,16 @@ function drawRows() {
 /* ------------------------------------------------------------ the extremes */
 function drawMovers() {
   const L = cur(), tk = trendKey();
-  const vals = L.basins.filter(b => b[tk] !== null && b[tk] !== undefined && b.nm >= 4);
+  let vals = L.basins.filter(b => b[tk] !== null && b[tk] !== undefined && b.nm >= 4);
+  const all = vals.length;
+  /* Ice loss and groundwater loss both read as storage leaving a basin. Above a
+     few percent glacier the first one dominates, so the list can drop them. */
+  if (state.hideGlaciers) vals = vals.filter(b => (b.gl || 0) <= GLACIER_CUTOFF);
+  const removed = all - vals.length;
+  const sub = document.getElementById("movers-sub");
+  sub.textContent = (state.product === "t" ? "total water storage" : "groundwater estimate") +
+    ", level " + Number(state.level) +
+    (state.hideGlaciers ? ", " + removed + " glaciated basins hidden" : "");
   const sorted = vals.slice().sort((a, c) => a[tk] - c[tk]);
   if (!sorted.length) return;
   const max = Math.max(Math.abs(sorted[0][tk]), Math.abs(sorted[sorted.length - 1][tk]));
@@ -341,6 +348,13 @@ document.getElementById("seg-level").addEventListener("click", e => {
 document.getElementById("clear").addEventListener("click", () => {
   state.sel = [];
   render();
+});
+const iceBtn = document.getElementById("noice");
+iceBtn.addEventListener("click", () => {
+  state.hideGlaciers = !state.hideGlaciers;
+  iceBtn.setAttribute("aria-pressed", String(state.hideGlaciers));
+  iceBtn.textContent = state.hideGlaciers ? "Include glaciated" : "Exclude glaciated";
+  drawMovers();
 });
 const dropBtn = document.getElementById("drop");
 dropBtn.addEventListener("click", () => {

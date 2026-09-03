@@ -88,6 +88,8 @@
   <div class="panel-head">
     <h2>The extremes</h2>
     <span class="eyebrow" id="movers-sub"></span>
+    <button class="btn" id="noice" type="button" aria-pressed="false"
+            title="Hide basins more than 5 percent glacier, where the trend is ice loss rather than groundwater">Exclude glaciated</button>
   </div>
   <div class="movers">
     <div>
@@ -132,6 +134,9 @@
       few mascons, so it reports their signal rather than its own. The table shows how many.</li>
     <li>Neighboring basins share mascons. They aren't independent measurements.</li>
     <li>Leakage is an uncertainty, not a correction. Read every value as a lower bound.</li>
+    <li>Glacier cover comes from Natural Earth's 10m glaciated areas. The extremes list can
+      use it to drop basins whose trend is ice loss. It draws coarse polygons, so treat the
+      threshold as approximate.</li>
   </ul>
 </footer>
 
