@@ -133,8 +133,11 @@ the global downloader pulls whole granules over HTTPS instead.
 
 The trend fitting, the precipitation covariate and the GRACE-minus-GLDAS attribution come
 from the `dark_water` package at https://github.com/tristangrupp/dark-water, on the
-`grace-preprocessing-fixes` branch. Scripts import it and none of them modify it. Otherwise:
-xarray, numpy, pandas, scipy, geopandas, h5py, matplotlib, netCDF4.
+`grace-preprocessing-fixes` branch. That repository is a fork of
+https://github.com/rlrognstad/dark-water, the original Dark Depletion Watchlist by
+rlrognstad. The fork branch adds the preprocessing fixes and the precipitation covariate
+that this analysis depends on. Scripts here import the package and none of them modify it.
+Otherwise: xarray, numpy, pandas, scipy, geopandas, h5py, matplotlib, netCDF4.
 
 ## Sources
 
