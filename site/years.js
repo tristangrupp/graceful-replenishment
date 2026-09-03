@@ -162,8 +162,6 @@ function paint() {
   document.getElementById("rail-on").style.opacity = fixed ? "0.35" : "1";
   document.querySelectorAll(".yrbtn").forEach(btn =>
     btn.setAttribute("aria-pressed", String(+btn.dataset.y === state.year)));
-  const withVal = L.basins.filter(b => valueFor(b, sk, state.year) !== null).length;
-  document.getElementById("w-basins").textContent = withVal;
 }
 
 function paintScale() {
