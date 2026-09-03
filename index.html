@@ -104,23 +104,35 @@
 <div id="tip" role="status" aria-live="polite"></div>
 
 <footer>
-  <p><b>How to read it.</b> Total water storage covers everything GRACE senses: groundwater,
-  soil moisture, snow, surface water, and ice. The groundwater estimate subtracts modelled soil
-  moisture, snow water equivalent, and canopy storage. Those come from the Global Land Data
-  Assimilation System (GLDAS), averaged over three land surface models, namely Noah, Variable
-  Infiltration Capacity (VIC), and the Catchment Land Surface Model (CLSM). That makes it a
-  difference between a measurement and a model ensemble, not a measurement itself. The map withholds any basin
-  more than a fifth glacier or ice sheet, because subtracting modelled snowpack from ice-sheet
-  mass loss doesn't give groundwater.</p>
-  <p><b>What the marks mean.</b> Hatching marks a basin whose rate the test can't separate from
-  zero at p&nbsp;&lt;&nbsp;0.05, after it corrects for month-to-month autocorrelation. The dashed
-  line on the chart draws that fitted rate through the record mean. The faint dotted line gives
-  the area-weighted global land mean, for scale.</p>
-  <p><b>Limits to know.</b> The window runs short for a rate, and hatching covers about half the
-  basins. A Goddard mascon spans about <code>12,400&nbsp;km&sup2;</code>. A basin backed by only a
-  few of them reports its mascons&rsquo; number rather than its own, and the table gives that
-  count. Neighboring basins share mascons, so they aren't independent measurements. Goddard ships
-  leakage as an uncertainty rather than a correction, which makes every value here a floor.</p>
+  <h3>How to read the map</h3>
+  <p>Total water storage is all the water GRACE detects. That includes groundwater, soil
+  moisture, snow, surface water, and ice.</p>
+  <p>The groundwater layer subtracts three modeled terms: soil moisture, snow water
+  equivalent, and canopy storage. They come from the Global Land Data Assimilation System,
+  averaged across its Noah, VIC, and CLSM models. That makes the groundwater layer a
+  measurement minus a model average. Treat it as an estimate, not a reading.</p>
+  <p>Some basins are more than one fifth glacier or ice sheet. The groundwater layer leaves
+  those out. Subtracting modeled snow from ice sheet loss doesn't measure groundwater.</p>
+
+  <h3>What the marks mean</h3>
+  <ul>
+    <li><b>Hatching.</b> The trend isn't distinguishable from zero at p &lt; 0.05, after a
+      correction for month-to-month autocorrelation.</li>
+    <li><b>Grey fill.</b> No value in this layer.</li>
+    <li><b>Dashed line.</b> The fitted rate for a selected basin, drawn through its record
+      mean.</li>
+    <li><b>Dotted line.</b> The global land average, for scale.</li>
+  </ul>
+
+  <h3>Limits</h3>
+  <ul>
+    <li>The record is short. It holds 92 monthly solutions, and hatching covers about half
+      the basins.</li>
+    <li>One mascon covers about <code>12,400&nbsp;km&sup2;</code>. A small basin rests on a
+      few mascons, so it reports their signal rather than its own. The table shows how many.</li>
+    <li>Neighboring basins share mascons. They aren't independent measurements.</li>
+    <li>Leakage is an uncertainty, not a correction. Read every value as a lower bound.</li>
+  </ul>
 </footer>
 
 <script src="data.js"></script>
