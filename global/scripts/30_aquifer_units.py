@@ -49,8 +49,24 @@ CLASS = {
     33: ("Local and shallow aquifer", "medium to very low, under 100"),
 }
 ICE_CLASSES = (88, 89)
-CONTINENT = {1: "Africa", 2: "Asia", 3: "Europe", 4: "North America",
-             5: "Oceania", 6: "South America", 99: "unassigned"}
+# WHYMAP's metadata names the CONTINENT field but never gives its legend, so
+# these were read off the geometry rather than guessed. The first version of
+# this file assumed the codes ran alphabetically and got five of six wrong,
+# which is why the check below runs on every build: each code has to sit inside
+# the box its name implies, or the build stops.
+CONTINENT = {1: "North America", 2: "South America", 3: "Europe",
+             4: "Africa", 5: "Asia", 6: "Australia and Oceania",
+             99: "unassigned"}
+# lon_min, lon_max, lat_min, lat_max that each code's polygon centres must sit
+# inside. Deliberately loose: this catches a relabelling, not a stray island.
+CONTINENT_BOX = {
+    1: (-180, -50, 5, 85),      # North America, down to the Caribbean
+    2: (-95, -30, -60, 25),     # South America
+    3: (-35, 70, 33, 85),       # Europe, east to the Urals
+    4: (-30, 65, -40, 40),      # Africa and the Arabian side of the Red Sea
+    5: (-180, 180, -15, 85),    # Asia, which crosses the dateline in Chukotka
+    6: (110, 180, -60, -5),     # Australia and Oceania
+}
 
 g = gpd.read_file(SRC)
 g["HYGEO2"] = pd.to_numeric(g["HYGEO2"], errors="coerce").astype("Int64")
@@ -78,6 +94,26 @@ g["aq_group"] = [CLASS[int(c)][0] for c in g["HYGEO2"]]
 g["aq_recharge"] = [CLASS[int(c)][1] for c in g["HYGEO2"]]
 g["region"] = [CONTINENT.get(int(c) if pd.notna(c) else 99, "unassigned")
                for c in g["CONTINENT"]]
+# Verify the continent legend against the geometry rather than trusting it.
+pt = g.geometry.representative_point()
+g["_lon"], g["_lat"] = pt.x.to_numpy(), pt.y.to_numpy()
+for code, (lo, hi, la, lb) in CONTINENT_BOX.items():
+    sub = g[g["CONTINENT"] == code]
+    if not len(sub):
+        continue
+    bad = ~(sub["_lon"].between(lo, hi) & sub["_lat"].between(la, lb))
+    share = float(bad.mean())
+    if share > 0.05:
+        raise SystemExit(
+            f"CONTINENT code {code} is labelled {CONTINENT[code]!r} but "
+            f"{share*100:.0f} percent of its polygons fall outside that region "
+            f"(lon {sub['_lon'].min():.0f}..{sub['_lon'].max():.0f}, "
+            f"lat {sub['_lat'].min():.0f}..{sub['_lat'].max():.0f}). "
+            "The legend is wrong; read it off the geometry again.")
+    print(f"  code {code} = {CONTINENT[code]}: {len(sub)} polygons, "
+          f"{share*100:.1f} percent outside the expected box")
+g = g.drop(columns=["_lon", "_lat"])
+
 g = g[["HYBAS_ID", "HYGEO2", "aq_group", "aq_recharge", "region", "SUB_AREA",
        "geometry"]]
 

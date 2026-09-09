@@ -26,6 +26,10 @@ GREEN = rg.ROOT / "green"
 
 sites = pd.read_parquet(GREEN / "well_sites.parquet")
 sites["StnID"] = sites["StnID"].astype(str)
+# Drop any attribution from a previous run, so re-running is idempotent rather
+# than colliding with its own output in the spatial join.
+sites = sites.drop(columns=[c for c in ("aq_id", "aq_group", "aq_recharge", "aq_region")
+                            if c in sites.columns])
 aq = rg.load_basins("aq")[["HYBAS_ID", "aq_group", "aq_recharge", "region", "geometry"]]
 aq = aq.rename(columns={"HYBAS_ID": "aq_id"})
 

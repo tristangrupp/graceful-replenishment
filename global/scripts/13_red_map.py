@@ -132,7 +132,7 @@ titleblock(fig, "Red flags follow basin size",
            "and Sneeuw (2018).")
 fig.savefig(FIG / f"fig_red_{TAG}_area.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
 plt.close(fig)
-print("wrote fig_red_area.png")
+print(f"wrote fig_red_{TAG}_area.png")
 
 # -------------------------------------------------------------- ranking check
 sp = summ.get("spearman", {})
@@ -154,4 +154,4 @@ if pairs:
                "Level 6 basins ranked by depletion trend. Rank 0 is the most depleting basin.")
     fig.savefig(FIG / f"fig_red_{TAG}_ranks.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
     plt.close(fig)
-    print("wrote fig_red_ranks.png")
+    print(f"wrote fig_red_{TAG}_ranks.png")
