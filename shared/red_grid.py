@@ -45,11 +45,26 @@ def level_paths(level: str = "06") -> list[str]:
     return sorted(glob.glob(str(RAW / "hydrobasins" / f"*lev{level}*.shp")))
 
 
+AQUIFERS = RAW / "whymap" / "aquifer_units.gpkg"
+
+
 def load_basins(level: str = "06") -> gpd.GeoDataFrame:
-    """Every HydroBASINS region at one level, concatenated, with a dense index."""
-    parts = [gpd.read_file(p) for p in level_paths(level)]
-    b = pd.concat(parts, ignore_index=True)
-    b = gpd.GeoDataFrame(b, geometry="geometry", crs="EPSG:4326")
+    """The analysis units at one level, with a dense index.
+
+    "aq" swaps HydroSHEDS catchments for WHYMAP's hydrogeological units. Both
+    carry an `HYBAS_ID` and a `SUB_AREA`, which is all the rest of the pipeline
+    asks of a unit, so every downstream script works on either without knowing
+    which it has. A basin is a surface catchment and an aquifer is not, so the
+    two answer different questions rather than one being a refinement of the
+    other.
+    """
+    if level in ("aq", "aquifer", "aquifers"):
+        b = gpd.read_file(AQUIFERS, layer="aquifer_units")
+        b = b.to_crs("EPSG:4326")
+    else:
+        parts = [gpd.read_file(p) for p in level_paths(level)]
+        b = pd.concat(parts, ignore_index=True)
+        b = gpd.GeoDataFrame(b, geometry="geometry", crs="EPSG:4326")
     b["basin_idx"] = np.arange(len(b), dtype=np.int32)
     return b
 

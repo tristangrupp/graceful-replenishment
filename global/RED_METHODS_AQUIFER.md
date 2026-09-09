@@ -1,65 +1,4 @@
-"""Write the methods note for the red experiment.
-
-Prose with the numbers injected, so the note cannot drift away from the run that
-produced it. Everything here is recorded because a later reader has to be able
-to tell what was measured from what was assumed.
-"""
-
-import json
-import sys
-from pathlib import Path
-
-import pandas as pd
-
-sys.path.insert(0, r"E:\Water\_shared")
-import red_grid as rg  # noqa: E402
-
-RED = rg.RED
-# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
-# hydrogeological units. Outputs are tagged with it so the two never overwrite
-# each other, and every script downstream reads the same tag.
-LEVEL = sys.argv[1] if len(sys.argv) > 1 else "06"
-TAG = "aquifer" if LEVEL in ("aq", "aquifer", "aquifers") else f"level{LEVEL}"
-s = json.load(open(RED / f"{TAG}_red_summary.json"))
-g = json.load(open(RED / f"{TAG}_geometry_summary.json"))
-src = json.load(open(RED / f"{TAG}_sources.json"))
-c = s["config"]
-m = s["medians"]
-sp = s["spearman"]
-f = s["flags"]
-ps = pd.read_parquet(RED / f"{TAG}_precip_source.parquet")
-n_chirps = int((ps["precip_source"] == "chirps").sum())
-
-
-def pc(x):
-    return f"{x * 100:.0f}"
-
-
-def n(x):
-    return f"{x:,}"
-
-
-rows = "\n".join(
-    f"| {k} | {n(v['n'])} | {pc(v['area_share_of_tested'])} |"
-    for k, v in f.items() if not k.endswith(("_G", "_L")))
-by_product = "\n".join(
-    f"| {k} | {n(v['n'])} | {pc(v['area_share_of_tested'])} |"
-    for k, v in f.items() if k.endswith(("_G", "_L")))
-
-sens_rows = []
-for key, vals in s["sensitivity"].items():
-    cells = " | ".join(f"{r['value']} : {n(r['n_flag'])}" for r in vals)
-    sens_rows.append(f"| `{key}` | {cells} |")
-sens = "\n".join(sens_rows)
-cg = s["sensitivity_corners"]["most_generous"]
-cs = s["sensitivity_corners"]["strictest"]
-
-dec = "\n".join(
-    f"| {d['decile']} | {d['area_km2_range'][0]:,.0f} to {d['area_km2_range'][1]:,.0f} "
-    f"| {n(d['n'])} | {pc(d['red_share'])} |"
-    for d in s["area"]["red_share_by_area_decile"])
-
-doc = f"""# Red experiment methods note
+# Red experiment methods note
 
 Whether a published downscaled GRACE product adds usable information over native
 resolution GRACE, on HydroBASINS level 6, with no validation data of any kind.
@@ -75,11 +14,11 @@ page both say so.
 
 | product | version | grid | coverage in file | units in file | baseline |
 |---|---|---|---|---|---|
-| GRACE-SeDA | v1, 2024-05-16 | 0.5 deg | {src['seda']['coverage'] if 'coverage' in src['seda'] else '2002-04 to 2022-12'} | mm | {src['seda']['baseline']} |
-| Li and Kusche | v2.0 | 0.25 deg | {src['liku']['coverage']} | cm, converted to mm here | not stated in the file |
+| GRACE-SeDA | v1, 2024-05-16 | 0.5 deg | 2002-04 to 2022-12 | mm | temporal mean 2004.000 to 2009.999 removed (`twsa_baseline` in the file) |
+| Li and Kusche | v2.0 | 0.25 deg | 2002-04 to 2025-03 | cm, converted to mm here | not stated in the file |
 
-DOIs: GRACE-SeDA `{src['seda']['doi']}`, Li and Kusche `{src['liku']['doi']}`
-(md5 `{src['liku']['md5']}`, checked after download).
+DOIs: GRACE-SeDA `10.3929/ethz-b-000648738`, Li and Kusche `10.5281/zenodo.17265162`
+(md5 `7d51f349bf74543d3bcd73e504502073`, checked after download).
 
 Two things were verified rather than assumed, because either would have produced
 a silently wrong answer. Li and Kusche stores centimeters where GRACE-SeDA
@@ -114,26 +53,26 @@ assumed:
 
 | what changes | cost, median basin | rank agreement |
 |---|---|---|
-| one center, one release: JPL RL06.1 to RL06.3 | {m['var_ratio_release']:.5f} | {sp['coarse_RL0603_vs_RL0601']:.4f} |
-| two centers, same months: JPL to GSFC | {m['var_ratio_solution']:.3f} | {sp['coarse_JPL_vs_GSFC']:.3f} |
+| one center, one release: JPL RL06.1 to RL06.3 | 0.00034 | 0.9990 |
+| two centers, same months: JPL to GSFC | 0.274 | 0.834 |
 
 Cost is the variance of the difference over the variance of the coarse series,
 the same quantity test 2a uses. Changing release is 500 times cheaper than
 changing center, which is why getting the release right mattered for the
 argument and barely moved the answer: GRACE-SeDA's median departure went from
-{m['var_ratio_G_alt_release']:.4f} against RL06.3 to {m['var_ratio_G']:.4f} against
+0.4377 against RL06.3 to 0.4349 against
 RL06.1.
 
 ## Common period
 
-{s['common_period'][0]} to {s['common_period'][1]}, {s['n_months']} months present in
-every product. {s['n_months_with_predictors']} of those months also have the
+2002-04 to 2022-12, 214 months present in
+every product. 214 of those months also have the
 predictor fields. GRACE-SeDA ends in 2022-12 and sets the ceiling.
 
 ## Basins and aggregation
 
-HydroBASINS v1c level 6: {n(g['n_basins'])} basins, {g['total_area_km2'] / 1e6:.1f}
-million square kilometers, median {g['area_km2']['50']:,.0f} square kilometers.
+HydroBASINS v1c level 6: 3,291 basins, 133.2
+million square kilometers, median 957 square kilometers.
 
 Every product sits on a different grid, so the basins are rasterized once at
 0.05 degrees and every coarser grid inherits its overlap from that raster. A
@@ -144,7 +83,7 @@ Nearest neighbour and bilinear do not conserve mass and are used nowhere.
 
 Two checks on the bookkeeping. The rasterized area of a basin against the area
 HydroSHEDS publishes for it has a median ratio of
-{g['raster_area_check']['median_ratio_raster_to_subarea']:.4f}. A basin mean
+1.0001. A basin mean
 computed through the weight table against the same mean computed cell by cell
 over the master raster agrees to 1.7e-13 mm.
 
@@ -160,11 +99,11 @@ redraw.
 
 | test | flag | rule | threshold |
 |---|---|---|---|
-| 1 | `RED_GEOMETRY` | fewer product cells than this, or more of the basin than this inside one mascon | {c['min_cells']} cells, {c['max_frac_dominant']} |
-| 2a | `RED_NO_INDEPENDENT_DEPARTURE` | variance of (downscaled minus coarse) over variance of coarse | {c['min_var_ratio']} |
-| 2b | `RED_PREDICTOR_DERIVED` | adjusted R squared of the departure on precipitation, soil moisture, and snow | {c['max_pred_r2']} |
-| 3 | `RED_DISAGREEMENT` | correlation between the two products, or trend gap over trend magnitude | {c['min_r_GL']}, {c['max_trend_diff_ratio']} |
-| 3b | `RED_RANK_UNSTABLE` | percentile rank shift between the two products | {c['max_rank_shift']} |
+| 1 | `RED_GEOMETRY` | fewer product cells than this, or more of the basin than this inside one mascon | 2 cells, 0.95 |
+| 2a | `RED_NO_INDEPENDENT_DEPARTURE` | variance of (downscaled minus coarse) over variance of coarse | 0.05 |
+| 2b | `RED_PREDICTOR_DERIVED` | adjusted R squared of the departure on precipitation, soil moisture, and snow | 0.8 |
+| 3 | `RED_DISAGREEMENT` | correlation between the two products, or trend gap over trend magnitude | 0.5, 1.0 |
+| 3b | `RED_RANK_UNSTABLE` | percentile rank shift between the two products | 20.0 |
 
 Justification for each, in order. Two cells is the smallest number that can
 describe a field rather than a point. A basin more than 95 percent inside one
@@ -187,25 +126,30 @@ significance discounts serial correlation through the effective sample size of
 Dawdy and Matalas (1964). The predictor regression reports the ordinary adjusted
 R squared, which is what the 0.8 threshold means, and beside it the same figure
 with the effective sample size in the denominator. Median values are
-{m['pred_r2_G']:.3f} and {m['pred_r2_eff_G']:.3f} for GRACE-SeDA, so the
+0.255 and 0.011 for GRACE-SeDA, so the
 serial-correlation correction removes essentially all of the apparent fit.
 
 No random k-fold cross-validation is used anywhere. Nothing here is fitted for
 prediction.
 
 Precipitation is CHIRPS v2.0 where CHIRPS reaches, which is 50S to 50N and
-{n(n_chirps)} basins, and the GLDAS-Noah precipitation
+2,050 basins, and the GLDAS-Noah precipitation
 forcing for the rest. Which source a basin used travels with the basin.
 
 ## Results
 
-{n(s['n_tested'])} of {n(s['n_basins'])} basins have a complete series in every
+1,570 of 3,291 basins have a complete series in every
 product and could be tested. The rest are reported as not tested, never as
 passing.
 
 | flag | basins | share of tested land area |
 |---|---|---|
-{rows}
+| RED_GEOMETRY | 656 | 3 |
+| RED_NO_INDEPENDENT_DEPARTURE | 1,048 | 88 |
+| RED_PREDICTOR_DERIVED | 34 | 2 |
+| RED_DISAGREEMENT | 652 | 20 |
+| RED_RANK_UNSTABLE | 400 | 11 |
+| RED_ANY | 1,472 | 94 |
 
 Each product also has a verdict of its own, on its own three tests, with the two
 comparison tests left out. A reader judging one product without reference to the
@@ -214,12 +158,19 @@ other needs a count that does not quietly fold the other one in.
 
 | flag | basins | share of tested land area |
 |---|---|---|
-{by_product}
+| RED_GEOMETRY_G | 656 | 3 |
+| RED_NO_INDEPENDENT_DEPARTURE_G | 26 | 19 |
+| RED_PREDICTOR_DERIVED_G | 27 | 1 |
+| RED_ANY_OWN_G | 692 | 22 |
+| RED_GEOMETRY_L | 609 | 3 |
+| RED_NO_INDEPENDENT_DEPARTURE_L | 1,047 | 88 |
+| RED_PREDICTOR_DERIVED_L | 11 | 1 |
+| RED_ANY_OWN_L | 1,324 | 89 |
 
 The two fail in different places. Geometry catches most GRACE-SeDA failures: it moves away from its parent
 solution, and only
-{n(f['RED_NO_INDEPENDENT_DEPARTURE_G']['n'])} of its basins fail the departure test. Departure
-catches Li and Kusche: {n(f['RED_NO_INDEPENDENT_DEPARTURE_L']['n'])} of its basins move less
+26 of its basins fail the departure test. Departure
+catches Li and Kusche: 1,047 of its basins move less
 than 5 percent of the coarse variance away from the solution behind it. Its finer
 grid does resolve more basins geometrically, which is why it fails that test less
 often.
@@ -228,21 +179,30 @@ often.
 
 | area decile | km2 | basins | flagged red |
 |---|---|---|---|
-{dec}
+| 1 | 23 to 373 | 157 | 100 |
+| 2 | 373 to 2,963 | 157 | 98 |
+| 3 | 2,963 to 5,442 | 157 | 93 |
+| 4 | 5,442 to 8,609 | 157 | 90 |
+| 5 | 8,609 to 12,835 | 157 | 92 |
+| 6 | 12,835 to 20,054 | 157 | 91 |
+| 7 | 20,054 to 32,281 | 157 | 91 |
+| 8 | 32,281 to 55,323 | 157 | 96 |
+| 9 | 55,323 to 146,130 | 157 | 93 |
+| 10 | 146,130 to 14,590,175 | 157 | 94 |
 
 That dependence is expected and is the main thing the geometry test measures.
-Only {n(g['n_above_reliable_threshold'])} of {n(g['n_basins'])} level 6 basins
+Only 288 of 3,291 level 6 basins
 reach the roughly 63,000 square kilometre reliable unit of Vishwakarma, Devaraju
 and Sneeuw (2018), which is
-{g['area_share_above_reliable_threshold'] * 100:.1f} percent of the level's land
+84.9 percent of the level's land
 area.
 
 ### A floor under the departure
 
-The median basin's departure from coarse GRACE is {m['var_ratio_G']:.3f} of the
-coarse variance for GRACE-SeDA and {m['var_ratio_L']:.3f} for Li and Kusche. Two
+The median basin's departure from coarse GRACE is 0.435 of the
+coarse variance for GRACE-SeDA and 0.032 for Li and Kusche. Two
 coarse solutions of the same months, JPL and GSFC, already differ by
-{m['var_ratio_solution']:.3f}. A departure below that number is not
+0.274. A departure below that number is not
 distinguishable from the choice of processing center.
 
 ### Ranking
@@ -251,10 +211,10 @@ Ranked by depletion trend across all tested level 6 basins:
 
 | pair | Spearman |
 |---|---|
-| GRACE-SeDA against coarse | {sp['G_vs_coarse']:.3f} |
-| Li and Kusche against coarse | {sp['L_vs_coarse']:.3f} |
-| the two downscaled products against each other | {sp['G_vs_L']:.3f} |
-| JPL against GSFC, both coarse | {sp['coarse_JPL_vs_GSFC']:.3f} |
+| GRACE-SeDA against coarse | 0.719 |
+| Li and Kusche against coarse | 0.982 |
+| the two downscaled products against each other | 0.736 |
+| JPL against GSFC, both coarse | 0.834 |
 
 ### Sensitivity
 
@@ -263,14 +223,20 @@ moves across a plausible range.
 
 | threshold | value : basins flagged |
 |---|---|
-{sens}
+| `min_cells` | 1 : 613 | 2 : 656 | 3 : 731 | 4 : 774 |
+| `max_frac_dominant` | 0.8 : 812 | 0.9 : 713 | 0.95 : 656 | 0.99 : 589 |
+| `min_var_ratio` | 0.02 : 502 | 0.05 : 1,048 | 0.1 : 1,340 | 0.2 : 1,490 |
+| `max_pred_r2` | 0.7 : 87 | 0.8 : 34 | 0.9 : 7 | 0.95 : 1 |
+| `min_r_GL` | 0.3 : 636 | 0.5 : 652 | 0.7 : 726 | 0.9 : 1,049 |
+| `max_trend_diff_ratio` | 0.5 : 992 | 1.0 : 652 | 2.0 : 175 | 5.0 : 175 |
+| `max_rank_shift` | 10.0 : 746 | 20.0 : 400 | 30.0 : 213 | 50.0 : 54 |
 
 Moving one cut at a time understates how much of the map is a choice, so both
 corners are computed too. With every threshold at the most generous end of its
-range at once, {n(cg['n_RED_ANY'])} basins stay flagged, {pc(cg['share_of_tested'])}
-percent of those tested and {pc(cg['area_share_of_tested'])} percent of the tested
+range at once, 985 basins stay flagged, 63
+percent of those tested and 55 percent of the tested
 land area. With every threshold at the strictest end, all
-{n(cs['n_RED_ANY'])} of them are.
+1,570 of them are.
 
 ## What this does not do
 
@@ -293,8 +259,3 @@ red/sources.json                   what was read, with units and versions
 red/series_*.parquet               basin-mean monthly series, one file per source
 figures/fig_red_*.png              the maps and the two diagnostic figures
 ```
-"""
-
-out = RED / f"METHODS_{TAG}.md"
-out.write_text(doc, encoding="utf-8")
-print("wrote", out, len(doc), "chars")

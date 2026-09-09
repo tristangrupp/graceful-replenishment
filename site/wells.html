@@ -44,6 +44,7 @@
     <button data-v="rL" aria-pressed="false">Agreement, Li and Kusche</button>
     <button data-v="dG" aria-pressed="false">SeDA minus coarse</button>
     <button data-v="dL" aria-pressed="false">Li and Kusche minus coarse</button>
+    <button data-v="aq" aria-pressed="false">Aquifer class</button>
   </div>
   <span class="hint" id="hint"></span>
 </div>
@@ -65,6 +66,12 @@
         <div class="ticks" id="ticks"></div>
       </div>
       <span class="hint" id="legend-note"></span>
+    </div>
+    <div class="keys" id="legend-cat" hidden>
+      <span class="key"><i class="sw" style="background:#2a78d6"></i>major groundwater basin</span>
+      <span class="key"><i class="sw" style="background:#7a5aa8"></i>complex hydrogeological structure</span>
+      <span class="key"><i class="sw" style="background:#b5341c"></i>local and shallow aquifer</span>
+      <span class="key"><i class="sw" style="background:var(--nodata)"></i>outside any WHYMAP polygon</span>
     </div>
     <table id="pick-table">
       <thead><tr><th>Well under the pointer</th><th>value</th></tr></thead>
@@ -118,6 +125,20 @@
       <span class="eyebrow" id="dist-sub"></span>
     </div>
     <canvas id="dist" class="minichart"></canvas>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2>Split by aquifer class</h2>
+      <span class="eyebrow">WHYMAP</span>
+    </div>
+    <p class="panel-note">A HydroSHEDS catchment is a surface water divide and says nothing about
+       what lies under a well. WHYMAP classifies the subsurface, so the same comparison can be
+       read by aquifer type. This is the question the aquifer unit exists to answer.</p>
+    <table>
+      <thead><tr><th>class</th><th>wells</th><th>weather only</th><th>+ coarse</th>
+        <th>+ SeDA</th><th>+ Li and Kusche</th></tr></thead>
+      <tbody id="aquifer"></tbody>
+    </table>
+    <p class="panel-note" id="aquifer-note" style="margin-top:8px"></p>
 
     <div class="panel-head" style="margin-top:14px">
       <h2>Split by how wet the well is</h2>

@@ -18,6 +18,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, r"E:\Water\_shared")
+import red_grid as rg  # noqa: E402
+
 ROOT = Path(r"E:\Water\Global")
 EQUAL_AREA = "+proj=cea +lat_ts=30 +datum=WGS84 +units=m +no_defs"
 
@@ -30,10 +33,8 @@ ice["geometry"] = ice.geometry.buffer(0)
 ice_union = ice.geometry.union_all()
 print(f"glacier layer: {len(ice)} polygons, {ice.area.sum()/1e6:,.0f} km2 total")
 
-for level in ("03", "04"):
-    src = sorted(glob.glob(str(ROOT / "raw" / "hydrobasins" / f"*lev{level}*.shp")))
-    b = pd.concat([gpd.read_file(p) for p in src], ignore_index=True)
-    b = gpd.GeoDataFrame(b, geometry="geometry", crs="EPSG:4326").to_crs(EQUAL_AREA)
+for level in ("03", "04", "aq"):
+    b = rg.load_basins(level).to_crs(EQUAL_AREA)
     b["geometry"] = b.geometry.buffer(0)
     area = b.geometry.area
     inter = b.geometry.intersection(ice_union).area
@@ -41,7 +42,7 @@ for level in ("03", "04"):
     out = pd.DataFrame({"HYBAS_ID": b["HYBAS_ID"].astype("int64"),
                         "glacier_fraction": frac.round(4)})
     out.to_csv(ROOT / "trends" / f"glacier_fraction_lev{level}.csv", index=False)
-    print(f"level {level}: {len(out)} basins, {(out.glacier_fraction > 0.01).sum()} above 1% ice, "
+    print(f"unit {level}: {len(out)} units, {(out.glacier_fraction > 0.01).sum()} above 1% ice, "
           f"{(out.glacier_fraction > 0.05).sum()} above 5%")
     top = out.sort_values("glacier_fraction", ascending=False).head(8)
     print(top.to_string(index=False))

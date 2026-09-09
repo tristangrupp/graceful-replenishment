@@ -30,12 +30,21 @@ function colorFor(v) {
   return mix(r[i], r[i + 1], u - i);
 }
 
+
+/* The unit of analysis: two HydroSHEDS levels, or WHYMAP's hydrogeological
+   units. A surface catchment and an aquifer are different objects, so the
+   caption names which one is on screen rather than calling both "level". */
+function unitLabel() {
+  return state.level === "aq" ? "WHYMAP aquifer units" : "basin level " + Number(state.level);
+}
 const cur = () => D.levels[state.level];
 const trendKey = () => (state.product === "t" ? "tt" : "gt");
 const pKey = () => (state.product === "t" ? "tp" : "gp");
 const serKey = () => (state.product === "t" ? "t" : "g");
 const fmt = n => (n > 0 ? "+" : "") + n.toFixed(2);
-const label = b => b.region + " " + b.id;
+/* A HydroSHEDS basin has no name, so its region and id are all there is. A
+   WHYMAP unit does have a character, so it is named by that instead. */
+const label = b => b.grp ? b.region + ", " + b.grp : b.region + " " + b.id;
 const place = b => Math.abs(b.lat).toFixed(1) + (b.lat >= 0 ? "N " : "S ") +
   Math.abs(b.lon).toFixed(1) + (b.lon >= 0 ? "E" : "W");
 
@@ -300,7 +309,7 @@ function drawMovers() {
   const removed = all - vals.length;
   const sub = document.getElementById("movers-sub");
   sub.textContent = (state.product === "t" ? "total water storage" : "groundwater estimate") +
-    ", level " + Number(state.level) +
+    ", " + unitLabel() +
     (state.hideGlaciers ? ", " + removed + " glaciated basins hidden" : "");
   const sorted = vals.slice().sort((a, c) => a[tk] - c[tk]);
   if (!sorted.length) return;

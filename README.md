@@ -49,6 +49,7 @@ shared/      reusable pieces: mascon geometry and lookup, GLDAS downloaders,
 global/      the global pipeline, its outputs, and its report
 global/red/  the downscaling test, at HydroBASINS level 6
 global/green/ the same products scored against measured groundwater levels
+             every step runs on HydroSHEDS basins or on WHYMAP aquifer units
 site/        the interactive page
 regions/     six regional studies, each with scripts, tables, figures, and a report
 ```
@@ -76,6 +77,8 @@ regions/     six regional studies, each with scripts, tables, figures, and a rep
 | `global/scripts/22_green_figures.py` | coverage, the paired test, the ablation |
 | `global/scripts/23_green_export.py` | the payload the wells page reads |
 | `global/scripts/24_green_methods.py` | the green methods note |
+| `global/scripts/25_green_aquifer.py` | the WHYMAP class at every well |
+| `global/scripts/30_aquifer_units.py` | WHYMAP turned into a unit of analysis |
 
 ```
 cd C:\path\to\dark-water
@@ -139,6 +142,58 @@ the same 7.75 years implies only 9.5 mm. The two measures correlate at 0.985 and
 almost identically, yet 39 of 247 disagree on sign. That gap is why the page reports both.
 The endpoint difference rests on the 5 solved months of 2018 and the 3 of 2026, so 8 of the
 92 solutions decide it.
+
+## Two units of analysis
+
+Everything above and below can be read on either of two units, and the site switches between
+them.
+
+A **HydroSHEDS basin** is a surface water catchment. It is the right unit for a river and the
+wrong one for an aquifer: groundwater does not respect a topographic divide, an aquifer can
+underlie several catchments, and a catchment can sit over several aquifers.
+
+The alternative is **WHYMAP**, the Worldwide Hydrogeological Mapping and Assessment Programme
+map of Groundwater Resources of the World, from BGR and UNESCO at 1:25,000,000.
+`30_aquifer_units.py` turns its aquifer layer into 3,291 units covering 133.2 million square
+kilometers, against 135.0 for HydroBASINS, after dropping the 133 ice sheet polygons that are
+in the file because the map covers all land and are not aquifers.
+
+Be clear about what those polygons are. WHYMAP classifies land into hydrogeological
+environments, not into named aquifer systems, so a unit is a patch of similar groundwater
+behaviour rather than a bounded reservoir with a name. That is still hydrogeologically
+meaningful, and the class travels with every unit, which is what makes the split below
+possible. It is not a named-aquifer inventory.
+
+| | HydroBASINS level 6 | WHYMAP units |
+|---|---|---|
+| units | 16,397 | 3,291 |
+| land area | 135.0 Mkm2 | 133.2 Mkm2 |
+| median unit | 5,318 km2 | 957 km2 |
+| units over the 63,000 km2 reliable unit | 48, 3.1% of area | 288, 84.9% of area |
+| testable in the downscaling test | 15,495 | 1,570 |
+| flagged | 14,444, 90% of tested area | 1,472, 94% |
+
+**The answer does not depend on the unit.** Median departure from coarse GRACE is 0.42 of the
+coarse variance for GRACE-SeDA on basins and 0.44 on aquifer units, 0.041 and 0.032 for Li and
+Kusche. The floor between two processing centres is 0.255 and 0.274. Li and Kusche preserves
+the coarse depletion ranking at Spearman 0.972 on basins and 0.982 on aquifer units. Changing
+from a surface catchment to a hydrogeological unit moves nothing that matters.
+
+**The aquifer unit does answer one thing a catchment cannot,** because a catchment has no
+subsurface identity. Against the wells, the value of gravimetry depends on what kind of
+aquifer the well sits in:
+
+| aquifer class | wells | weather only | plus coarse GRACE | plus GRACE-SeDA | plus Li and Kusche |
+|---|---|---|---|---|---|
+| Major groundwater basin | 33,436 | 0.052 | 0.100 | 0.102 | 0.102 |
+| Complex hydrogeological structure | 6,624 | 0.083 | 0.109 | 0.111 | 0.114 |
+| Local and shallow aquifer | 38,299 | 0.148 | 0.168 | 0.156 | 0.172 |
+
+Out of sample R squared, holding out one mascon at a time. Gravimetry roughly doubles the
+skill over a major groundwater basin, where weather alone explains least, and adds little over
+a local and shallow aquifer, where a shallow water table answers to rainfall directly and
+weather alone already reaches 0.148. In every class the downscaled terms land on top of the
+coarse one.
 
 ## The downscaling test
 

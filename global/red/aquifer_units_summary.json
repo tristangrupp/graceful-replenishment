@@ -1,0 +1,81 @@
+{
+  "source": "WHYMAP Groundwater Resources of the World, v1, BGR and UNESCO",
+  "url": "https://www.whymap.org/whymap/EN/Maps_Data/Gwr/gwr_node_en.html",
+  "file": "WHYMAP_GWR_v1.zip, whymap_GW_aquifers_v1_poly.shp",
+  "scale": "1:25,000,000",
+  "n_units": 3291,
+  "total_area_km2": 133185138.04946983,
+  "area_km2": {
+    "5": 52.40244869564795,
+    "25": 167.64847265908878,
+    "50": 956.6653431093384,
+    "75": 12258.647937217218,
+    "95": 139552.0836838499
+  },
+  "n_over_reliable_63000": 288,
+  "n_under_1000": 1658,
+  "by_group": {
+    "Local and shallow aquifer": {
+      "polygons": 1494,
+      "area_km2": 62407378.19429906,
+      "median_km2": 256.17628582215895
+    },
+    "Major groundwater basin": {
+      "polygons": 875,
+      "area_km2": 47191784.687926725,
+      "median_km2": 6932.186197136153
+    },
+    "Complex hydrogeological structure": {
+      "polygons": 922,
+      "area_km2": 23585975.167244032,
+      "median_km2": 2128.5630026729787
+    }
+  },
+  "classes": {
+    "15": {
+      "group": "Major groundwater basin",
+      "recharge_mm_yr": "very high, over 300"
+    },
+    "14": {
+      "group": "Major groundwater basin",
+      "recharge_mm_yr": "high, 100 to 300"
+    },
+    "13": {
+      "group": "Major groundwater basin",
+      "recharge_mm_yr": "medium, 20 to 100"
+    },
+    "12": {
+      "group": "Major groundwater basin",
+      "recharge_mm_yr": "low, 2 to 20"
+    },
+    "11": {
+      "group": "Major groundwater basin",
+      "recharge_mm_yr": "very low, under 2"
+    },
+    "25": {
+      "group": "Complex hydrogeological structure",
+      "recharge_mm_yr": "very high, over 300"
+    },
+    "24": {
+      "group": "Complex hydrogeological structure",
+      "recharge_mm_yr": "high, 100 to 300"
+    },
+    "23": {
+      "group": "Complex hydrogeological structure",
+      "recharge_mm_yr": "medium, 20 to 100"
+    },
+    "22": {
+      "group": "Complex hydrogeological structure",
+      "recharge_mm_yr": "low to very low, under 20"
+    },
+    "34": {
+      "group": "Local and shallow aquifer",
+      "recharge_mm_yr": "very high to high, over 100"
+    },
+    "33": {
+      "group": "Local and shallow aquifer",
+      "recharge_mm_yr": "medium to very low, under 100"
+    }
+  },
+  "note": "ice sheet classes 88 and 89 dropped; they are not aquifers"
+}

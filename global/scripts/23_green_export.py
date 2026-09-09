@@ -25,6 +25,12 @@ ROBIN = "+proj=robin +lon_0=0 +datum=WGS84 +units=m +no_defs"
 XMAX, YMAX = 17005833.0, 8625155.0
 H = int(round(W * YMAX / XMAX))
 
+# One byte per well instead of a repeated 33-character string, which is two
+# megabytes of payload for nothing.
+AQ_NAMES = ["Major groundwater basin", "Complex hydrogeological structure",
+            "Local and shallow aquifer"]
+AQ_CODE = {n: i for i, n in enumerate(AQ_NAMES)}
+
 summary = json.load(open(GREEN / "green_summary.json"))
 sources = json.load(open(GREEN / "wells_sources.json"))
 t = pd.read_parquet(GREEN / "well_scores.parquet")
@@ -71,6 +77,11 @@ payload = {
     "lat": [round(float(v), 2) for v in t.lat],
     "lon": [round(float(v), 2) for v in t.lon],
     "ny": [int(v) for v in t.n_years],
+    # WHYMAP's class per well, so the page can ask whether the answer depends on
+    # what kind of aquifer the well sits in. A catchment cannot say that.
+    "aqg": ([AQ_CODE.get(v) for v in t["aq_group"]]
+            if "aq_group" in t.columns else None),
+    "aq_names": AQ_NAMES,
     "mas": [int(v) for v in t.mascon],
     "pr": [int(round(float(v))) if np.isfinite(v) else None for v in t.mean_precip_mm_yr],
     "rC": arr("r_jpl"), "rG": arr("r_seda"), "rL": arr("r_liku"),

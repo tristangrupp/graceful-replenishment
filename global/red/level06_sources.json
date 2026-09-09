@@ -1,0 +1,71 @@
+{
+  "seda": {
+    "file": "GRACE-SeDA_v1_2002_2022.nc",
+    "doi": "10.3929/ethz-b-000648738",
+    "units_in_file": "mm",
+    "grid": "0.5 deg",
+    "n_months_in_file": 216,
+    "baseline": "temporal mean 2004.000 to 2009.999 removed (`twsa_baseline` in the file)",
+    "coarse_parent": "JPL mascon RL06.1Mv03CRI"
+  },
+  "liku": {
+    "file": "LiKusche_JPL_mascon_downscaled-v2.0.nc",
+    "doi": "10.5281/zenodo.17265162",
+    "md5": "7d51f349bf74543d3bcd73e504502073",
+    "variable": "JPL_EWH_downscaled",
+    "units_in_file": "cm",
+    "units_used": "mm, converted from cm",
+    "grid": "0.25 deg",
+    "time_in_file": "decimal year at mid-month",
+    "coverage": "2002-04 to 2025-03",
+    "n_months_in_file": 243,
+    "coarse_parent": "JPL mascon, release not stated in the file"
+  },
+  "jpl": {
+    "file": "jpl_mascon_rl0603v04_cri.nc",
+    "short_name": "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4",
+    "release": "RL06.3Mv04 CRI",
+    "units_in_file": "cm",
+    "grid": "0.5 deg grid over 3 deg mascons",
+    "n_months_in_file": 259,
+    "note": "gain factors deliberately not applied; they are a model-derived correction and applying one would itself add model structure"
+  },
+  "jpl61": {
+    "file": "jpl_mascon_rl0601v03_cri.nc",
+    "short_name": "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3, retired",
+    "release": "RL06.1Mv03 CRI, the release GRACE-SeDA v1 names as its input",
+    "units_in_file": "cm",
+    "grid": "0.5 deg grid over 3 deg mascons",
+    "n_months_in_file": 230,
+    "note": "gain factors deliberately not applied; they are a model-derived correction and applying one would itself add model structure"
+  },
+  "gsfc": {
+    "file": "gsfc.glb_.200204_202603_rl06v2.0_obp-ice6gd.h5",
+    "units_in_file": "cm",
+    "grid": "native mascons, ~12,400 km2",
+    "n_months_in_file": 255
+  },
+  "gldas_noah": {
+    "collection": "GLDAS_NOAH025_M 2.1",
+    "grid": "0.25 deg",
+    "soil": [
+      "SoilMoi0_10cm_inst",
+      "SoilMoi10_40cm_inst",
+      "SoilMoi40_100cm_inst",
+      "SoilMoi100_200cm_inst"
+    ],
+    "snow_canopy": [
+      "SWE_inst",
+      "CanopInt_inst"
+    ],
+    "precip": "Rainf_f_tavg, kg m-2 s-1 converted to mm per month",
+    "n_months": 288
+  },
+  "chirps": {
+    "product": "CHIRPS v2.0 global monthly",
+    "grid": "0.05 deg",
+    "coverage": "50S to 50N",
+    "units": "mm per month",
+    "n_months": 252
+  }
+}

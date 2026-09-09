@@ -28,19 +28,24 @@ RED = rg.RED
 FIG = rg.ROOT / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 ROBIN = "+proj=robin +lon_0=0 +datum=WGS84 +units=m +no_defs"
+# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
+# hydrogeological units. Outputs are tagged with it so the two never overwrite
+# each other, and every script downstream reads the same tag.
+LEVEL = sys.argv[1] if len(sys.argv) > 1 else "06"
+TAG = "aquifer" if LEVEL in ("aq", "aquifer", "aquifers") else f"level{LEVEL}"
 
 RED_FILL = "#b5341c"
 GREY_FILL = "#c9c9c2"
 PLAIN_FILL = "#f0efe9"
 
-flags = pd.read_parquet(RED / "level6_red_flags.parquet")
-summ = json.load(open(RED / "level6_red_summary.json"))
-basins = rg.load_basins("06")
+flags = pd.read_parquet(RED / f"{TAG}_red_flags.parquet")
+summ = json.load(open(RED / f"{TAG}_red_summary.json"))
+basins = rg.load_basins(LEVEL)
 g = basins.merge(flags.drop(columns=[c for c in flags.columns if c in basins.columns
                                      and c != "HYBAS_ID"]), on="HYBAS_ID", how="left")
 g = gpd.GeoDataFrame(g, geometry="geometry", crs="EPSG:4326")
 # The same table as the parquet, with the polygons attached, for GIS.
-gpkg = RED / "level6_red_flags.gpkg"
+gpkg = RED / f"{TAG}_red_flags.gpkg"
 g.to_file(gpkg, driver="GPKG")
 print("wrote", gpkg)
 g = g.to_crs(ROBIN)
@@ -83,7 +88,7 @@ map_figure(
     "Where downscaled GRACE is not independently resolved at HydroBASINS level 6",
     f"{n_red:,} of {n_tested:,} tested basins fail at least one test, "
     f"{share*100:.0f} percent of the tested land area. Common window {cp[0]} to {cp[1]}.",
-    "fig_red_level6.png",
+    f"fig_red_{TAG}.png",
     "A basin that is not red has not been shown to be trustworthy. It has only survived tests\n"
     "designed to catch obvious failure. Showing that a value is right needs wells, evapotranspiration\n"
     "or InSAR, and that is a different experiment.")
@@ -102,7 +107,7 @@ for flag, label in [("RED_GEOMETRY", "the basin is not nominally resolved"),
     map_figure(m, f"Level 6 basins where {label}",
                f"{c['n']:,} basins, {c['area_share_of_tested']*100:.0f} percent of tested land area. "
                f"Flag {flag}.",
-               f"fig_red_{flag.lower()}.png",
+               f"fig_red_{TAG}_{flag.lower()}.png",
                "One test only. Passing this test says nothing about the others.")
 
 # ------------------------------------------------------------ area dependence
@@ -125,7 +130,7 @@ for s in ax.spines.values():
 titleblock(fig, "Red flags follow basin size",
            "Level 6 basins by area. The reliable-unit threshold is from Vishwakarma, Devaraju "
            "and Sneeuw (2018).")
-fig.savefig(FIG / "fig_red_area.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
+fig.savefig(FIG / f"fig_red_{TAG}_area.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
 plt.close(fig)
 print("wrote fig_red_area.png")
 
@@ -147,6 +152,6 @@ if pairs:
             s.set_color(AXIS)
     titleblock(fig, "Downscaling changed the resolution without reordering the priority list",
                "Level 6 basins ranked by depletion trend. Rank 0 is the most depleting basin.")
-    fig.savefig(FIG / "fig_red_ranks.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
+    fig.savefig(FIG / f"fig_red_{TAG}_ranks.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
     plt.close(fig)
     print("wrote fig_red_ranks.png")

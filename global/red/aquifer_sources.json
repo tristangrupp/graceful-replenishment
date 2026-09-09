@@ -24,9 +24,19 @@
   "jpl": {
     "file": "jpl_mascon_rl0603v04_cri.nc",
     "short_name": "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4",
+    "release": "RL06.3Mv04 CRI",
     "units_in_file": "cm",
     "grid": "0.5 deg grid over 3 deg mascons",
     "n_months_in_file": 259,
+    "note": "gain factors deliberately not applied; they are a model-derived correction and applying one would itself add model structure"
+  },
+  "jpl61": {
+    "file": "jpl_mascon_rl0601v03_cri.nc",
+    "short_name": "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3, retired",
+    "release": "RL06.1Mv03 CRI, the release GRACE-SeDA v1 names as its input",
+    "units_in_file": "cm",
+    "grid": "0.5 deg grid over 3 deg mascons",
+    "n_months_in_file": 230,
     "note": "gain factors deliberately not applied; they are a model-derived correction and applying one would itself add model structure"
   },
   "gsfc": {
@@ -57,14 +67,5 @@
     "coverage": "50S to 50N",
     "units": "mm per month",
     "n_months": 252
-  },
-  "jpl61": {
-    "file": "jpl_mascon_rl0601v03_cri.nc",
-    "short_name": "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3, retired",
-    "release": "RL06.1Mv03 CRI, the release GRACE-SeDA v1 names as its input",
-    "units_in_file": "cm",
-    "grid": "0.5 deg grid over 3 deg mascons",
-    "n_months_in_file": 230,
-    "note": "gain factors deliberately not applied"
   }
 }

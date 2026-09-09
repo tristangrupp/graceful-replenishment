@@ -31,7 +31,11 @@ import red_grid as rg  # noqa: E402
 
 RED = rg.RED
 RED.mkdir(parents=True, exist_ok=True)
-LEVEL = "06"
+# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
+# hydrogeological units. Outputs are tagged with it so the two never overwrite
+# each other, and every script downstream reads the same tag.
+LEVEL = sys.argv[1] if len(sys.argv) > 1 else "06"
+TAG = "aquifer" if LEVEL in ("aq", "aquifer", "aquifers") else f"level{LEVEL}"
 
 # Vishwakarma, Devaraju and Sneeuw (2018) put the smallest area over which a
 # GRACE-derived storage change stays reliable at about 63,000 square km.
@@ -123,10 +127,11 @@ else:
 basins["n_cells_coarse"] = wj.n_cells_centroid(basins)
 
 out = basins.drop(columns="geometry")
-out.to_parquet(RED / "level6_geometry.parquet")
+out.to_parquet(RED / f"{TAG}_geometry.parquet")
 
 area = basins["SUB_AREA"].to_numpy()
 summary = {
+    "unit": TAG,
     "level": LEVEL,
     "n_basins": int(n),
     "total_area_km2": float(area.sum()),
@@ -148,5 +153,5 @@ summary = {
         "n_basins_with_no_raster_cell": int((basins["raster_area_km2"] == 0).sum()),
     },
 }
-json.dump(summary, open(RED / "level6_geometry_summary.json", "w"), indent=2)
+json.dump(summary, open(RED / f"{TAG}_geometry_summary.json", "w"), indent=2)
 print(json.dumps(summary, indent=2))

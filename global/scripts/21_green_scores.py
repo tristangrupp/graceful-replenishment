@@ -297,6 +297,38 @@ for label in ("A_predictors_only", "C_plus_seda", "C_plus_liku"):
           f"{int((d>0).sum())}/{len(d)} mascons better, p {paired[list(paired)[-1]]['sign_test_p']:.3f}")
 
 pd.DataFrame(block_r2).to_parquet(GREEN / "mascon_oos_r2.parquet")
+# The same two comparisons split by WHYMAP's aquifer class. A HydroSHEDS basin
+# is a surface catchment and cannot say what lies under a well; WHYMAP can, so
+# this is the question the aquifer unit exists to answer.
+aq_group = sites["aq_group"].reindex(cols) if "aq_group" in sites.columns else None
+by_aquifer = {}
+if aq_group is not None:
+    table["aq_group"] = aq_group
+    table["aq_recharge"] = sites["aq_recharge"].reindex(cols)
+    for grp in sorted(g for g in aq_group.dropna().unique()):
+        sel = (aq_group == grp).fillna(False).to_numpy()
+        keep = np.where(sel)[0]
+        entry = {"n_wells": int(sel.sum()),
+                 "median_r": {k: float(np.nanmedian(r[k].to_numpy()[sel]))
+                              for k in ("jpl", "jpl61", "seda", "liku")},
+                 "median_delta_r": {p_: float(np.nanmedian(table[f"dr_{p_}"].to_numpy()[sel]))
+                                    for p_ in PARENT},
+                 "models": {}}
+        for label, key in (("A_predictors_only", None), ("B_plus_coarse_RL0603", "jpl"),
+                           ("C_plus_seda", "seda"), ("C_plus_liku", "liku")):
+            y, X, wi, blk, _ = build_long(key)
+            m = np.isin(wi, keep)
+            if m.sum() < 500 or len(np.unique(blk[m])) < 5:
+                continue
+            _, r2, nrows = leave_one_mascon_out(y[m], X[m], blk[m])
+            entry["models"][label] = {"oos_r2": float(r2), "n_rows": int(nrows)}
+        entry["n_wells_in_panel"] = int(np.isin(np.unique(PANEL_W), keep).sum())
+        entry["n_mascons_in_panel"] = int(len(np.unique(PANEL_B[np.isin(PANEL_W, keep)])))
+        by_aquifer[str(grp)] = entry
+        print(f"  {grp[:34]:34s} wells {entry['n_wells']:>6,}  " +
+              ", ".join(f"{k.split('_')[0]} {v['oos_r2']:+.4f}"
+                        for k, v in entry["models"].items()))
+
 table.to_parquet(GREEN / "well_scores.parquet")
 summary = {
     "window": [int(level.index.min()), int(level.index.max())],
@@ -309,6 +341,7 @@ summary = {
     "paired_against_parent": sign,
     "ablation": ablation,
     "ablation_by_wetness": by_wet,
+    "by_aquifer_class": by_aquifer,
     "ablation_paired_by_mascon": paired,
 }
 json.dump(summary, open(GREEN / "green_summary.json", "w"), indent=2)

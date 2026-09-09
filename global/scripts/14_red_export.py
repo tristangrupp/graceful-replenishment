@@ -31,18 +31,23 @@ SIMPLIFY = 5000
 ROBIN = "+proj=robin +lon_0=0 +datum=WGS84 +units=m +no_defs"
 XMAX, YMAX = 17005833.0, 8625155.0
 H = int(round(W * YMAX / XMAX))
+# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
+# hydrogeological units. Outputs are tagged with it so the two never overwrite
+# each other, and every script downstream reads the same tag.
+LEVEL = sys.argv[1] if len(sys.argv) > 1 else "06"
+TAG = "aquifer" if LEVEL in ("aq", "aquifer", "aquifers") else f"level{LEVEL}"
 
 REGION = {1: "Africa", 2: "Europe and Middle East", 3: "Siberia",
           4: "Central and SE Asia", 5: "Australia and Oceania",
           6: "South America", 7: "North America", 8: "North American Arctic",
           9: "Greenland"}
 
-flags = pd.read_parquet(RED / "level6_red_flags.parquet")
-summ = json.load(open(RED / "level6_red_summary.json"))
-geo_summ = json.load(open(RED / "level6_geometry_summary.json"))
-sources = json.load(open(RED / "sources.json"))
+flags = pd.read_parquet(RED / f"{TAG}_red_flags.parquet")
+summ = json.load(open(RED / f"{TAG}_red_summary.json"))
+geo_summ = json.load(open(RED / f"{TAG}_geometry_summary.json"))
+sources = json.load(open(RED / f"{TAG}_sources.json"))
 
-basins = rg.load_basins("06")
+basins = rg.load_basins(LEVEL)
 assert (basins["HYBAS_ID"].to_numpy() == flags["HYBAS_ID"].to_numpy()).all()
 proj = basins.to_crs(ROBIN)
 proj["geometry"] = proj.geometry.simplify(SIMPLIFY, preserve_topology=True)
@@ -82,9 +87,24 @@ def iarr(col):
 
 
 hyb = flags["HYBAS_ID"].to_numpy(dtype="int64")
+
+
+def region_of():
+    """A readable region per unit.
+
+    HydroBASINS encodes its region in the first digit of the id. WHYMAP carries
+    a continent field instead, so the unit that has one is asked directly rather
+    than having a region inferred from an id that does not hold one.
+    """
+    if "region" in flags.columns:
+        return flags["region"].astype(str).tolist()
+    return [REGION.get(int(x) // 1000000000, "?") for x in hyb]
+
 payload = {
     "width": W, "height": H,
     "meta": {
+        "unit": TAG,
+        "level": LEVEL,
         "common_period": summ["common_period"],
         "n_months": summ["n_months"],
         "n_months_with_predictors": summ["n_months_with_predictors"],
@@ -102,7 +122,9 @@ payload = {
     "corners": summ.get("sensitivity_corners"),
     "d": paths,
     "id": [int(x) for x in hyb],
-    "reg": [REGION.get(int(x) // 1000000000, "?") for x in hyb],
+    "reg": region_of(),
+    "grp": (flags["aq_group"].tolist() if "aq_group" in flags.columns else None),
+    "rch": (flags["aq_recharge"].tolist() if "aq_recharge" in flags.columns else None),
     "lon": [round(float(p.x), 2) for p in cent],
     "lat": [round(float(p.y), 2) for p in cent],
     "area": [int(round(float(a))) for a in flags["SUB_AREA"].to_numpy()],
@@ -130,7 +152,7 @@ payload = {
     "shift": arr("rank_shift", 4),
 }
 
-txt = "window.RED=" + json.dumps(payload, separators=(",", ":")) + ";\n"
-(OUT / "red_data.js").write_text(txt, encoding="utf-8")
-print(f"wrote {OUT/'red_data.js'} {len(txt)/1e6:.2f} MB, {len(paths)} basins, "
+txt = f"window.RED_{TAG}=" + json.dumps(payload, separators=(",", ":")) + ";\n"
+(OUT / f"red_data_{TAG}.js").write_text(txt, encoding="utf-8")
+print(f"wrote {OUT/f'red_data_{TAG}.js'} {len(txt)/1e6:.2f} MB, {len(paths)} basins, "
       f"map {W}x{H}")

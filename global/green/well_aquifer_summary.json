@@ -1,0 +1,22 @@
+{
+  "n_wells": 81091,
+  "n_with_aquifer": 78359,
+  "by_group": {
+    "Local and shallow aquifer": 38299,
+    "Major groundwater basin": 33436,
+    "Complex hydrogeological structure": 6624,
+    "none": 2732
+  },
+  "by_recharge": {
+    "medium to very low, under 100": 34157,
+    "medium, 20 to 100": 13475,
+    "high, 100 to 300": 13153,
+    "low, 2 to 20": 8903,
+    "very high to high, over 100": 4142,
+    "none": 2732,
+    "low to very low, under 20": 2000,
+    "very low, under 2": 1827,
+    "very high, over 300": 702
+  },
+  "note": "wells outside any WHYMAP polygon are small coastal or island cases; they keep their other scores and are excluded from the aquifer split"
+}

@@ -14,7 +14,12 @@
    index encoded as color and used for hit testing. */
 (function () {
   "use strict";
-  var R = window.RED;
+  /* Two units of analysis, each with its own payload: HydroSHEDS level 6
+     catchments and WHYMAP hydrogeological units. Only the first is loaded with
+     the page; the second is fetched the first time it is asked for, because
+     two six megabyte payloads on every visit would be rude. */
+  var UNITS = { level06: "Basins, level 6", aquifer: "Aquifers" };
+  var R = window.RED_level06;
   var N = R.id.length;
   var RED_FILL = "#b5341c";
 
@@ -27,7 +32,8 @@
   /* Each downscaled product points at the coarse release it was built from.
      GRACE-SeDA v1 names RL06.1Mv03; Li and Kusche names none, so it gets the
      current release. */
-  var PRODUCTS = {
+  var PRODUCTS;
+  function buildProducts() { PRODUCTS = {
     G: { name: "GRACE-SeDA", grid: "0.5 degrees", trend: R.tG, p: R.pG,
          cells: R.ncG, vr: R.vrG, pr: R.prG, pre: R.prGe, rank: R.rkG,
          downscaled: true, parent: R.tC61 || R.tC, parentName: "JPL RL06.1Mv03" },
@@ -40,10 +46,12 @@
            trend: R.tC61, p: R.pC61, rank: null, downscaled: false },
     C2: { name: "GSFC coarse", grid: "native mascons, about 12,400 km2", trend: R.tC2,
           p: null, rank: null, downscaled: false }
-  };
+  }; }
+  buildProducts();
 
   var DEFAULTS = R.meta.config;
   var state = {
+    unit: "level06",
     product: "G",
     layer: "TREND",
     t: {
@@ -88,11 +96,17 @@
   OWN.concat(PAIR).forEach(function (f) { LABEL[f.k] = f.label; });
 
   /* ------------------------------------------------------------------ flags */
-  var tested = R.tested;
-  var flag = {};
-  OWN.concat(PAIR).forEach(function (f) { flag[f.k] = new Uint8Array(N); });
-  var anyFlag = new Uint8Array(N);
-  var anyOwn = new Uint8Array(N);
+  var tested, flag, anyFlag, anyOwn, paths;
+  function buildArrays() {
+    tested = R.tested;
+    flag = {};
+    OWN.concat(PAIR).forEach(function (f) { flag[f.k] = new Uint8Array(N); });
+    anyFlag = new Uint8Array(N);
+    anyOwn = new Uint8Array(N);
+    paths = new Array(N);
+    for (var i = 0; i < N; i++) paths[i] = new Path2D(R.d[i]);
+  }
+  buildArrays();
 
   function compute() {
     var t = state.t, P = PRODUCTS[state.product];
@@ -135,9 +149,6 @@
   }
 
   /* -------------------------------------------------------------- geometry */
-  var paths = new Array(N);
-  for (var i = 0; i < N; i++) paths[i] = new Path2D(R.d[i]);
-
   var cv = document.getElementById("map");
   var ctx = cv.getContext("2d");
   var pickCv = document.createElement("canvas");
@@ -635,9 +646,11 @@
         R.meta.common_period[1];
       note.textContent = "Slope of one line fitted through every month, with annual and " +
         "semi-annual harmonics alongside it, in millimeters of water per year. Same estimator " +
-        "and same color scale as the first tab, on 16,397 level 6 basins rather than 247, and " +
-        "over 2002 to 2022 rather than the GRACE-FO window. Read the panel below before using " +
-        "any of it.";
+        "and same color scale as the first tab, on " + thousands(R.meta.n_basins) + " " +
+        (state.unit === "aquifer" ? "WHYMAP hydrogeological units"
+                                  : "HydroSHEDS level 6 catchments") +
+        ", and over 2002 to 2022 rather than the GRACE-FO window. Read the panel below " +
+        "before using any of it.";
     } else {
       var c = tally(active());
       sub.textContent = thousands(c.n) + " of " + thousands(R.meta.n_tested) +
@@ -672,6 +685,41 @@
   document.getElementById("seg-layer").addEventListener("click", layerClick);
   document.getElementById("seg-pair").addEventListener("click", layerClick);
 
+  function applyUnit(tag) {
+    R = window["RED_" + tag];
+    N = R.id.length;
+    state.unit = tag;
+    state.pick = -1;
+    buildProducts();
+    buildArrays();
+    sizeCanvas();
+    fillText();
+    recompute();
+    drawRanks();
+    document.getElementById("pick").innerHTML = pickRows(-1);
+    document.getElementById("unit-hint").textContent =
+      thousands(R.meta.n_basins) + " units, " + thousands(R.meta.n_tested) + " testable";
+  }
+
+  document.getElementById("seg-unit").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button");
+    if (!b || b.disabled) return;
+    var tag = b.dataset.v;
+    if (tag === state.unit) return;
+    [].forEach.call(this.querySelectorAll("button"), function (x) {
+      x.setAttribute("aria-pressed", String(x === b));
+    });
+    if (window["RED_" + tag]) { applyUnit(tag); return; }
+    document.getElementById("unit-hint").textContent = "loading " + UNITS[tag] + "...";
+    var sc = document.createElement("script");
+    sc.src = "red_data_" + tag + ".js";
+    sc.onload = function () { applyUnit(tag); };
+    sc.onerror = function () {
+      document.getElementById("unit-hint").textContent = "could not load " + UNITS[tag];
+    };
+    document.head.appendChild(sc);
+  });
+
   document.getElementById("reset").addEventListener("click", function () {
     SLIDERS.forEach(function (s) {
       state.t[s.k] = DEFAULTS[s.k];
@@ -701,7 +749,7 @@
     var g = m.geometry;
     document.getElementById("foot-area").innerHTML =
       "<b>Basin size.</b> " + thousands(g.n_above_reliable_threshold) + " of " +
-      thousands(g.n_basins) + " level 6 basins reach the 63,000 km2 reliable unit of Vishwakarma, " +
+      thousands(g.n_basins) + " " + (state.unit === "aquifer" ? "aquifer units" : "level 6 basins") + " reach the 63,000 km2 reliable unit of Vishwakarma, " +
       "Devaraju and Sneeuw (2018), which is " + (g.area_share_above_reliable_threshold * 100).toFixed(1) +
       " percent of the level's land area. The median basin is " +
       thousands(g.area_km2["50"]) + " km2 and holds " + g.median_n_cells_G +
@@ -738,6 +786,8 @@
   var mq = window.matchMedia("(prefers-color-scheme: dark)");
   if (mq.addEventListener) mq.addEventListener("change", function () { recompute(); });
 
+  document.getElementById("unit-hint").textContent =
+    thousands(R.meta.n_basins) + " units, " + thousands(R.meta.n_tested) + " testable";
   fillText();
   drawSliders();
   sizeCanvas();

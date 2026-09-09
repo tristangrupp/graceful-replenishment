@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, r"E:\Water\_shared")
+import red_grid as rg  # noqa: E402
 from gsfc_grid import ICE, cell_to_mascon, load_geometry, terrestrial  # noqa: E402
 
 ROOT = Path(r"E:\Water\Global")
@@ -27,12 +28,16 @@ W = 10000                      # Robinson pixel width; 1 unit ~ 3.4 km
 ROBIN = "+proj=robin +lon_0=0 +datum=WGS84 +units=m +no_defs"
 XMAX, YMAX = 17005833.0, 8625155.0
 H = int(round(W * YMAX / XMAX))
-SIMPLIFY = {"03": 8000, "04": 4000}
+SIMPLIFY = {"03": 8000, "04": 4000, "aq": 4000}
 
 # HydroBASINS encodes its region in the first digit of HYBAS_ID. These are
 # HydroSHEDS' own region names, not shortened versions of them: region 2 covers
 # the Middle East as well as Europe, which is why the Arabian Peninsula sits
 # there, and region 4 stops at Central and South-East Asia.
+SHORT_GROUP = {"Major groundwater basin": "major basin",
+               "Complex hydrogeological structure": "complex structure",
+               "Local and shallow aquifer": "local and shallow"}
+
 REGION = {1: "Africa", 2: "Europe and Middle East", 3: "Siberia",
           4: "Central and SE Asia", 5: "Australia and Oceania",
           6: "South America", 7: "North America", 8: "North American Arctic",
@@ -88,11 +93,8 @@ def series_int(s):
 
 payload = {"months": month_labels, "width": W, "height": H, "levels": {}}
 
-for level in ("03", "04"):
-    src = sorted(glob.glob(str(ROOT / "raw" / "hydrobasins" / f"*lev{level}*.shp")))
-    basins = pd.concat([gpd.read_file(p) for p in src], ignore_index=True)
-    basins = gpd.GeoDataFrame(basins, geometry="geometry", crs="EPSG:4326")
-    basins["basin_idx"] = np.arange(len(basins))
+for level in ("03", "04", "aq"):
+    basins = rg.load_basins(level)
     tr = pd.read_csv(ROOT / "trends" / f"basins_lev{level}_trends.csv").set_index("basin_idx")
     # Glacier cover, so a ranked list can drop basins whose storage trend is ice
     # loss rather than groundwater. GSFC's own ice codes miss Svalbard, Novaya
@@ -131,11 +133,18 @@ for level in ("03", "04"):
         hid = int(basins.HYBAS_ID.iloc[bi])
         rows.append({
             "id": hid,
-            "region": REGION.get(hid // 1000000000, "?"),
+            "region": (str(basins["region"].iloc[bi]) if "region" in basins.columns
+                       else REGION.get(hid // 1000000000, "?")),
             "lon": round(float(cent.iloc[bi].x), 2),
             "lat": round(float(cent.iloc[bi].y), 2),
             "area": int(round(float(basins.SUB_AREA.iloc[bi]))),
             "nm": int(row["n_mascons"]),
+            # WHYMAP's class, so an aquifer unit can be named by what it is
+            # rather than by a sequential number that means nothing.
+            "grp": (SHORT_GROUP.get(str(basins["aq_group"].iloc[bi]))
+                    if "aq_group" in basins.columns else None),
+            "rch": (str(basins["aq_recharge"].iloc[bi])
+                    if "aq_recharge" in basins.columns else None),
             "ice": round(float(row.get("ice_fraction", 0) or 0), 3),
             "gl": round(float(gl.get(hid, 0.0)), 3),
             "tt": round(float(row["tws_trend_mm_yr"]), 2),
@@ -167,5 +176,13 @@ for level in ("03", "04"):
 
 out = ROOT / "viz" / "grace_basins.json"
 out.parent.mkdir(parents=True, exist_ok=True)
-out.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+blob = json.dumps(payload, separators=(",", ":"))
+out.write_text(blob, encoding="utf-8")
 print(f"wrote {out} ({out.stat().st_size/1e6:.1f} MB)")
+
+# The same payload as the site reads it. Written here rather than by a separate
+# step so the two can never drift apart.
+site = ROOT / "viz" / "site" / "data.js"
+site.parent.mkdir(parents=True, exist_ok=True)
+site.write_text("window.GRACE=" + blob + ";" + chr(10), encoding="utf-8")
+print(f"wrote {site} ({site.stat().st_size/1e6:.1f} MB)")

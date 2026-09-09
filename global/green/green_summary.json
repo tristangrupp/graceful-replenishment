@@ -159,6 +159,107 @@
       }
     }
   },
+  "by_aquifer_class": {
+    "Complex hydrogeological structure": {
+      "n_wells": 6624,
+      "median_r": {
+        "jpl": 0.20064408748468293,
+        "jpl61": 0.19308507698262295,
+        "seda": 0.15913812797049517,
+        "liku": 0.17743336818157723
+      },
+      "median_delta_r": {
+        "seda": 0.005445194106007731,
+        "liku": -0.008495195575728823
+      },
+      "models": {
+        "A_predictors_only": {
+          "oos_r2": 0.08279913040665166,
+          "n_rows": 88084
+        },
+        "B_plus_coarse_RL0603": {
+          "oos_r2": 0.10910678690256181,
+          "n_rows": 88084
+        },
+        "C_plus_seda": {
+          "oos_r2": 0.11054774532877965,
+          "n_rows": 88084
+        },
+        "C_plus_liku": {
+          "oos_r2": 0.11398603015447173,
+          "n_rows": 88084
+        }
+      },
+      "n_wells_in_panel": 5752,
+      "n_mascons_in_panel": 97
+    },
+    "Local and shallow aquifer": {
+      "n_wells": 38299,
+      "median_r": {
+        "jpl": 0.4353521558877586,
+        "jpl61": 0.43540622402343127,
+        "seda": 0.33486877023653117,
+        "liku": 0.4237019504179221
+      },
+      "median_delta_r": {
+        "seda": -0.06756485526997758,
+        "liku": 0.008413966539762879
+      },
+      "models": {
+        "A_predictors_only": {
+          "oos_r2": 0.14762714813289468,
+          "n_rows": 267092
+        },
+        "B_plus_coarse_RL0603": {
+          "oos_r2": 0.1679219947765248,
+          "n_rows": 267092
+        },
+        "C_plus_seda": {
+          "oos_r2": 0.15632414376203219,
+          "n_rows": 267092
+        },
+        "C_plus_liku": {
+          "oos_r2": 0.17222248515763816,
+          "n_rows": 267092
+        }
+      },
+      "n_wells_in_panel": 18758,
+      "n_mascons_in_panel": 118
+    },
+    "Major groundwater basin": {
+      "n_wells": 33436,
+      "median_r": {
+        "jpl": 0.38434447902897567,
+        "jpl61": 0.3833436526589774,
+        "seda": 0.34575536849929567,
+        "liku": 0.3708450812581056
+      },
+      "median_delta_r": {
+        "seda": -0.0037619056166279252,
+        "liku": -0.0029531613748101926
+      },
+      "models": {
+        "A_predictors_only": {
+          "oos_r2": 0.052255505881060205,
+          "n_rows": 460984
+        },
+        "B_plus_coarse_RL0603": {
+          "oos_r2": 0.10033180839597766,
+          "n_rows": 460984
+        },
+        "C_plus_seda": {
+          "oos_r2": 0.10171134509457946,
+          "n_rows": 460984
+        },
+        "C_plus_liku": {
+          "oos_r2": 0.1018349118982671,
+          "n_rows": 460984
+        }
+      },
+      "n_wells_in_panel": 30785,
+      "n_mascons_in_panel": 99
+    }
+  },
   "ablation_paired_by_mascon": {
     "A_predictors_only_minus_B_plus_coarse_RL0603": {
       "n_mascons": 152,

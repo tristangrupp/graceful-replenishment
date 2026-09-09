@@ -26,7 +26,11 @@ from gsfc_grid import (CM_TO_MM, cell_to_mascon, load_geometry, load_series,  # 
                        terrestrial)
 
 RED = rg.RED
-LEVEL = "06"
+# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
+# hydrogeological units. Outputs are tagged with it so the two never overwrite
+# each other, and every script downstream reads the same tag.
+LEVEL = sys.argv[1] if len(sys.argv) > 1 else "06"
+TAG = "aquifer" if LEVEL in ("aq", "aquifer", "aquifers") else f"level{LEVEL}"
 SEDA = rg.RAW / "downscaled" / "GRACE-SeDA_v1_2002_2022.nc"
 LIKU = rg.RAW / "downscaled" / "LiKusche_JPL_mascon_downscaled-v2.0.nc"
 JPL = rg.RAW / "jpl_mascon" / "jpl_mascon_rl0603v04_cri.nc"
@@ -47,7 +51,7 @@ def to_month(idx) -> pd.DatetimeIndex:
 def save(name: str, times, values: np.ndarray) -> pd.DataFrame:
     df = pd.DataFrame(values, index=to_month(times), columns=cols)
     df = df.groupby(level=0).mean().sort_index()
-    df.to_parquet(RED / f"series_{name}.parquet")
+    df.to_parquet(RED / f"series_{TAG}_{name}.parquet")
     got = int(np.isfinite(df.to_numpy()).any(axis=0).sum())
     print(f"  {name}: {len(df)} months {df.index[0]:%Y-%m}..{df.index[-1]:%Y-%m}, "
           f"{got}/{n} basins with data")
@@ -210,7 +214,7 @@ for fn in cfiles:
         v[v < -100] = np.nan
         frames.append(pd.DataFrame(wc.means(v), index=to_month(d["time"].values), columns=cols))
 chirps = pd.concat(frames).sort_index()
-chirps.to_parquet(RED / "series_precip_chirps.parquet")
+chirps.to_parquet(RED / f"series_{TAG}_precip_chirps.parquet")
 print(f"  chirps: {len(chirps)} months, "
       f"{int(np.isfinite(chirps.to_numpy()).any(axis=0).sum())}/{n} basins with data")
 prov["chirps"] = {"product": "CHIRPS v2.0 global monthly", "grid": "0.05 deg",
@@ -225,10 +229,10 @@ src = np.where(have_chirps, "chirps", "gldas")
 idx = chirps.index.intersection(gldas_pr.index)
 precip = gldas_pr.loc[idx].copy()
 precip.loc[:, have_chirps] = chirps.loc[idx].to_numpy()[:, have_chirps]
-precip.to_parquet(RED / "series_precip.parquet")
-pd.DataFrame({"HYBAS_ID": cols, "precip_source": src}).to_parquet(RED / "precip_source.parquet")
+precip.to_parquet(RED / f"series_{TAG}_precip.parquet")
+pd.DataFrame({"HYBAS_ID": cols, "precip_source": src}).to_parquet(RED / f"{TAG}_precip_source.parquet")
 print(f"  combined precip: {len(precip)} months, "
       f"{int((src == 'chirps').sum())} basins on CHIRPS, {int((src == 'gldas').sum())} on GLDAS")
 
-json.dump(prov, open(RED / "sources.json", "w"), indent=2)
-print("wrote", RED / "sources.json")
+json.dump(prov, open(RED / f"{TAG}_sources.json", "w"), indent=2)
+print("wrote", RED / f"{TAG}_sources.json")

@@ -32,6 +32,7 @@ import xarray as xr
 sys.path.insert(0, r"E:\Water\_shared")
 sys.path.insert(0, r"C:\Users\grupp\dark-water-extract\dark-water-main\src")
 from dark_water.depletion_watchlist.depletion import trend as T  # noqa: E402
+import red_grid as rg  # noqa: E402
 from gsfc_grid import ICE, cell_to_mascon, load_geometry, terrestrial  # noqa: E402
 
 ROOT = Path(r"E:\Water\Global")
@@ -44,13 +45,11 @@ geo = load_geometry()
 land = terrestrial(geo)
 is_ice = geo['location'].isin(ICE).to_numpy()
 
-basins = pd.concat(
-    [gpd.read_file(p) for p in sorted(glob.glob(
-        str(ROOT / "raw" / "hydrobasins" / f"*lev{LEVEL}*.shp")))],
-    ignore_index=True)
-basins = gpd.GeoDataFrame(basins, geometry="geometry", crs="EPSG:4326")
-basins["basin_idx"] = np.arange(len(basins))
-print(f"level {LEVEL}: {len(basins)} basins, {basins.SUB_AREA.sum()/1e6:.1f} million km2, "
+# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
+# hydrogeological units. Both carry HYBAS_ID and SUB_AREA, which is all this
+# script needs, so the aggregation below does not care which it has.
+basins = rg.load_basins(LEVEL)
+print(f"unit {LEVEL}: {len(basins)} units, {basins.SUB_AREA.sum()/1e6:.1f} million km2, "
       f"median {basins.SUB_AREA.median():,.0f} km2")
 
 lat = np.arange(-90 + RES / 2, 90, RES)

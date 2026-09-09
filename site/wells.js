@@ -21,8 +21,10 @@
     rG: { arr: G.rG, lo: -1, hi: 1, label: "correlation with GRACE-SeDA" },
     rL: { arr: G.rL, lo: -1, hi: 1, label: "correlation with Li and Kusche" },
     dG: { arr: G.dG, lo: -0.4, hi: 0.4, label: "GRACE-SeDA minus its parent, RL06.1" },
-    dL: { arr: G.dL, lo: -0.4, hi: 0.4, label: "Li and Kusche minus its parent, RL06.3" }
+    dL: { arr: G.dL, lo: -0.4, hi: 0.4, label: "Li and Kusche minus its parent, RL06.3" },
+    aq: { arr: G.aqg, categorical: true, label: "WHYMAP aquifer class" }
   };
+  var AQ_COLORS = ["#2a78d6", "#7a5aa8", "#b5341c"];
   var state = { layer: "cover", pick: -1 };
 
   function css(v) {
@@ -81,6 +83,8 @@
         col = (v === null || v === undefined) ? NEUTRAL : WARM;
       } else if (v === null || v === undefined) {
         continue;
+      } else if (spec.categorical) {
+        col = AQ_COLORS[v] || NEUTRAL;
       } else {
         col = colorFor(v, spec.lo, spec.hi);
       }
@@ -140,7 +144,9 @@
       ["r, GRACE-SeDA", fmt(G.rG[i])],
       ["r, Li and Kusche", fmt(G.rL[i])],
       ["SeDA minus parent", signed(G.dG[i])],
-      ["Li and Kusche minus parent", signed(G.dL[i])]
+      ["Li and Kusche minus parent", signed(G.dL[i])],
+      ["aquifer class", (G.aqg && G.aqg[i] !== null && G.aqg[i] !== undefined)
+        ? G.aq_names[G.aqg[i]] : "outside any WHYMAP polygon"]
     ];
     return rows.map(function (r) {
       return "<tr><td class=\"name\">" + r[0] + "</td><td>" + r[1] + "</td></tr>";
@@ -186,6 +192,25 @@
     document.getElementById("dist-sub").textContent =
       state.layer === "cover" ? "correlation with the coarse solution" : spec.label;
 
+    if (spec.categorical) {
+      var counts = [0, 0, 0], miss = 0;
+      for (var q = 0; q < N; q++) {
+        var c = arr[q];
+        if (c === null || c === undefined) miss++; else counts[c]++;
+      }
+      var tot = N, y0 = 18;
+      g.font = "11px 'IBM Plex Sans', sans-serif";
+      (G.aq_names || []).forEach(function (nm, k) {
+        g.fillStyle = AQ_COLORS[k];
+        g.fillRect(6, y0 - 9, (counts[k] / tot) * (w - 12), 12);
+        g.fillStyle = css("--ink-2") || "#3c3c38";
+        g.fillText(nm + "  " + thousands(counts[k]), 10, y0 + 1);
+        y0 += 22;
+      });
+      g.fillStyle = css("--muted") || "#6d6d66";
+      g.fillText("outside any polygon  " + thousands(miss), 10, y0 + 1);
+      return;
+    }
     var lo = state.layer === "cover" ? -1 : spec.lo;
     var hi = state.layer === "cover" ? 1 : spec.hi;
     var NB = 60, pad = 26, plotW = w - pad - 6, plotH = h - 24;
@@ -305,10 +330,38 @@
       fmt(a.C_plus_liku.oos_r2, 3) + ". The finer grid buys nothing a well can see.";
   }
 
+  function drawAquifer() {
+    var by = M.by_aquifer_class || {};
+    var order = ["Major groundwater basin", "Complex hydrogeological structure",
+                 "Local and shallow aquifer"];
+    var cols = ["A_predictors_only", "B_plus_coarse_RL0603", "C_plus_seda", "C_plus_liku"];
+    var rows = order.filter(function (k) { return by[k]; }).map(function (k) {
+      var v = by[k];
+      return "<tr><td class=\"name\">" + k + "</td><td>" + thousands(v.n_wells) + "</td>" +
+        cols.map(function (c) {
+          return "<td>" + (v.models[c] ? fmt(v.models[c].oos_r2, 4) : "n/a") + "</td>";
+        }).join("") + "</tr>";
+    }).join("");
+    document.getElementById("aquifer").innerHTML = rows;
+    var mb = by["Major groundwater basin"], ls = by["Local and shallow aquifer"];
+    if (mb && ls && mb.models.A_predictors_only && ls.models.A_predictors_only) {
+      document.getElementById("aquifer-note").textContent =
+        "Gravimetry earns its place where the aquifer is a major basin. There weather alone " +
+        "reaches " + fmt(mb.models.A_predictors_only.oos_r2, 3) + " and adding the coarse GRACE " +
+        "term nearly doubles it to " + fmt(mb.models.B_plus_coarse_RL0603.oos_r2, 3) +
+        ". Over local and shallow aquifers weather alone already reaches " +
+        fmt(ls.models.A_predictors_only.oos_r2, 3) + ", because a shallow water table answers to " +
+        "rainfall directly, and GRACE adds far less. In every class the downscaled terms land on " +
+        "top of the coarse one.";
+    }
+  }
+
   function syncChrome() {
     var spec = LAYERS[state.layer];
     var cover = state.layer === "cover";
-    document.getElementById("legend").hidden = cover;
+    var cat = !!spec.categorical;
+    document.getElementById("legend").hidden = cover || cat;
+    document.getElementById("legend-cat").hidden = !cat;
     document.getElementById("map-title").textContent =
       cover ? "Where the open well records are" : "Agreement at each well";
     document.getElementById("map-sub").textContent =
@@ -321,7 +374,7 @@
         + "left off this layer.";
     document.getElementById("hint").textContent = cover
       ? "hover a well for its numbers" : "";
-    if (!cover) {
+    if (!cover && !cat) {
       document.getElementById("ramp").style.background =
         "linear-gradient(90deg," + ramp().join(",") + ")";
       var mid = (spec.lo + spec.hi) / 2;
@@ -351,6 +404,7 @@
   });
 
   fillTables();
+  drawAquifer();
   sizeCanvas();
   syncChrome();
   drawMap();

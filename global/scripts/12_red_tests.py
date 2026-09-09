@@ -29,6 +29,11 @@ import red_grid as rg  # noqa: E402
 from dark_water.depletion_watchlist.depletion import trend as T  # noqa: E402
 
 RED = rg.RED
+# The unit of analysis: a HydroSHEDS level, or "aq" for the WHYMAP
+# hydrogeological units. Outputs are tagged with it so the two never overwrite
+# each other, and every script downstream reads the same tag.
+LEVEL = sys.argv[1] if len(sys.argv) > 1 else "06"
+TAG = "aquifer" if LEVEL in ("aq", "aquifer", "aquifers") else f"level{LEVEL}"
 
 CONFIG = {
     # test 1, geometry
@@ -56,13 +61,13 @@ SENSITIVITY = {
     "max_rank_shift": [10.0, 20.0, 30.0, 50.0],
 }
 
-geom = pd.read_parquet(RED / "level6_geometry.parquet")
+geom = pd.read_parquet(RED / f"{TAG}_geometry.parquet")
 n = len(geom)
 hyb = geom["HYBAS_ID"].to_numpy()
 
 
 def load(name):
-    p = RED / f"series_{name}.parquet"
+    p = RED / f"series_{TAG}_{name}.parquet"
     if not p.exists():
         return None
     df = pd.read_parquet(p)
@@ -369,7 +374,7 @@ out["rank_coarse_gsfc"] = rank_C2
 out["rank_shift"] = rank_shift
 for k, v in F.items():
     out[k] = v
-out.to_parquet(RED / "level6_red_flags.parquet")
+out.to_parquet(RED / f"{TAG}_red_flags.parquet")
 
 area = out["SUB_AREA"].to_numpy()
 
@@ -470,5 +475,37 @@ summary = {
     "sensitivity": sens,
     "sensitivity_corners": corners,
 }
-json.dump(summary, open(RED / "level6_red_summary.json", "w"), indent=2)
+# When the unit is WHYMAP's, the flags can also be read by aquifer class, which
+# is the one thing a surface catchment cannot be asked. A basin has no
+# subsurface identity; an aquifer unit does.
+if "aq_group" in geom.columns:
+    by_class = {}
+    for grp, sub in geom.groupby("aq_group"):
+        idx = sub.index.to_numpy()
+        m = usable[idx]
+        if not m.any():
+            continue
+        entry = {"units": int(len(idx)), "tested": int(m.sum()),
+                 "area_km2": float(area[idx].sum()),
+                 "median_area_km2": float(np.median(area[idx])),
+                 "flags": {}}
+        for k, v in F.items():
+            sel = v[idx] & m
+            entry["flags"][k] = {
+                "n": int(sel.sum()),
+                "share_of_tested": float(sel.sum() / m.sum()),
+                "area_share_of_tested": float(area[idx][sel].sum() / area[idx][m].sum()),
+            }
+        entry["median_var_ratio_G"] = float(np.nanmedian(var_ratio_G[idx][m]))
+        entry["median_var_ratio_L"] = float(np.nanmedian(var_ratio_L[idx][m]))
+        entry["median_frac_dominant"] = float(
+            np.nanmedian(geom["frac_dominant_mascon"].to_numpy()[idx][m]))
+        by_class[str(grp)] = entry
+    summary["by_aquifer_class"] = by_class
+    for k, v in by_class.items():
+        print(f"  {k[:34]:34s} tested {v['tested']:>5,}  any failure "
+              f"{v['flags']['RED_ANY']['share_of_tested']*100:5.1f}%  "
+              f"median share in one mascon {v['median_frac_dominant']:.2f}")
+
+json.dump(summary, open(RED / f"{TAG}_red_summary.json", "w"), indent=2)
 print(json.dumps({k: v for k, v in summary.items() if k != "sensitivity"}, indent=2))

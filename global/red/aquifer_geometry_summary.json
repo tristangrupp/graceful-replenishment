@@ -1,0 +1,26 @@
+{
+  "unit": "aquifer",
+  "level": "aq",
+  "n_basins": 3291,
+  "total_area_km2": 133185138.04946983,
+  "area_km2": {
+    "5": 52.40244869564795,
+    "25": 167.64847265908878,
+    "50": 956.6653431093384,
+    "75": 12258.647937217218,
+    "95": 139552.0836838499
+  },
+  "reliable_area_threshold_km2": 63000,
+  "n_above_reliable_threshold": 288,
+  "area_share_above_reliable_threshold": 0.8494028262213873,
+  "median_n_cells_G": 1.0,
+  "median_n_cells_L": 2.0,
+  "median_n_native_footprints": 1.0,
+  "median_frac_dominant_mascon": 1.0,
+  "n_frac_dominant_over_0p95": 2036,
+  "n_cells_G_under_2": 1938,
+  "raster_area_check": {
+    "median_ratio_raster_to_subarea": 1.000131304113686,
+    "n_basins_with_no_raster_cell": 54
+  }
+}

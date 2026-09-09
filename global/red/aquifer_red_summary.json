@@ -1,0 +1,634 @@
+{
+  "common_period": [
+    "2002-04",
+    "2022-12"
+  ],
+  "n_months": 214,
+  "n_months_with_predictors": 214,
+  "have_li_kusche": true,
+  "n_basins": 3291,
+  "n_tested": 1570,
+  "tested_area_km2": 131438470.87731734,
+  "flags": {
+    "RED_GEOMETRY": {
+      "n": 656,
+      "area_share_of_tested": 0.030143995194849452
+    },
+    "RED_NO_INDEPENDENT_DEPARTURE": {
+      "n": 1048,
+      "area_share_of_tested": 0.8787888285747357
+    },
+    "RED_PREDICTOR_DERIVED": {
+      "n": 34,
+      "area_share_of_tested": 0.017620889604315657
+    },
+    "RED_DISAGREEMENT": {
+      "n": 652,
+      "area_share_of_tested": 0.19977570432171063
+    },
+    "RED_RANK_UNSTABLE": {
+      "n": 400,
+      "area_share_of_tested": 0.10609288761294682
+    },
+    "RED_ANY": {
+      "n": 1472,
+      "area_share_of_tested": 0.9374563146665833
+    },
+    "RED_GEOMETRY_G": {
+      "n": 656,
+      "area_share_of_tested": 0.030143995194849452
+    },
+    "RED_NO_INDEPENDENT_DEPARTURE_G": {
+      "n": 26,
+      "area_share_of_tested": 0.19072249187069754
+    },
+    "RED_PREDICTOR_DERIVED_G": {
+      "n": 27,
+      "area_share_of_tested": 0.008134885399044394
+    },
+    "RED_ANY_OWN_G": {
+      "n": 692,
+      "area_share_of_tested": 0.22314730805974856
+    },
+    "RED_GEOMETRY_L": {
+      "n": 609,
+      "area_share_of_tested": 0.028841959198985943
+    },
+    "RED_NO_INDEPENDENT_DEPARTURE_L": {
+      "n": 1047,
+      "area_share_of_tested": 0.878703513748718
+    },
+    "RED_PREDICTOR_DERIVED_L": {
+      "n": 11,
+      "area_share_of_tested": 0.010256010421316967
+    },
+    "RED_ANY_OWN_L": {
+      "n": 1324,
+      "area_share_of_tested": 0.8903067706691055
+    }
+  },
+  "area": {
+    "median_km2_red": 12676.90170206303,
+    "median_km2_not_red": 15316.747416198294,
+    "n_not_red": 98,
+    "area_share_not_red": 0.06254368533341663,
+    "red_share_by_area_decile": [
+      {
+        "decile": 1,
+        "area_km2_range": [
+          22.551767311224648,
+          373.1978113591882
+        ],
+        "n": 157,
+        "red_share": 1.0
+      },
+      {
+        "decile": 2,
+        "area_km2_range": [
+          373.1978113591882,
+          2962.999797266611
+        ],
+        "n": 157,
+        "red_share": 0.9808917197452229
+      },
+      {
+        "decile": 3,
+        "area_km2_range": [
+          2962.999797266611,
+          5441.625439655329
+        ],
+        "n": 157,
+        "red_share": 0.9299363057324841
+      },
+      {
+        "decile": 4,
+        "area_km2_range": [
+          5441.625439655329,
+          8608.663483627726
+        ],
+        "n": 157,
+        "red_share": 0.8980891719745223
+      },
+      {
+        "decile": 5,
+        "area_km2_range": [
+          8608.663483627726,
+          12834.908829300073
+        ],
+        "n": 157,
+        "red_share": 0.9171974522292994
+      },
+      {
+        "decile": 6,
+        "area_km2_range": [
+          12834.908829300073,
+          20054.120464302934
+        ],
+        "n": 157,
+        "red_share": 0.910828025477707
+      },
+      {
+        "decile": 7,
+        "area_km2_range": [
+          20054.120464302934,
+          32281.364836797755
+        ],
+        "n": 157,
+        "red_share": 0.910828025477707
+      },
+      {
+        "decile": 8,
+        "area_km2_range": [
+          32281.364836797755,
+          55323.32337492725
+        ],
+        "n": 157,
+        "red_share": 0.9617834394904459
+      },
+      {
+        "decile": 9,
+        "area_km2_range": [
+          55323.32337492725,
+          146130.04440369786
+        ],
+        "n": 157,
+        "red_share": 0.9299363057324841
+      },
+      {
+        "decile": 10,
+        "area_km2_range": [
+          146130.04440369786,
+          14590175.057557162
+        ],
+        "n": 157,
+        "red_share": 0.9363057324840764
+      }
+    ]
+  },
+  "spearman": {
+    "G_vs_L": 0.7364862386427384,
+    "G_vs_coarse": 0.7189048290012732,
+    "L_vs_coarse": 0.9816401069227285,
+    "n": 1570,
+    "coarse_JPL_vs_GSFC": 0.8340172576095545,
+    "n_coarse_pair": 1548,
+    "coarse_RL0603_vs_RL0601": 0.9990018883990935
+  },
+  "medians": {
+    "var_ratio_G": 0.4349178170239716,
+    "var_ratio_L": 0.03165544773659494,
+    "var_ratio_G_alt_release": 0.4376697905781106,
+    "var_ratio_L_alt_release": 0.03148945377657,
+    "var_ratio_release": 0.0003395265192349037,
+    "var_ratio_solution": 0.2741078626467901,
+    "pred_r2_G": 0.2545666783197772,
+    "pred_r2_eff_G": 0.01069071462555432,
+    "pred_r2_L": 0.2396205905200457,
+    "r_GL": 0.8679929384821925,
+    "r_GC": 0.8563323688793554,
+    "r_LC": 0.9895355897740359,
+    "rank_shift": 9.43275971956661
+  },
+  "config": {
+    "min_cells": 2,
+    "max_frac_dominant": 0.95,
+    "min_var_ratio": 0.05,
+    "max_pred_r2": 0.8,
+    "min_r_GL": 0.5,
+    "max_trend_diff_ratio": 1.0,
+    "max_rank_shift": 20.0,
+    "min_months": 60,
+    "min_coverage": 0.5
+  },
+  "sensitivity": {
+    "min_cells": [
+      {
+        "value": 1,
+        "n_RED_ANY": 1464,
+        "n_flag": 613
+      },
+      {
+        "value": 2,
+        "n_RED_ANY": 1472,
+        "n_flag": 656
+      },
+      {
+        "value": 3,
+        "n_RED_ANY": 1492,
+        "n_flag": 731
+      },
+      {
+        "value": 4,
+        "n_RED_ANY": 1503,
+        "n_flag": 774
+      }
+    ],
+    "max_frac_dominant": [
+      {
+        "value": 0.8,
+        "n_RED_ANY": 1496,
+        "n_flag": 812
+      },
+      {
+        "value": 0.9,
+        "n_RED_ANY": 1483,
+        "n_flag": 713
+      },
+      {
+        "value": 0.95,
+        "n_RED_ANY": 1472,
+        "n_flag": 656
+      },
+      {
+        "value": 0.99,
+        "n_RED_ANY": 1461,
+        "n_flag": 589
+      }
+    ],
+    "min_var_ratio": [
+      {
+        "value": 0.02,
+        "n_RED_ANY": 1271,
+        "n_flag": 502
+      },
+      {
+        "value": 0.05,
+        "n_RED_ANY": 1472,
+        "n_flag": 1048
+      },
+      {
+        "value": 0.1,
+        "n_RED_ANY": 1547,
+        "n_flag": 1340
+      },
+      {
+        "value": 0.2,
+        "n_RED_ANY": 1566,
+        "n_flag": 1490
+      }
+    ],
+    "max_pred_r2": [
+      {
+        "value": 0.7,
+        "n_RED_ANY": 1477,
+        "n_flag": 87
+      },
+      {
+        "value": 0.8,
+        "n_RED_ANY": 1472,
+        "n_flag": 34
+      },
+      {
+        "value": 0.9,
+        "n_RED_ANY": 1469,
+        "n_flag": 7
+      },
+      {
+        "value": 0.95,
+        "n_RED_ANY": 1468,
+        "n_flag": 1
+      }
+    ],
+    "min_r_GL": [
+      {
+        "value": 0.3,
+        "n_RED_ANY": 1470,
+        "n_flag": 636
+      },
+      {
+        "value": 0.5,
+        "n_RED_ANY": 1472,
+        "n_flag": 652
+      },
+      {
+        "value": 0.7,
+        "n_RED_ANY": 1485,
+        "n_flag": 726
+      },
+      {
+        "value": 0.9,
+        "n_RED_ANY": 1532,
+        "n_flag": 1049
+      }
+    ],
+    "max_trend_diff_ratio": [
+      {
+        "value": 0.5,
+        "n_RED_ANY": 1506,
+        "n_flag": 992
+      },
+      {
+        "value": 1.0,
+        "n_RED_ANY": 1472,
+        "n_flag": 652
+      },
+      {
+        "value": 2.0,
+        "n_RED_ANY": 1436,
+        "n_flag": 175
+      },
+      {
+        "value": 5.0,
+        "n_RED_ANY": 1436,
+        "n_flag": 175
+      }
+    ],
+    "max_rank_shift": [
+      {
+        "value": 10.0,
+        "n_RED_ANY": 1486,
+        "n_flag": 746
+      },
+      {
+        "value": 20.0,
+        "n_RED_ANY": 1472,
+        "n_flag": 400
+      },
+      {
+        "value": 30.0,
+        "n_RED_ANY": 1465,
+        "n_flag": 213
+      },
+      {
+        "value": 50.0,
+        "n_RED_ANY": 1465,
+        "n_flag": 54
+      }
+    ]
+  },
+  "sensitivity_corners": {
+    "most_generous": {
+      "config": {
+        "min_cells": 1,
+        "max_frac_dominant": 0.99,
+        "min_var_ratio": 0.02,
+        "max_pred_r2": 0.95,
+        "min_r_GL": 0.3,
+        "max_trend_diff_ratio": 5.0,
+        "max_rank_shift": 50.0
+      },
+      "n_RED_ANY": 985,
+      "share_of_tested": 0.6273885350318471,
+      "area_share_of_tested": 0.5545291092595026
+    },
+    "strictest": {
+      "config": {
+        "min_cells": 4,
+        "max_frac_dominant": 0.8,
+        "min_var_ratio": 0.2,
+        "max_pred_r2": 0.7,
+        "min_r_GL": 0.9,
+        "max_trend_diff_ratio": 0.5,
+        "max_rank_shift": 10.0
+      },
+      "n_RED_ANY": 1570,
+      "share_of_tested": 1.0,
+      "area_share_of_tested": 1.0
+    }
+  },
+  "by_aquifer_class": {
+    "Complex hydrogeological structure": {
+      "units": 922,
+      "tested": 400,
+      "area_km2": 23585975.167244032,
+      "median_area_km2": 2128.5630026729787,
+      "flags": {
+        "RED_GEOMETRY": {
+          "n": 129,
+          "share_of_tested": 0.3225,
+          "area_share_of_tested": 0.05520121419320275
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE": {
+          "n": 292,
+          "share_of_tested": 0.73,
+          "area_share_of_tested": 0.8652535853074036
+        },
+        "RED_PREDICTOR_DERIVED": {
+          "n": 4,
+          "share_of_tested": 0.01,
+          "area_share_of_tested": 0.01541072810733875
+        },
+        "RED_DISAGREEMENT": {
+          "n": 147,
+          "share_of_tested": 0.3675,
+          "area_share_of_tested": 0.27140541001504925
+        },
+        "RED_RANK_UNSTABLE": {
+          "n": 85,
+          "share_of_tested": 0.2125,
+          "area_share_of_tested": 0.11246385808500209
+        },
+        "RED_ANY": {
+          "n": 373,
+          "share_of_tested": 0.9325,
+          "area_share_of_tested": 0.9362512411343212
+        },
+        "RED_GEOMETRY_G": {
+          "n": 129,
+          "share_of_tested": 0.3225,
+          "area_share_of_tested": 0.05520121419320275
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE_G": {
+          "n": 2,
+          "share_of_tested": 0.005,
+          "area_share_of_tested": 0.049761449659177184
+        },
+        "RED_PREDICTOR_DERIVED_G": {
+          "n": 2,
+          "share_of_tested": 0.005,
+          "area_share_of_tested": 0.0020292822469134045
+        },
+        "RED_ANY_OWN_G": {
+          "n": 133,
+          "share_of_tested": 0.3325,
+          "area_share_of_tested": 0.10699194609929337
+        },
+        "RED_GEOMETRY_L": {
+          "n": 119,
+          "share_of_tested": 0.2975,
+          "area_share_of_tested": 0.053527013275891315
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE_L": {
+          "n": 292,
+          "share_of_tested": 0.73,
+          "area_share_of_tested": 0.8652535853074036
+        },
+        "RED_PREDICTOR_DERIVED_L": {
+          "n": 3,
+          "share_of_tested": 0.0075,
+          "area_share_of_tested": 0.014742823985751233
+        },
+        "RED_ANY_OWN_L": {
+          "n": 338,
+          "share_of_tested": 0.845,
+          "area_share_of_tested": 0.8922629454047278
+        }
+      },
+      "median_var_ratio_G": 0.37603004653964606,
+      "median_var_ratio_L": 0.02609820404757884,
+      "median_frac_dominant": 0.7338515520842294
+    },
+    "Local and shallow aquifer": {
+      "units": 1494,
+      "tested": 485,
+      "area_km2": 62407378.19429906,
+      "median_area_km2": 256.17628582215895,
+      "flags": {
+        "RED_GEOMETRY": {
+          "n": 246,
+          "share_of_tested": 0.5072164948453608,
+          "area_share_of_tested": 0.01695622874348985
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE": {
+          "n": 330,
+          "share_of_tested": 0.6804123711340206,
+          "area_share_of_tested": 0.9135640229240881
+        },
+        "RED_PREDICTOR_DERIVED": {
+          "n": 19,
+          "share_of_tested": 0.03917525773195876,
+          "area_share_of_tested": 0.014086598415681283
+        },
+        "RED_DISAGREEMENT": {
+          "n": 210,
+          "share_of_tested": 0.4329896907216495,
+          "area_share_of_tested": 0.15145037762076655
+        },
+        "RED_RANK_UNSTABLE": {
+          "n": 118,
+          "share_of_tested": 0.24329896907216494,
+          "area_share_of_tested": 0.08206108025976712
+        },
+        "RED_ANY": {
+          "n": 466,
+          "share_of_tested": 0.9608247422680413,
+          "area_share_of_tested": 0.9631551959707464
+        },
+        "RED_GEOMETRY_G": {
+          "n": 246,
+          "share_of_tested": 0.5072164948453608,
+          "area_share_of_tested": 0.01695622874348985
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE_G": {
+          "n": 14,
+          "share_of_tested": 0.0288659793814433,
+          "area_share_of_tested": 0.22708166143685463
+        },
+        "RED_PREDICTOR_DERIVED_G": {
+          "n": 18,
+          "share_of_tested": 0.03711340206185567,
+          "area_share_of_tested": 0.013818092933765881
+        },
+        "RED_ANY_OWN_G": {
+          "n": 263,
+          "share_of_tested": 0.5422680412371134,
+          "area_share_of_tested": 0.24550936010301175
+        },
+        "RED_GEOMETRY_L": {
+          "n": 241,
+          "share_of_tested": 0.49690721649484537,
+          "area_share_of_tested": 0.01673826884495229
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE_L": {
+          "n": 329,
+          "share_of_tested": 0.6783505154639176,
+          "area_share_of_tested": 0.9133817829013077
+        },
+        "RED_PREDICTOR_DERIVED_L": {
+          "n": 3,
+          "share_of_tested": 0.006185567010309278,
+          "area_share_of_tested": 0.0013352404661944645
+        },
+        "RED_ANY_OWN_L": {
+          "n": 436,
+          "share_of_tested": 0.8989690721649485,
+          "area_share_of_tested": 0.9186054327785894
+        }
+      },
+      "median_var_ratio_G": 0.4023974709495446,
+      "median_var_ratio_L": 0.03268406918541193,
+      "median_frac_dominant": 0.9098249843634846
+    },
+    "Major groundwater basin": {
+      "units": 875,
+      "tested": 685,
+      "area_km2": 47191784.687926725,
+      "median_area_km2": 6932.186197136153,
+      "flags": {
+        "RED_GEOMETRY": {
+          "n": 281,
+          "share_of_tested": 0.41021897810218977,
+          "area_share_of_tested": 0.03520046330966489
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE": {
+          "n": 426,
+          "share_of_tested": 0.621897810218978,
+          "area_share_of_tested": 0.8398617238804341
+        },
+        "RED_PREDICTOR_DERIVED": {
+          "n": 11,
+          "share_of_tested": 0.016058394160583942,
+          "area_share_of_tested": 0.023323913590933394
+        },
+        "RED_DISAGREEMENT": {
+          "n": 295,
+          "share_of_tested": 0.4306569343065693,
+          "area_share_of_tested": 0.22813998377698444
+        },
+        "RED_RANK_UNSTABLE": {
+          "n": 197,
+          "share_of_tested": 0.2875912408759124,
+          "area_share_of_tested": 0.13444691099090106
+        },
+        "RED_ANY": {
+          "n": 633,
+          "share_of_tested": 0.9240875912408759,
+          "area_share_of_tested": 0.9044036031634458
+        },
+        "RED_GEOMETRY_G": {
+          "n": 281,
+          "share_of_tested": 0.41021897810218977,
+          "area_share_of_tested": 0.03520046330966489
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE_G": {
+          "n": 10,
+          "share_of_tested": 0.014598540145985401,
+          "area_share_of_tested": 0.2117956571147859
+        },
+        "RED_PREDICTOR_DERIVED_G": {
+          "n": 7,
+          "share_of_tested": 0.010218978102189781,
+          "area_share_of_tested": 0.003669845333420646
+        },
+        "RED_ANY_OWN_G": {
+          "n": 296,
+          "share_of_tested": 0.4321167883211679,
+          "area_share_of_tested": 0.2504589127205502
+        },
+        "RED_GEOMETRY_L": {
+          "n": 249,
+          "share_of_tested": 0.3635036496350365,
+          "area_share_of_tested": 0.03266067039064878
+        },
+        "RED_NO_INDEPENDENT_DEPARTURE_L": {
+          "n": 426,
+          "share_of_tested": 0.621897810218978,
+          "area_share_of_tested": 0.8398617238804341
+        },
+        "RED_PREDICTOR_DERIVED_L": {
+          "n": 5,
+          "share_of_tested": 0.0072992700729927005,
+          "area_share_of_tested": 0.019747579030622155
+        },
+        "RED_ANY_OWN_L": {
+          "n": 550,
+          "share_of_tested": 0.8029197080291971,
+          "area_share_of_tested": 0.8523109974568894
+        }
+      },
+      "median_var_ratio_G": 0.4989933505292138,
+      "median_var_ratio_L": 0.03615126285535167,
+      "median_frac_dominant": 0.7539103729081449
+    }
+  }
+}
