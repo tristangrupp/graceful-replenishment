@@ -48,6 +48,7 @@ shared/      reusable pieces: mascon geometry and lookup, GLDAS downloaders,
              basin rasterization and area weighting, figure styling
 global/      the global pipeline, its outputs, and its report
 global/red/  the downscaling test, at HydroBASINS level 6
+global/green/ the same products scored against measured groundwater levels
 site/        the interactive page
 regions/     six regional studies, each with scripts, tables, figures, and a report
 ```
@@ -70,6 +71,11 @@ regions/     six regional studies, each with scripts, tables, figures, and a rep
 | `global/scripts/13_red_map.py` | the red maps and the two diagnostic figures |
 | `global/scripts/14_red_export.py` | the payload the downscaling page reads |
 | `global/scripts/15_red_methods.py` | the methods note, with the numbers injected |
+| `global/scripts/20_green_wells.py` | every product and predictor at every well |
+| `global/scripts/21_green_scores.py` | agreement, and the leave-one-mascon-out ablation |
+| `global/scripts/22_green_figures.py` | coverage, the paired test, the ablation |
+| `global/scripts/23_green_export.py` | the payload the wells page reads |
+| `global/scripts/24_green_methods.py` | the green methods note |
 
 ```
 cd C:\path\to\dark-water
@@ -83,20 +89,39 @@ $py = ".\.venv\Scripts\python.exe"
 & $py global\scripts\03_maps.py 03
 & $py global\scripts\03_maps.py 04
 & $py global\scripts\06_export_viz.py
+& $py global\scripts\08_glacier_fraction.py
+
+# the downscaling test, which needs GLDAS back to 2002 and the two downscaled products
+& $py shared\gldas_download_global.py E:\Water\Global 2002-04 2018-05
+& $py global\scripts\10_red_geometry.py
+& $py global\scripts\11_red_series.py
+& $py global\scripts\12_red_tests.py
+& $py global\scripts\13_red_map.py
+& $py global\scripts\14_red_export.py
+& $py global\scripts\15_red_methods.py
+
+# against wells, which needs the Jasechko level data from Zenodo 10.5281/zenodo.10003697
+& $py global\scripts\20_green_wells.py
+& $py global\scripts\21_green_scores.py
+& $py global\scripts\22_green_figures.py
+& $py global\scripts\23_green_export.py
+& $py global\scripts\24_green_methods.py
 ```
 
 ### The page
 
 It's live at https://tristangrupp.github.io/graceful-replenishment/, and it also runs from
 disk: open `site/index.html`. Every file in that folder has to stay together. The first two
-pages share one 5 MB `data.js`, and the third reads its own `red_data.js`.
+pages share one 5 MB `data.js`, the third reads `red_data.js` and the fourth reads
+`wells_data.js`.
 
 Page one maps a rate. It shows the slope of one line fitted through all 92 monthly
 solutions, in millimeters of water per year. That isn't the difference between the first
 year and the last. Page two does year by year with three frames: level, change from last
 year, and first year to last. It also folds each basin's deseasonalized record into one line
-per calendar year. Page three is the downscaling test below, and it ships the metrics rather
-than the verdicts, so moving any threshold redraws the map and the counts.
+per calendar year. Page three is the downscaling test, and it ships the metrics rather
+than the verdicts, so moving any threshold redraws the map and the counts. Page four scores
+the same products against wells.
 
 ## Where the numbers landed
 
@@ -192,6 +217,45 @@ What this cannot do is say that any downscaled value is right. That needs wells,
 evapotranspiration or InSAR, and an ablation of predictor-only against
 predictor-plus-GRACE scored against them.
 
+## Against wells
+
+The downscaling test used no outside data, so it could only detect failure. This half brings
+in the reference that can say whether a value is right: measured groundwater levels, from the
+open subset of the compilation behind Jasechko et al. (2024), on Zenodo at
+`10.5281/zenodo.10003697`. The same records are browsable through IGRAC's Global Groundwater
+Information System, whose bulk download asks for an email address and replies by mail; the
+Zenodo copy needs no registration. Full write-up in `global/GREEN_METHODS.md`.
+
+77,556 wells hold at least 10 annual values between 2002 and 2022, and 58,010 of them have a
+GRACE cell. They fall inside 172 mascons. That ratio is the frame for everything below: the
+well network is far denser than the measurement it is testing, so every test counts mascons
+rather than wells.
+
+**The coverage is not global.** It is North America, with France, Germany and Scandinavia,
+some of Brazil and New Zealand. Asia is close to absent. North India, the North China Plain,
+Iran and the Arabian Peninsula, which is where the downscaling test found the most, have no
+open well records here at all.
+
+**Neither downscaled product agrees with a well better than the coarse solution behind it.**
+The coarse JPL solution tracks the median well at r 0.388. Li and Kusche reaches 0.374 and
+GRACE-SeDA 0.324. Paired at the same well and counted by mascon, GRACE-SeDA is worse by 0.035
+at p 0.94 and Li and Kusche is unchanged at p 0.74.
+
+**Gravimetry does add something a well can see; the finer grid does not.** Three nested models
+predict a well's annual level anomaly, scored out of sample by holding out one mascon at a
+time over 782,186 well-years. Weather alone reaches 0.093. Adding the coarse GRACE
+groundwater term lifts it to 0.125. Substituting a downscaled term gives 0.122 for GRACE-SeDA
+and 0.129 for Li and Kusche. Judged inside each of 133 held-out mascons, which is the unit
+that can carry a p-value here, none of those three differences is separable from zero.
+
+The dry and wet halves disagree about which downscaled product does better, which is itself a
+reason not to read either as a validation.
+
+No specific yield is applied anywhere. A level is a head and storage is a volume, and
+converting between them would introduce the largest free parameter in the comparison. Every
+score is a correlation or an out of sample R squared on standardized series, both unchanged
+by any positive scale factor.
+
 ## Regional studies
 
 | region | what it settled |
@@ -248,6 +312,8 @@ the write-good, Microsoft, and Google style packages. Run it with `vale README.m
 - HydroSHEDS HydroBASINS v1c, https://www.hydrosheds.org
 - CHIRPS v2.0, Climate Hazards Center
 - Natural Earth 10m glaciated areas, public domain, https://www.naturalearthdata.com
+- Annual groundwater levels, Jasechko et al. (2024), https://doi.org/10.5281/zenodo.10003697
+- IGRAC Global Groundwater Information System, https://ggis.un-igrac.org/view/ggmn/
 - GRACE-SeDA v1, Gou and Soja, https://doi.org/10.3929/ethz-b-000648738
 - Downscaled JPL mascons, Li and Kusche, https://doi.org/10.5281/zenodo.17265162
 - JPL mascons RL06.3Mv04 CRI, `TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4`, from PO.DAAC

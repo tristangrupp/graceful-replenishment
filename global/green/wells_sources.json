@@ -1,0 +1,14 @@
+{
+  "wells_file": "AnnualDepthToGroundwater.csv",
+  "doi": "10.5281/zenodo.10003697",
+  "source": "Jasechko et al. (2024), annual depth to water, open subset",
+  "window": [
+    2002,
+    2022
+  ],
+  "min_years": 10,
+  "n_wells": 77556,
+  "n_well_years": 1136060,
+  "sign": "depth to water negated, so up is more water",
+  "note": "no specific yield is applied anywhere; every score is scale free"
+}
