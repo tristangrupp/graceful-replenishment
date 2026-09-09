@@ -343,5 +343,35 @@
         "n_flag": 769
       }
     ]
+  },
+  "sensitivity_corners": {
+    "most_generous": {
+      "config": {
+        "min_cells": 1,
+        "max_frac_dominant": 0.99,
+        "min_var_ratio": 0.02,
+        "max_pred_r2": 0.95,
+        "min_r_GL": 0.3,
+        "max_trend_diff_ratio": 5.0,
+        "max_rank_shift": 50.0
+      },
+      "n_RED_ANY": 10170,
+      "share_of_tested": 0.6563407550822846,
+      "area_share_of_tested": 0.5477405947845102
+    },
+    "strictest": {
+      "config": {
+        "min_cells": 4,
+        "max_frac_dominant": 0.8,
+        "min_var_ratio": 0.2,
+        "max_pred_r2": 0.7,
+        "min_r_GL": 0.9,
+        "max_trend_diff_ratio": 0.5,
+        "max_rank_shift": 10.0
+      },
+      "n_RED_ANY": 15495,
+      "share_of_tested": 1.0,
+      "area_share_of_tested": 1.0
+    }
   }
 }

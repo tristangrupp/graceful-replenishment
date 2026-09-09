@@ -497,6 +497,15 @@
       "Spearman " + fmt(sp.G_vs_coarse, 3) + " and Li and Kusche at " + fmt(sp.L_vs_coarse, 3) +
       ". The two downscaled products agree with each other at " + fmt(sp.G_vs_L, 3) +
       ", and the two coarse solutions agree at " + fmt(sp.coarse_JPL_vs_GSFC, 3) + ".";
+    var co = R.corners;
+    if (co) {
+      document.getElementById("foot-corners").innerHTML =
+        "<b>How much of this is the thresholds.</b> Set all seven sliders to the most " +
+        "generous end of their range at once and " + thousands(co.most_generous.n_RED_ANY) +
+        " basins stay flagged, " + Math.round(co.most_generous.share_of_tested * 100) +
+        " percent of those tested. Set them all to the strictest end and " +
+        thousands(co.strictest.n_RED_ANY) + " are, every basin the test could reach.";
+    }
   }
 
   window.addEventListener("resize", function () {

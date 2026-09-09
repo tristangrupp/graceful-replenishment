@@ -46,6 +46,8 @@ for key, vals in s["sensitivity"].items():
     cells = " | ".join(f"{r['value']} : {n(r['n_flag'])}" for r in vals)
     sens_rows.append(f"| `{key}` | {cells} |")
 sens = "\n".join(sens_rows)
+cg = s["sensitivity_corners"]["most_generous"]
+cs = s["sensitivity_corners"]["strictest"]
 
 dec = "\n".join(
     f"| {d['decile']} | {d['area_km2_range'][0]:,.0f} to {d['area_km2_range'][1]:,.0f} "
@@ -222,6 +224,13 @@ moves across a plausible range.
 | threshold | value : basins flagged |
 |---|---|
 {sens}
+
+Moving one cut at a time understates how much of the map is a choice, so both
+corners are computed too. With every threshold at the most generous end of its
+range at once, {n(cg['n_RED_ANY'])} basins stay flagged, {pc(cg['share_of_tested'])}
+percent of those tested and {pc(cg['area_share_of_tested'])} percent of the tested
+land area. With every threshold at the strictest end, all
+{n(cs['n_RED_ANY'])} of them are.
 
 ## What this does not do
 

@@ -194,6 +194,13 @@ moves across a plausible range.
 | `max_trend_diff_ratio` | 0.5 : 10,338 | 1.0 : 6,822 | 2.0 : 1,741 | 5.0 : 1,741 |
 | `max_rank_shift` | 10.0 : 7,955 | 20.0 : 4,272 | 30.0 : 2,357 | 50.0 : 769 |
 
+Moving one cut at a time understates how much of the map is a choice, so both
+corners are computed too. With every threshold at the most generous end of its
+range at once, 10,170 basins stay flagged, 66
+percent of those tested and 55 percent of the tested
+land area. With every threshold at the strictest end, all
+15,495 of them are.
+
 ## What this does not do
 
 It cannot say whether a downscaled value is correct anywhere, whether fine

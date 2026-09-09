@@ -99,6 +99,7 @@ payload = {
         "area": summ["area"],
     },
     "sens": summ["sensitivity"],
+    "corners": summ.get("sensitivity_corners"),
     "d": paths,
     "id": [int(x) for x in hyb],
     "reg": [REGION.get(int(x) // 1000000000, "?") for x in hyb],

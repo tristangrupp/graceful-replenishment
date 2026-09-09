@@ -366,6 +366,25 @@ for key, values in SENSITIVITY.items():
                          "max_rank_shift": "RED_RANK_UNSTABLE"}[key]] & usable).sum())})
     sens[key] = rows
 
+# Moving one threshold at a time understates how much of the result is a choice
+# of cut, so the two corners are computed as well: every threshold at the most
+# generous end of its range at once, and every one at the strictest.
+corners = {}
+for name, pick in (("most_generous", lambda v: v[0] if v[0] > v[-1] else v[-1]),
+                   ("strictest", lambda v: v[-1] if v[0] > v[-1] else v[0])):
+    cfg = dict(CONFIG)
+    for key, values in SENSITIVITY.items():
+        # A larger value is looser for the max_ thresholds and tighter for the
+        # min_ ones, so which end counts as generous depends on the direction.
+        vals = sorted(values)
+        cfg[key] = (vals[-1] if key.startswith("max_") else vals[0])             if name == "most_generous" else             (vals[0] if key.startswith("max_") else vals[-1])
+    ff = flags(cfg)
+    m = ff["RED_ANY"] & usable
+    corners[name] = {"config": {k: cfg[k] for k in SENSITIVITY},
+                     "n_RED_ANY": int(m.sum()),
+                     "share_of_tested": float(m.sum() / usable.sum()),
+                     "area_share_of_tested": float(area[m].sum() / area[usable].sum())}
+
 med_area_red = float(np.median(area[F["RED_ANY"] & usable])) if (F["RED_ANY"] & usable).any() else None
 not_red = usable & ~F["RED_ANY"]
 
@@ -413,6 +432,7 @@ summary = {
     },
     "config": CONFIG,
     "sensitivity": sens,
+    "sensitivity_corners": corners,
 }
 json.dump(summary, open(RED / "level6_red_summary.json", "w"), indent=2)
 print(json.dumps({k: v for k, v in summary.items() if k != "sensitivity"}, indent=2))

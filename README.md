@@ -158,10 +158,11 @@ The departure is not mostly a weather field: only 342 basins regress on precipit
 moisture and snow above an adjusted R squared of 0.8. That test was the weakest of the five,
 and its result is reported rather than buried.
 
-Every threshold is a judgement call, so `12_red_tests.py` emits a sensitivity table and the
-page lets a reader move each cut. The headline holds in the direction that
-matters. Loosening every threshold to the most generous value in its range still leaves most
-of the level flagged.
+Every threshold is a judgment call, so `12_red_tests.py` emits a sensitivity table and the
+page lets a reader move each cut. Moving one cut at a time never takes the headline below
+13,194 basins or above 15,380. Setting all seven to the most generous end of their range at
+once leaves 10,170 flagged, 66 percent of those tested and 55 percent of the tested land
+area. Setting all seven to the strictest end flags every tested basin.
 
 What this cannot do is say that any downscaled value is right. That needs wells,
 evapotranspiration or InSAR, and an ablation of predictor-only against
