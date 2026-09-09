@@ -1,22 +1,51 @@
-/* Red experiment tab.
+/* Downscaling test tab.
 
    The page holds the metrics, not the verdicts, and recomputes every flag from
-   the current threshold settings. Dragging a slider therefore redraws the map,
-   the counts and the histogram together, which is the only honest way to show
-   how much of a red map is a choice of cut.
+   the current threshold settings. Dragging a slider redraws the map, the counts
+   and the histogram together, which is the only honest way to show how much of
+   a red map is a choice of cut.
+
+   Each product is tested on its own. Three of the five tests are per product;
+   the last two compare the two products and do not move when the selection
+   changes, which the interface says rather than leaving the reader to notice.
 
    16,397 basins is more than the DOM wants as separate path elements, so the
    map is a canvas. A second canvas of the same size is painted once with basin
-   index encoded as colour and used for hit testing. */
+   index encoded as color and used for hit testing. */
 (function () {
   "use strict";
   var R = window.RED;
   var N = R.id.length;
   var RED_FILL = "#b5341c";
 
+  /* The same clip and the same ramp as the rate of change tab, so the trend
+     layer here can be read straight against that map. */
+  var CLIP = 30;
+  var RAMP_LIGHT = ["#8a3b12", "#c86a2c", "#e3a869", "#d9d7cf", "#7fb3d5", "#2a78d6", "#104281"];
+  var RAMP_DARK = ["#a8501f", "#cf7434", "#d99a5f", "#3a4442", "#6fa6cc", "#3987e5", "#1a5fb4"];
+
+  /* Each downscaled product points at the coarse release it was built from.
+     GRACE-SeDA v1 names RL06.1Mv03; Li and Kusche names none, so it gets the
+     current release. */
+  var PRODUCTS = {
+    G: { name: "GRACE-SeDA", grid: "0.5 degrees", trend: R.tG, p: R.pG,
+         cells: R.ncG, vr: R.vrG, pr: R.prG, pre: R.prGe, rank: R.rkG,
+         downscaled: true, parent: R.tC61 || R.tC, parentName: "JPL RL06.1Mv03" },
+    L: { name: "Li and Kusche", grid: "0.25 degrees", trend: R.tL, p: R.pL,
+         cells: R.ncL, vr: R.vrL, pr: R.prL, pre: R.prLe, rank: R.rkL,
+         downscaled: true, parent: R.tC, parentName: "JPL RL06.3Mv04" },
+    C: { name: "JPL RL06.3 coarse", grid: "3 degree mascons on a 0.5 degree grid",
+         trend: R.tC, p: R.pC, rank: R.rkC, downscaled: false },
+    C61: { name: "JPL RL06.1 coarse", grid: "the release GRACE-SeDA was built from",
+           trend: R.tC61, p: R.pC61, rank: null, downscaled: false },
+    C2: { name: "GSFC coarse", grid: "native mascons, about 12,400 km2", trend: R.tC2,
+          p: null, rank: null, downscaled: false }
+  };
+
   var DEFAULTS = R.meta.config;
   var state = {
-    layer: "ANY",
+    product: "G",
+    layer: "TREND",
     t: {
       min_cells: DEFAULTS.min_cells,
       max_frac_dominant: DEFAULTS.max_frac_dominant,
@@ -40,76 +69,60 @@
       note: "above this the added structure is precipitation and soil moisture" },
     { k: "min_r_GL", label: "Correlation between products", min: 0, max: 0.99, step: 0.01, dp: 2,
       note: "below this the two products describe different basins" },
-    { k: "max_trend_diff_ratio", label: "Trend difference over trend size", min: 0.1, max: 5, step: 0.1, dp: 1,
+    { k: "max_trend_diff_ratio", label: "Trend gap over trend size", min: 0.1, max: 5, step: 0.1, dp: 1,
       note: "above this they differ by more than the signal" },
     { k: "max_rank_shift", label: "Rank shift, percentile points", min: 2, max: 60, step: 1, dp: 0,
       note: "above this a priority list would reorder" }
   ];
 
-  var FLAGS = [
+  var OWN = [
     { k: "RED_GEOMETRY", label: "Not resolved" },
     { k: "RED_NO_DEPARTURE", label: "No departure" },
-    { k: "RED_PREDICTOR_DERIVED", label: "Weather field" },
+    { k: "RED_PREDICTOR_DERIVED", label: "Weather field" }
+  ];
+  var PAIR = [
     { k: "RED_DISAGREEMENT", label: "Products disagree" },
     { k: "RED_RANK_UNSTABLE", label: "Ranking unstable" }
   ];
-
-  var DIST = {
-    ANY: { arr: R.area, log: true, label: "basin area, km2", mark: 63000,
-           markLabel: "63,000 km2 reliable unit" },
-    RED_GEOMETRY: { arr: R.fdom, log: false, label: "share of basin inside one mascon",
-                    markKey: "max_frac_dominant" },
-    RED_NO_DEPARTURE: { arr: R.vrG, log: true, label: "departure variance over coarse variance",
-                        markKey: "min_var_ratio" },
-    RED_PREDICTOR_DERIVED: { arr: R.prG, log: false, label: "adjusted R squared on weather fields",
-                             markKey: "max_pred_r2" },
-    RED_DISAGREEMENT: { arr: R.rGL, log: false, label: "correlation between the two products",
-                        markKey: "min_r_GL" },
-    RED_RANK_UNSTABLE: { arr: R.shift, log: false, label: "rank shift, percentile points",
-                         markKey: "max_rank_shift" }
-  };
+  var LABEL = { TREND: "Storage trend", ANY: "Any failure" };
+  OWN.concat(PAIR).forEach(function (f) { LABEL[f.k] = f.label; });
 
   /* ------------------------------------------------------------------ flags */
   var tested = R.tested;
   var flag = {};
-  FLAGS.forEach(function (f) { flag[f.k] = new Uint8Array(N); });
+  OWN.concat(PAIR).forEach(function (f) { flag[f.k] = new Uint8Array(N); });
   var anyFlag = new Uint8Array(N);
-
-  function lo(a, b) {
-    if (a === null || a === undefined) return b;
-    if (b === null || b === undefined) return a;
-    return a < b ? a : b;
-  }
-  function hi(a, b) {
-    if (a === null || a === undefined) return b;
-    if (b === null || b === undefined) return a;
-    return a > b ? a : b;
-  }
+  var anyOwn = new Uint8Array(N);
 
   function compute() {
-    var t = state.t, i;
-    for (i = 0; i < N; i++) {
-      var cells = lo(R.ncG[i], R.ncL ? R.ncL[i] : null);
-      var geomBad = (cells !== null && cells < t.min_cells) ||
-                    (R.fdom[i] !== null && R.fdom[i] > t.max_frac_dominant);
-      var vr = lo(R.vrG[i], R.vrL ? R.vrL[i] : null);
-      var noDep = vr !== null && vr < t.min_var_ratio;
-      var pr = hi(R.prG[i], R.prL ? R.prL[i] : null);
-      var predDer = pr !== null && pr > t.max_pred_r2;
+    var t = state.t, P = PRODUCTS[state.product];
+    var cells = P.cells || null, vr = P.vr || null, pr = P.pr || null;
+    for (var i = 0; i < N; i++) {
+      var c = cells ? cells[i] : null;
+      var g = (c !== null && c !== undefined && c < t.min_cells) ||
+              (R.fdom[i] !== null && R.fdom[i] > t.max_frac_dominant);
+      var v = vr ? vr[i] : null;
+      var nd = v !== null && v !== undefined && v < t.min_var_ratio;
+      var q = pr ? pr[i] : null;
+      var wf = q !== null && q !== undefined && q > t.max_pred_r2;
       var dis = (R.rGL[i] !== null && R.rGL[i] < t.min_r_GL) ||
                 (R.tdr[i] !== null && R.tdr[i] > t.max_trend_diff_ratio);
       var rk = R.shift[i] !== null && R.shift[i] > t.max_rank_shift;
 
-      flag.RED_GEOMETRY[i] = geomBad ? 1 : 0;
-      flag.RED_NO_DEPARTURE[i] = noDep ? 1 : 0;
-      flag.RED_PREDICTOR_DERIVED[i] = predDer ? 1 : 0;
+      flag.RED_GEOMETRY[i] = g ? 1 : 0;
+      flag.RED_NO_DEPARTURE[i] = nd ? 1 : 0;
+      flag.RED_PREDICTOR_DERIVED[i] = wf ? 1 : 0;
       flag.RED_DISAGREEMENT[i] = dis ? 1 : 0;
       flag.RED_RANK_UNSTABLE[i] = rk ? 1 : 0;
-      anyFlag[i] = (geomBad || noDep || predDer || dis || rk) ? 1 : 0;
+      anyOwn[i] = (g || nd || wf) ? 1 : 0;
+      anyFlag[i] = (g || nd || wf || dis || rk) ? 1 : 0;
     }
   }
 
-  function active() { return state.layer === "ANY" ? anyFlag : flag[state.layer]; }
+  function active() {
+    if (state.layer === "ANY") return anyFlag;
+    return flag[state.layer] || anyFlag;
+  }
 
   function tally(mask) {
     var n = 0, a = 0, tot = 0;
@@ -118,7 +131,7 @@
       tot += R.area[i];
       if (mask[i]) { n++; a += R.area[i]; }
     }
-    return { n: n, share: tot ? a / tot : 0, tot: tot };
+    return { n: n, share: tot ? a / tot : 0 };
   }
 
   /* -------------------------------------------------------------- geometry */
@@ -133,6 +146,27 @@
 
   function css(v) {
     return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  }
+  function isDark() {
+    var stamped = document.documentElement.getAttribute("data-theme");
+    if (stamped === "dark") return true;
+    if (stamped === "light") return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function ramp() { return isDark() ? RAMP_DARK : RAMP_LIGHT; }
+  function mix(a, b, t) {
+    var pa = [1, 3, 5].map(function (i) { return parseInt(a.substr(i, 2), 16); });
+    var pb = [1, 3, 5].map(function (i) { return parseInt(b.substr(i, 2), 16); });
+    return "rgb(" + pa.map(function (v, i) {
+      return Math.round(v + (pb[i] - v) * t);
+    }).join(",") + ")";
+  }
+  function colorFor(v) {
+    var r = ramp();
+    var x = Math.max(-CLIP, Math.min(CLIP, v));
+    var u = (x + CLIP) / (2 * CLIP) * (r.length - 1);
+    var i = Math.min(r.length - 2, Math.floor(u));
+    return mix(r[i], r[i + 1], u - i);
   }
 
   function sizeCanvas() {
@@ -160,19 +194,28 @@
   }
 
   function drawMap() {
-    var mask = active();
-    var sunk = css("--sunk") || "#e8e8e4";
     var nodata = css("--nodata") || "#dcdcd6";
+    var sunk = css("--sunk") || "#e8e8e4";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
     var i;
-    ctx.fillStyle = nodata;
-    for (i = 0; i < N; i++) if (!tested[i]) ctx.fill(paths[i], "evenodd");
-    ctx.fillStyle = sunk;
-    for (i = 0; i < N; i++) if (tested[i] && !mask[i]) ctx.fill(paths[i], "evenodd");
-    ctx.fillStyle = RED_FILL;
-    for (i = 0; i < N; i++) if (tested[i] && mask[i]) ctx.fill(paths[i], "evenodd");
+    if (state.layer === "TREND") {
+      var tr = PRODUCTS[state.product].trend;
+      for (i = 0; i < N; i++) {
+        var v = tr ? tr[i] : null;
+        ctx.fillStyle = (v === null || v === undefined) ? nodata : colorFor(v);
+        ctx.fill(paths[i], "evenodd");
+      }
+    } else {
+      var mask = active();
+      ctx.fillStyle = nodata;
+      for (i = 0; i < N; i++) if (!tested[i]) ctx.fill(paths[i], "evenodd");
+      ctx.fillStyle = sunk;
+      for (i = 0; i < N; i++) if (tested[i] && !mask[i]) ctx.fill(paths[i], "evenodd");
+      ctx.fillStyle = RED_FILL;
+      for (i = 0; i < N; i++) if (tested[i] && mask[i]) ctx.fill(paths[i], "evenodd");
+    }
     if (state.pick >= 0) {
       ctx.strokeStyle = css("--ink") || "#151513";
       ctx.lineWidth = 6 / scale;
@@ -185,60 +228,158 @@
     if (v === null || v === undefined || !isFinite(v)) return "n/a";
     return Number(v).toFixed(dp === undefined ? 2 : dp);
   }
+  function signed(v, dp) {
+    if (v === null || v === undefined || !isFinite(v)) return "n/a";
+    return (v > 0 ? "+" : "") + Number(v).toFixed(dp === undefined ? 1 : dp);
+  }
   function thousands(v) { return Math.round(v).toLocaleString("en-US"); }
+  function median(a) {
+    if (!a.length) return null;
+    var s = a.slice().sort(function (x, y) { return x - y; });
+    var h = Math.floor(s.length / 2);
+    return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2;
+  }
 
   function drawCounts() {
+    var P = PRODUCTS[state.product];
     var rows = "";
-    var a = tally(anyFlag);
-    rows += "<tr><td class=\"name\"><b>Any failure</b></td><td><b>" + thousands(a.n) +
-            "</b></td><td><b>" + (a.share * 100).toFixed(0) + "%</b></td></tr>";
-    FLAGS.forEach(function (f) {
+    document.getElementById("counts-title").textContent =
+      P.downscaled ? "Counts for " + P.name : "Counts";
+    if (!P.downscaled) {
+      document.getElementById("counts").innerHTML =
+        "<tr><td class=\"name ns\" colspan=\"3\">" + P.name +
+        " is the reference, not a product under test. Pick a downscaled solution above.</td></tr>";
+      document.getElementById("w-red").textContent = "n/a";
+      return;
+    }
+    var own = tally(anyOwn);
+    rows += "<tr><td class=\"name\"><b>Any of its own tests</b></td><td><b>" + thousands(own.n) +
+            "</b></td><td><b>" + (own.share * 100).toFixed(0) + "%</b></td></tr>";
+    OWN.forEach(function (f) {
       var c = tally(flag[f.k]);
       rows += "<tr><td class=\"name\">" + f.label + "</td><td>" + thousands(c.n) +
               "</td><td>" + (c.share * 100).toFixed(0) + "%</td></tr>";
     });
+    PAIR.forEach(function (f) {
+      var c = tally(flag[f.k]);
+      rows += "<tr><td class=\"name ns\">" + f.label + ", both products</td><td class=\"ns\">" +
+              thousands(c.n) + "</td><td class=\"ns\">" + (c.share * 100).toFixed(0) +
+              "%</td></tr>";
+    });
+    var all = tally(anyFlag);
+    rows += "<tr><td class=\"name\">Any test at all</td><td>" + thousands(all.n) +
+            "</td><td>" + (all.share * 100).toFixed(0) + "%</td></tr>";
     var notRed = 0, notArea = 0, tot = 0;
     for (var i = 0; i < N; i++) {
       if (!tested[i]) continue;
       tot += R.area[i];
       if (!anyFlag[i]) { notRed++; notArea += R.area[i]; }
     }
-    rows += "<tr><td class=\"name ns\">not flagged</td><td class=\"ns\">" + thousands(notRed) +
-            "</td><td class=\"ns\">" + (notArea / tot * 100).toFixed(0) + "%</td></tr>";
+    rows += "<tr><td class=\"name ns\">not flagged by anything</td><td class=\"ns\">" +
+            thousands(notRed) + "</td><td class=\"ns\">" +
+            (notArea / tot * 100).toFixed(0) + "%</td></tr>";
     document.getElementById("counts").innerHTML = rows;
-
     document.getElementById("w-red").textContent =
-      thousands(a.n) + " / " + thousands(R.meta.n_tested);
-    var sub = document.getElementById("map-sub");
-    sub.textContent = thousands(a.n) + " of " + thousands(R.meta.n_tested) +
-      " tested basins, " + (a.share * 100).toFixed(0) + "% of tested land area";
+      thousands(own.n) + " / " + thousands(R.meta.n_tested);
   }
 
-  function drawSliders() {
-    var html = "";
-    SLIDERS.forEach(function (s) {
-      html += "<div class=\"slider\">" +
-        "<label for=\"s-" + s.k + "\">" + s.label +
-        "<b class=\"mono\" id=\"v-" + s.k + "\"></b></label>" +
-        "<input type=\"range\" id=\"s-" + s.k + "\" min=\"" + s.min + "\" max=\"" + s.max +
-        "\" step=\"" + s.step + "\" value=\"" + state.t[s.k] + "\">" +
-        "<span class=\"snote\">" + s.note + " &middot; published run " +
-        fmt(DEFAULTS[s.k], s.dp) + "</span></div>";
-    });
-    document.getElementById("sliders").innerHTML = html;
-    SLIDERS.forEach(function (s) {
-      var el = document.getElementById("s-" + s.k);
-      el.addEventListener("input", function () {
-        state.t[s.k] = parseFloat(el.value);
-        document.getElementById("v-" + s.k).textContent = fmt(state.t[s.k], s.dp);
-        recompute();
-      });
-      document.getElementById("v-" + s.k).textContent = fmt(state.t[s.k], s.dp);
-    });
+  /* The part that says why the map above should not be read as a fine-scale
+     result. Every row is computed from the payload, so it moves with the
+     selection instead of being a fixed sentence. */
+  function drawEviscerate() {
+    var P = PRODUCTS[state.product];
+    var tr = P.trend, pv = P.p, tc = P.parent || R.tC, tc2 = R.tC2;
+    var signSel = 0, signPair = 0, nSel = 0, nPair = 0, weak = 0, nP = 0;
+    var gaps = [], mags = [], resolved = 0;
+    for (var i = 0; i < N; i++) {
+      if (!tested[i]) continue;
+      var a = tr ? tr[i] : null, b = tc[i], c2 = tc2 ? tc2[i] : null;
+      if (a !== null && b !== null) {
+        nSel++;
+        if ((a < 0) !== (b < 0)) signSel++;
+        gaps.push(Math.abs(a - b));
+        mags.push(Math.abs(b));
+      }
+      if (b !== null && c2 !== null) {
+        nPair++;
+        if ((b < 0) !== (c2 < 0)) signPair++;
+      }
+      if (pv && pv[i] !== null) { nP++; if (pv[i] >= 0.05) weak++; }
+      var cells = P.cells ? P.cells[i] : null;
+      if (cells !== null && cells !== undefined && cells >= 2 &&
+          R.fdom[i] !== null && R.fdom[i] <= 0.95) resolved++;
+    }
+    var mg = median(gaps), mm = median(mags);
+    var rows = [];
+    if (P.downscaled) {
+      rows.push(["basins whose sign flips against " + (P.parentName || "the coarse solution"),
+        thousands(signSel) + " of " + thousands(nSel) +
+        ", " + (signSel / nSel * 100).toFixed(0) + "%"]);
+    }
+    rows.push(["basins whose sign flips between the two processing centers",
+      thousands(signPair) + " of " + thousands(nPair) +
+      ", " + (signPair / nPair * 100).toFixed(0) + "%"]);
+    if (nP) {
+      rows.push(["basins whose own trend is not separable from zero at p 0.05",
+        thousands(weak) + " of " + thousands(nP) + ", " + (weak / nP * 100).toFixed(0) + "%"]);
+    }
+    if (P.downscaled) {
+      rows.push(["median gap from the coarse trend, against the median trend size",
+        fmt(mg, 2) + " mm/yr against " + fmt(mm, 2) + " mm/yr"]);
+      rows.push(["basins the geometry test says are resolved at all",
+        thousands(resolved) + " of " + thousands(R.meta.n_tested) +
+        ", " + (resolved / R.meta.n_tested * 100).toFixed(0) + "%"]);
+    }
+    var g = R.meta.geometry;
+    rows.push(["basins reaching the 63,000 km2 reliable unit",
+      thousands(g.n_above_reliable_threshold) + " of " + thousands(g.n_basins) +
+      ", " + (g.area_share_above_reliable_threshold * 100).toFixed(1) + "% of the land area"]);
+    document.getElementById("evis").innerHTML = rows.map(function (r) {
+      return "<tr><td class=\"name\">" + r[0] + "</td><td>" + r[1] + "</td></tr>";
+    }).join("");
+
+    document.getElementById("evis-sub").textContent = P.name;
+    var note = "";
+    if (P.downscaled) {
+      note = "The trend map is not wrong arithmetic. It is a real least squares fit with annual " +
+        "and semi-annual harmonics, on a real series. It should not be read basin by basin " +
+        "because the two processing centers already disagree on the direction of change in " +
+        (signPair / nPair * 100).toFixed(0) + " percent of these basins before any downscaling, " +
+        "because the median gap between " + P.name + " and its own parent solution is " +
+        fmt(mg, 2) + " mm/yr against a median trend of " + fmt(mm, 2) + " mm/yr, and because " +
+        "the color of most basins is a mascon value repeated across every basin inside that " +
+        "mascon. Colour at this scale reads as resolution, and the resolution is not there.";
+    } else {
+      note = "This is a coarse solution drawn on level 6 outlines. Neighboring basins inside one " +
+        "mascon are given the same value, so any texture in this map is the basin outlines, not " +
+        "the gravity field. Switch to the other coarse solution to see how much of the pattern " +
+        "survives a change of processing center.";
+    }
+    document.getElementById("evis-note").textContent = note;
+  }
+
+  var DIST = {
+    RED_GEOMETRY: { arr: function () { return R.fdom; }, log: false,
+                    label: "share of basin inside one mascon", markKey: "max_frac_dominant" },
+    RED_NO_DEPARTURE: { arr: function () { return PRODUCTS[state.product].vr; }, log: true,
+                        label: "departure variance over coarse variance", markKey: "min_var_ratio" },
+    RED_PREDICTOR_DERIVED: { arr: function () { return PRODUCTS[state.product].pr; }, log: false,
+                             label: "adjusted R squared on weather fields", markKey: "max_pred_r2" },
+    RED_DISAGREEMENT: { arr: function () { return R.rGL; }, log: false,
+                        label: "correlation between the two products", markKey: "min_r_GL" },
+    RED_RANK_UNSTABLE: { arr: function () { return R.shift; }, log: false,
+                         label: "rank shift, percentile points", markKey: "max_rank_shift" }
+  };
+
+  function distSpec() {
+    if (DIST[state.layer]) return DIST[state.layer];
+    return { arr: function () { return R.area; }, log: true, label: "basin area, km2",
+             mark: 63000, markLabel: "63,000 km2 reliable unit" };
   }
 
   function drawDist() {
-    var spec = DIST[state.layer];
+    var spec = distSpec();
+    var arr = spec.arr();
     var c = document.getElementById("dist");
     var w = c.parentNode.clientWidth || 420, h = 140;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -247,10 +388,15 @@
     var g = c.getContext("2d");
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, w, h);
-    document.getElementById("dist-title").textContent = "Distribution";
     document.getElementById("dist-sub").textContent = spec.label;
+    if (!arr) {
+      g.fillStyle = css("--muted");
+      g.font = "11px 'IBM Plex Mono', monospace";
+      g.fillText("not available for this solution", 4, 20);
+      return;
+    }
 
-    var arr = spec.arr, mask = active();
+    var mask = state.layer === "TREND" ? anyOwn : active();
     var vals = [], i, v;
     for (i = 0; i < N; i++) {
       if (!tested[i]) continue;
@@ -353,9 +499,32 @@
       g.fillText(p.name + (p.rho !== undefined && p.rho !== null
         ? "  rho " + p.rho.toFixed(3) : ""), x0, y0 - 3);
     });
-    var rs = document.getElementById("rank-sub");
-    rs.textContent = sp.G_vs_L !== undefined && sp.G_vs_L !== null
-      ? "the two products agree with each other at rho " + sp.G_vs_L.toFixed(3) : "";
+    document.getElementById("rank-sub").textContent =
+      sp.G_vs_L !== undefined && sp.G_vs_L !== null
+        ? "the two products agree with each other at rho " + sp.G_vs_L.toFixed(3) : "";
+  }
+
+  function drawSliders() {
+    var html = "";
+    SLIDERS.forEach(function (s) {
+      html += "<div class=\"slider\">" +
+        "<label for=\"s-" + s.k + "\">" + s.label +
+        "<b class=\"mono\" id=\"v-" + s.k + "\"></b></label>" +
+        "<input type=\"range\" id=\"s-" + s.k + "\" min=\"" + s.min + "\" max=\"" + s.max +
+        "\" step=\"" + s.step + "\" value=\"" + state.t[s.k] + "\">" +
+        "<span class=\"snote\">" + s.note + " &middot; published run " +
+        fmt(DEFAULTS[s.k], s.dp) + "</span></div>";
+    });
+    document.getElementById("sliders").innerHTML = html;
+    SLIDERS.forEach(function (s) {
+      var el = document.getElementById("s-" + s.k);
+      el.addEventListener("input", function () {
+        state.t[s.k] = parseFloat(el.value);
+        document.getElementById("v-" + s.k).textContent = fmt(state.t[s.k], s.dp);
+        recompute();
+      });
+      document.getElementById("v-" + s.k).textContent = fmt(state.t[s.k], s.dp);
+    });
   }
 
   /* ---------------------------------------------------------------- picking */
@@ -368,42 +537,43 @@
     var y = Math.round((ev.clientY - r.top) * dpr);
     if (x < 1 || y < 1 || x >= cv.width - 1 || y >= cv.height - 1) return -1;
     var d = pickCtx.getImageData(x - 1, y - 1, 3, 3).data;
-    var best = -1, bestCount = 0, tallyMap = {};
+    var best = -1, bestCount = 0, seen = {};
     for (var p = 0; p < 9; p++) {
       var o = p * 4;
       if (d[o + 3] !== 255 || d[o + 2] !== 200) continue;
       var idx = d[o] + (d[o + 1] << 8);
-      tallyMap[idx] = (tallyMap[idx] || 0) + 1;
-      if (tallyMap[idx] > bestCount) { bestCount = tallyMap[idx]; best = idx; }
+      seen[idx] = (seen[idx] || 0) + 1;
+      if (seen[idx] > bestCount) { bestCount = seen[idx]; best = idx; }
     }
     return best < N ? best : -1;
   }
 
   function pickRows(i) {
     if (i < 0) return "<tr><td class=\"name\">move over the map</td><td></td></tr>";
+    var P = PRODUCTS[state.product];
     var rows = [
       ["basin", R.id[i]],
       ["region", R.reg[i] + "  " + Math.abs(R.lat[i]).toFixed(1) + (R.lat[i] < 0 ? "S " : "N ") +
         Math.abs(R.lon[i]).toFixed(1) + (R.lon[i] < 0 ? "W" : "E")],
       ["area, km2", thousands(R.area[i])],
-      ["cells, SeDA / Li", (R.ncG[i] === null ? "n/a" : R.ncG[i]) + " / " +
+      ["trend, mm/yr", signed(P.trend ? P.trend[i] : null, 2) +
+        (P.p && P.p[i] !== null ? "  p " + fmt(P.p[i], 3) : "")],
+      ["trend, JPL then GSFC coarse", signed(R.tC[i], 2) + " / " + signed(R.tC2 ? R.tC2[i] : null, 2)],
+      ["cells, SeDA / Li and Kusche", (R.ncG[i] === null ? "n/a" : R.ncG[i]) + " / " +
         (R.ncL && R.ncL[i] !== null ? R.ncL[i] : "n/a")],
       ["mascons overlapped", R.nfp[i]],
       ["share in largest mascon", fmt(R.fdom[i], 2)],
-      ["departure variance ratio", fmt(R.vrG[i], 3) + " / " + fmt(R.vrL ? R.vrL[i] : null, 3)],
+      ["departure variance ratio", fmt(P.vr ? P.vr[i] : null, 3)],
       ["two coarse solutions differ by", fmt(R.vrS[i], 3)],
-      ["departure on weather, adj R2", fmt(R.prG[i], 2) + " / " + fmt(R.prL ? R.prL[i] : null, 2)],
+      ["departure on weather, adj R2", fmt(P.pr ? P.pr[i] : null, 2)],
       ["products correlate", fmt(R.rGL[i], 2)],
-      ["trend, coarse / SeDA / Li", fmt(R.tC[i], 1) + " / " + fmt(R.tG[i], 1) + " / " +
-        fmt(R.tL ? R.tL[i] : null, 1)],
       ["rank shift", fmt(R.shift[i], 1)]
     ];
-    var out = "";
-    rows.forEach(function (r) {
-      out += "<tr><td class=\"name\">" + r[0] + "</td><td>" + r[1] + "</td></tr>";
-    });
+    var out = rows.map(function (r) {
+      return "<tr><td class=\"name\">" + r[0] + "</td><td>" + r[1] + "</td></tr>";
+    }).join("");
     var fl = [];
-    FLAGS.forEach(function (f) { if (flag[f.k][i]) fl.push(f.label); });
+    OWN.concat(PAIR).forEach(function (f) { if (flag[f.k][i]) fl.push(f.label); });
     out += "<tr><td class=\"name\">flags</td><td>" +
       (tested[i] ? (fl.length ? fl.join(", ") : "none") : "not tested") + "</td></tr>";
     return out;
@@ -434,18 +604,73 @@
   });
 
   /* ------------------------------------------------------------------- wire */
-  document.getElementById("seg-layer").addEventListener("click", function (ev) {
+  function press(container, value) {
+    [].forEach.call(document.querySelectorAll(container + " button"), function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.v === value));
+    });
+  }
+
+  function syncChrome() {
+    var P = PRODUCTS[state.product];
+    var isTrend = state.layer === "TREND";
+    document.getElementById("legend-trend").hidden = !isTrend;
+    document.getElementById("legend-flags").hidden = isTrend;
+    document.getElementById("ramp").style.background =
+      "linear-gradient(90deg," + ramp().join(",") + ")";
+
+    document.getElementById("map-title").textContent =
+      isTrend ? "Storage trend, " + P.name : LABEL[state.layer];
+
+    var coarseOnly = !P.downscaled;
+    [].forEach.call(document.querySelectorAll("#seg-layer button, #seg-pair button"),
+      function (b) { b.disabled = coarseOnly && b.dataset.v !== "TREND"; });
+    document.getElementById("prod-hint").textContent = coarseOnly
+      ? "a coarse reference, shown for the trend layer only"
+      : P.name + ", " + P.grid + ", tested on its own";
+
+    var sub = document.getElementById("map-sub");
+    var note = document.getElementById("map-note");
+    if (isTrend) {
+      sub.textContent = R.meta.n_months + " months, " + R.meta.common_period[0] + " to " +
+        R.meta.common_period[1];
+      note.textContent = "Slope of one line fitted through every month, with annual and " +
+        "semi-annual harmonics alongside it, in millimeters of water per year. Same estimator " +
+        "and same color scale as the first tab, on 16,397 level 6 basins rather than 247, and " +
+        "over 2002 to 2022 rather than the GRACE-FO window. Read the panel below before using " +
+        "any of it.";
+    } else {
+      var c = tally(active());
+      sub.textContent = thousands(c.n) + " of " + thousands(R.meta.n_tested) +
+        " tested basins, " + (c.share * 100).toFixed(0) + "% of tested land area";
+      note.textContent = PAIR.some(function (f) { return f.k === state.layer; })
+        ? "This test compares the two products with each other, so it does not move when the " +
+          "solution above changes."
+        : "Computed for " + P.name + " alone. Nothing in this layer asks the two products to " +
+          "agree.";
+    }
+  }
+
+  document.getElementById("seg-product").addEventListener("click", function (ev) {
     var b = ev.target.closest("button");
     if (!b) return;
-    state.layer = b.dataset.v;
-    [].forEach.call(this.querySelectorAll("button"), function (x) {
-      x.setAttribute("aria-pressed", String(x === b));
-    });
-    var titles = { ANY: "No usable added information" };
-    FLAGS.forEach(function (f) { titles[f.k] = f.label; });
-    document.getElementById("map-title").textContent = titles[state.layer];
-    drawMap(); drawDist();
+    state.product = b.dataset.v;
+    if (!PRODUCTS[state.product].downscaled) state.layer = "TREND";
+    press("#seg-product", state.product);
+    press("#seg-layer", state.layer);
+    press("#seg-pair", state.layer);
+    recompute();
   });
+
+  function layerClick(ev) {
+    var b = ev.target.closest("button");
+    if (!b || b.disabled) return;
+    state.layer = b.dataset.v;
+    press("#seg-layer", state.layer);
+    press("#seg-pair", state.layer);
+    recompute();
+  }
+  document.getElementById("seg-layer").addEventListener("click", layerClick);
+  document.getElementById("seg-pair").addEventListener("click", layerClick);
 
   document.getElementById("reset").addEventListener("click", function () {
     SLIDERS.forEach(function (s) {
@@ -459,8 +684,10 @@
 
   function recompute() {
     compute();
+    syncChrome();
     drawMap();
     drawCounts();
+    drawEviscerate();
     drawDist();
   }
 
@@ -470,12 +697,6 @@
       m.common_period[0] + " to " + m.common_period[1];
     document.getElementById("nav-window").textContent =
       "Downscaling test, " + m.common_period[0] + " to " + m.common_period[1];
-    document.getElementById("map-note").textContent =
-      m.n_months + " months shared by both downscaled products and the coarse solution. " +
-      thousands(m.n_tested) + " of " + thousands(m.n_basins) +
-      " level 6 basins have a complete series in every product and could be tested.";
-    document.getElementById("hint").textContent =
-      "hover a basin for its numbers";
 
     var g = m.geometry;
     document.getElementById("foot-area").innerHTML =
@@ -484,13 +705,15 @@
       "Devaraju and Sneeuw (2018), which is " + (g.area_share_above_reliable_threshold * 100).toFixed(1) +
       " percent of the level's land area. The median basin is " +
       thousands(g.area_km2["50"]) + " km2 and holds " + g.median_n_cells_G +
-      " GRACE-SeDA cells.";
+      " GRACE-SeDA cells and " + g.median_n_cells_L + " Li and Kusche cells.";
     document.getElementById("foot-solution").innerHTML =
-      "<b>A floor under the departure.</b> The median basin's departure from coarse GRACE is " +
-      fmt(m.medians.var_ratio_G, 3) + " of the coarse variance for GRACE-SeDA and " +
-      fmt(m.medians.var_ratio_L, 3) + " for Li and Kusche. Two coarse solutions of the same months, " +
-      "JPL and GSFC, already differ by " + fmt(m.medians.var_ratio_solution, 3) +
-      ". A departure below that is not distinguishable from the choice of processing center.";
+      "<b>Two floors under the departure.</b> The median basin's departure from the release it " +
+      "was built from is " + fmt(m.medians.var_ratio_G, 3) + " of the coarse variance for " +
+      "GRACE-SeDA and " + fmt(m.medians.var_ratio_L, 3) + " for Li and Kusche. Moving the same " +
+      "center one release, JPL RL06.1 to RL06.3, costs " + fmt(m.medians.var_ratio_release, 5) +
+      ". Moving between two centers, JPL to GSFC, costs " +
+      fmt(m.medians.var_ratio_solution, 3) + ", so the whole of Li and Kusche's departure is " +
+      "about a fifth of what changing processing center does to the same months.";
     var sp = m.spearman || {};
     document.getElementById("foot-spearman").innerHTML =
       "<b>Ranking.</b> Ranked by depletion trend, GRACE-SeDA agrees with the coarse solution at " +
@@ -500,24 +723,29 @@
     var co = R.corners;
     if (co) {
       document.getElementById("foot-corners").innerHTML =
-        "<b>How much of this is the thresholds.</b> Set all seven sliders to the most " +
-        "generous end of their range at once and " + thousands(co.most_generous.n_RED_ANY) +
+        "<b>How much of this is the thresholds.</b> Set all seven sliders to the most generous " +
+        "end of their range at once and " + thousands(co.most_generous.n_RED_ANY) +
         " basins stay flagged, " + Math.round(co.most_generous.share_of_tested * 100) +
         " percent of those tested. Set them all to the strictest end and " +
-        thousands(co.strictest.n_RED_ANY) + " are, every basin the test could reach.";
+        thousands(co.strictest.n_RED_ANY) + " are, every basin the test could reach. Those two " +
+        "counts use all five tests together.";
     }
   }
 
   window.addEventListener("resize", function () {
     sizeCanvas(); drawMap(); drawDist(); drawRanks();
   });
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", function () { recompute(); });
 
   fillText();
   drawSliders();
   sizeCanvas();
   compute();
+  syncChrome();
   drawMap();
   drawCounts();
+  drawEviscerate();
   drawDist();
   drawRanks();
   document.getElementById("pick").innerHTML = pickRows(-1);

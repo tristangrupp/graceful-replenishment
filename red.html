@@ -22,12 +22,12 @@
 <header>
   <div>
     <h1>Does downscaled GRACE add anything at level 6?</h1>
-    <p>Two published global products claim to resolve water storage finer than GRACE measures it:
-       <b>GRACE-SeDA</b> at 0.5 degrees and <b>Li and Kusche</b> at 0.25 degrees. This page tests
-       both against the coarse JPL mascon solution they are built from, on 16,397 HydroBASINS
-       level 6 basins, using no wells and no other outside data. Red means a basin failed at least
-       one test. No basin turns green. A basin that passes has only survived tests built to catch
-       obvious failure, which is not the same as being right.</p>
+    <p>Two published global products claim to resolve water storage finer than GRACE measures it.
+       <b>GRACE-SeDA</b> runs at 0.5 degrees; <b>Li and Kusche</b> runs at 0.25 degrees. Each one is
+       tested on its own here, against the coarse JPL mascon solution that produced it, on 16,397
+       HydroBASINS level 6 basins, using no wells and no other outside data. Red means a basin
+       failed at least one test. No basin turns green: passing means a basin survived tests built
+       to catch obvious failure, which is not the same as being right.</p>
   </div>
   <div class="window">
     <div><span class="eyebrow">Common window</span><b id="w-window">&nbsp;</b></div>
@@ -36,31 +36,55 @@
 </header>
 
 <div class="toolbar">
-  <span class="eyebrow">Show</span>
+  <span class="eyebrow">Solution</span>
+  <div class="seg" id="seg-product">
+    <button data-v="G" aria-pressed="true">GRACE-SeDA 0.5&deg;</button>
+    <button data-v="L" aria-pressed="false">Li and Kusche 0.25&deg;</button>
+    <button data-v="C" aria-pressed="false">JPL RL06.3</button>
+    <button data-v="C61" aria-pressed="false">JPL RL06.1</button>
+    <button data-v="C2" aria-pressed="false">GSFC</button>
+  </div>
+  <span class="hint" id="prod-hint"></span>
+</div>
+
+<div class="toolbar">
+  <span class="eyebrow">Layer</span>
   <div class="seg" id="seg-layer">
-    <button data-v="ANY" aria-pressed="true">Any failure</button>
+    <button data-v="TREND" aria-pressed="true">Storage trend</button>
+    <button data-v="ANY" aria-pressed="false">Any failure</button>
     <button data-v="RED_GEOMETRY" aria-pressed="false">Not resolved</button>
     <button data-v="RED_NO_DEPARTURE" aria-pressed="false">No departure</button>
     <button data-v="RED_PREDICTOR_DERIVED" aria-pressed="false">Weather field</button>
+  </div>
+  <span class="eyebrow">Both products</span>
+  <div class="seg" id="seg-pair">
     <button data-v="RED_DISAGREEMENT" aria-pressed="false">Products disagree</button>
     <button data-v="RED_RANK_UNSTABLE" aria-pressed="false">Ranking unstable</button>
   </div>
-  <button class="btn" id="reset" type="button" title="Put every threshold back to the value the experiment ran at">Reset thresholds</button>
-  <span class="hint" id="hint"></span>
+  <button class="btn" id="reset" type="button"
+          title="Put every threshold back to the value the experiment ran at">Reset thresholds</button>
 </div>
 
 <div class="grid">
   <div class="col">
   <section class="panel">
     <div class="panel-head">
-      <h2 id="map-title">No usable added information</h2>
+      <h2 id="map-title">Storage trend</h2>
       <span class="eyebrow" id="map-sub"></span>
     </div>
     <p class="panel-note" id="map-note"></p>
     <div class="canvas-wrap">
-      <canvas id="map" role="img" aria-label="World map of level 6 basins that fail the tests"></canvas>
+      <canvas id="map" role="img" aria-label="World map of HydroBASINS level 6 basins"></canvas>
     </div>
-    <div class="keys" style="margin-top:8px">
+    <div class="bar" id="legend-trend">
+      <div style="flex:1 1 260px">
+        <div class="ramp" id="ramp" style="width:100%"></div>
+        <div class="ticks"><span>&minus;30</span><span>&minus;15</span><span>0</span>
+          <span>+15</span><span>+30</span></div>
+      </div>
+      <span class="hint">millimeters of water per year, clipped at &plusmn;30</span>
+    </div>
+    <div class="keys" id="legend-flags" hidden>
       <span class="key"><i class="sw" style="background:#b5341c"></i>no usable added information</span>
       <span class="key"><i class="sw" style="background:var(--sunk)"></i>not tested as failing</span>
       <span class="key"><i class="sw" style="background:var(--nodata)"></i>not tested</span>
@@ -69,6 +93,21 @@
       <thead><tr><th>Basin under the pointer</th><th>value</th></tr></thead>
       <tbody id="pick"><tr><td class="name">move over the map</td><td></td></tr></tbody>
     </table>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Why these trends should not be read at this scale</h2>
+      <span class="eyebrow" id="evis-sub"></span>
+    </div>
+    <p class="panel-note">The map above uses the estimator the first tab uses and the color scale
+       the first tab uses, drawn on 16,397 basins instead of 247. It looks like more information.
+       The rows below are what happens to it when the solution changes rather than the water.</p>
+    <table>
+      <thead><tr><th>check</th><th>result</th></tr></thead>
+      <tbody id="evis"></tbody>
+    </table>
+    <p class="panel-note" id="evis-note" style="margin-top:8px"></p>
   </section>
 
   <section class="panel">
@@ -94,7 +133,7 @@
     <div id="sliders"></div>
 
     <div class="panel-head" style="margin-top:14px">
-      <h2>Counts at the current thresholds</h2>
+      <h2 id="counts-title">Counts at the current thresholds</h2>
     </div>
     <table>
       <thead><tr><th>test</th><th>basins</th><th>share of tested area</th></tr></thead>
@@ -111,32 +150,79 @@
 </div>
 
 <footer>
-  <h3>What the test does</h3>
-  <p>Each basin gets a monthly series from every product, area weighted through a 0.05 degree
-     raster of the basin outlines. That is a conservative remap: a basin mean is the sum of cell
+  <h3>How a basin gets its numbers</h3>
+  <p>Each product sits on its own grid, so the basin outlines are rasterized once at 0.05 degrees
+     and every coarser grid inherits its overlap from that raster. A basin mean is the sum of cell
      values times the area of each cell inside the basin, divided by the area inside the basin.
-     Nearest neighbour and bilinear do not conserve mass and are not used.</p>
-  <ul>
-    <li><b>Not resolved.</b> The basin holds fewer than two cells of a product, or more than
-      95 percent of it sits inside a single coarse mascon. Structure drawn inside one footprint
-      did not come from gravimetry.</li>
-    <li><b>No departure.</b> The variance of the downscaled series minus the coarse series is under
-      5 percent of the coarse variance. The product is the coarse series on a finer grid.</li>
-    <li><b>Weather field.</b> The departure regresses on precipitation, soil moisture, and snow with
-      an adjusted R squared above 0.8. Both products are built from GRACE plus model fields, so a
-      high value is partly expected by construction. Read it as a degree, not as a surprise.</li>
-    <li><b>Products disagree.</b> The two products correlate below 0.5, or their trends differ by
-      more than the size of the trend. Where they disagree, at least one is wrong, and that needs
-      no outside data to establish.</li>
-    <li><b>Ranking unstable.</b> The basin moves more than 20 percentile points between the two
-      products' depletion rankings.</li>
-  </ul>
+     That is what a conservative remap computes. Nearest neighbor and bilinear do not conserve
+     mass and are used nowhere here. Cells missing in a month drop out of the numerator and the
+     denominator together, so a partly covered basin is renormalized rather than scored as zero
+     over the part that did not report.</p>
+  <p>Each product is then tested on its own. Nothing below asks the two products to agree, except
+     the last two tests, which exist because their disagreement is measurable without outside
+     data.</p>
+
+  <h3>The five tests</h3>
+
+  <h4>Not resolved</h4>
+  <p><b>What it measures.</b> Whether the basin is large enough for the product to describe it as a
+     field rather than a point, and whether GRACE ever measured anything inside it. Two numbers:
+     how many product cells have their center in the basin, and what share of the basin's area
+     falls in its single largest coarse mascon.</p>
+  <p><b>The cut.</b> Fewer than 2 cells, or more than 95 percent of the area inside one mascon.</p>
+  <p><b>What tripping it means.</b> A basin contained in one mascon has one gravimetric number
+     attached to it, and one number has no shape. Whatever pattern a downscaled product draws
+     across that basin came from the model field the downscaling was conditioned on, not from the
+     satellites. That holds before any question of skill, and validation would not change it.</p>
+
+  <h4>No departure</h4>
+  <p><b>What it measures.</b> How far the downscaled basin series moves away from the coarse basin
+     series. Subtract the two monthly series and compare the variance of the difference with the
+     variance of the coarse series.</p>
+  <p><b>The cut.</b> Under 5 percent of the coarse variance.</p>
+  <p><b>What tripping it means.</b> The product is the coarse series on a finer grid. That may be
+     exactly what its authors intended, and nothing about it is wrong, but it holds nothing a user could
+     not have read off the coarse solution. Read the number against the floor beneath it: two
+     coarse solutions of the same months, from two processing centers, already differ by more than
+     this cut in most basins.</p>
+
+  <h4>Weather field</h4>
+  <p><b>What it measures.</b> Whether the departure is a hydrometeorological field wearing a
+     gravimetry label. The departure series is regressed on basin precipitation at lags of zero to
+     three months, the accumulated precipitation anomaly, soil moisture, and snow plus canopy.</p>
+  <p><b>The cut.</b> Adjusted R squared above 0.8.</p>
+  <p><b>What tripping it means.</b> Ranking basins by that departure ranks them by rainfall and
+     soil moisture structure. Both products are built from GRACE plus model fields, so some of this
+     follows by construction and a high value is not a scandal. Read it as a degree: a basin at
+     0.95 is a different object from one at 0.55. This test flags the fewest basins of the five,
+     which is reported here rather than buried.</p>
+
+  <h4>Products disagree</h4>
+  <p><b>What it measures.</b> Whether the two products describe the same basin. Their monthly
+     series are correlated, and the gap between their fitted trends is compared with the size of
+     the trend itself.</p>
+  <p><b>The cut.</b> Correlation under 0.5, or a trend gap larger than the trend.</p>
+  <p><b>What tripping it means.</b> Two methods built from the same measurements disagree, so at
+     least one of them is wrong. That is a lower bound on error and it needs no wells to establish.
+     This test does not depend on which solution is selected above.</p>
+
+  <h4>Ranking unstable</h4>
+  <p><b>What it measures.</b> Where a basin sits in a global list ordered by depletion trend, under
+     one product against the other, in percentile points.</p>
+  <p><b>The cut.</b> A shift of more than 20 percentile points.</p>
+  <p><b>What tripping it means.</b> A priority list built on one product puts this basin in a
+     different band from a list built on the other. For any use that ranks basins rather than
+     reporting a storage number, that is the failure that matters.</p>
 
   <h3>What the test cannot do</h3>
-  <p>This produces red only. It cannot say whether a downscaled value is correct anywhere, whether
-     fine structure reflects groundwater rather than total storage, or whether apparent skill in a
-     wet region is real rather than a shared response to rainfall. Those need wells,
-     evapotranspiration or InSAR, and an ablation against them. That is a separate piece of work.</p>
+  <p>This produces red only. A basin that trips nothing has not been shown to be trustworthy. It
+     survived tests built to catch obvious failure, and that is the whole claim.</p>
+  <p>It cannot say whether a downscaled value is correct anywhere. It cannot say whether fine
+     structure reflects groundwater rather than total storage. It cannot say whether skill in a wet
+     region is real or a shared response to rainfall. Each of those needs outside data, wells or
+     evapotranspiration or InSAR, and an ablation of predictor-only against predictor-plus-GRACE
+     scored against that data. That is a separate piece of work, and it reads cleanly only where
+     precipitation flux does not dominate the water balance.</p>
 
   <h3>Reference points</h3>
   <ul>
@@ -146,18 +232,47 @@
     <li id="foot-corners"></li>
   </ul>
 
-  <h3>Sources</h3>
+  <h3>The data</h3>
   <ul>
-    <li>GRACE-SeDA v1, Gou and Soja, <code>10.3929/ethz-b-000648738</code>, 0.5 degrees, 2002-04 to
-      2022-12, millimeters, baseline 2004 to 2009 removed.</li>
-    <li>Li and Kusche, <code>10.5281/zenodo.17265162</code>, 0.25 degrees, 2002-04 to 2025-03,
-      stored in centimeters and converted to millimeters here.</li>
-    <li>JPL mascon RL06.3Mv04 CRI, the coarse reference. Gain factors are deliberately not applied:
-      they are a model-derived correction, and applying one would add the model structure the
-      test is looking for.</li>
-    <li>GSFC mascon RL06v2.0, a second coarse solution, used only to measure how far apart two
-      processing centers already are.</li>
-    <li>HydroBASINS v1c level 6, GLDAS 2.1 Noah, CHIRPS v2.0.</li>
+    <li><b>GRACE-SeDA v1</b>, Gou and Soja, 0.5 degrees, 2002-04 to 2022-12, millimeters, baseline
+      2004 to 2009 removed.
+      <a href="https://doi.org/10.3929/ethz-b-000648738">doi.org/10.3929/ethz-b-000648738</a>.
+      Paper: <a href="https://doi.org/10.1038/s44221-024-00194-w">doi.org/10.1038/s44221-024-00194-w</a>.
+      Code: <a href="https://github.com/FoDcn/GRACE-SeDA">github.com/FoDcn/GRACE-SeDA</a>.</li>
+    <li><b>Li and Kusche v2.0</b>, 0.25 degrees, 2002-04 to 2025-03, stored in centimeters and
+      converted to millimeters here.
+      <a href="https://doi.org/10.5281/zenodo.17265162">doi.org/10.5281/zenodo.17265162</a>.
+      Paper: <a href="https://doi.org/10.1029/2025GL119881">doi.org/10.1029/2025GL119881</a>.</li>
+    <li><b>JPL mascon RL06.3Mv04 CRI</b>, the coarse reference for Li and Kusche, whose own file
+      names no release.
+      <a href="https://podaac.jpl.nasa.gov/dataset/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4">podaac.jpl.nasa.gov,
+      TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4</a>. Gain factors are deliberately not applied:
+      they are a model-derived correction, and applying one would add the model structure this test
+      looks for.</li>
+    <li><b>JPL mascon RL06.1Mv03 CRI</b>, the release GRACE-SeDA v1 names as its input, and the
+      coarse reference it is differenced against here. The collection is retired from the data
+      catalogue; the file is still served at
+      <code>podaac-ops-cumulus-protected/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3/</code>.
+      Differencing GRACE-SeDA against RL06.3 instead would put a release change into its residual
+      and score it as information the downscaling added. Moving between the two releases costs
+      0.0005 of the coarse variance in the median basin, against 0.25 for moving between two
+      processing centers, so the correction matters for honesty more than for the answer.</li>
+    <li><b>GSFC mascon RL06v2.0</b>, a second coarse solution, used to measure how far apart two
+      processing centers already are.
+      <a href="https://earth.gsfc.nasa.gov/geo/data/grace-mascons">earth.gsfc.nasa.gov/geo/data/grace-mascons</a>.</li>
+    <li><b>HydroBASINS v1c level 6</b>, 16,397 basins.
+      <a href="https://www.hydrosheds.org/products/hydrobasins">hydrosheds.org/products/hydrobasins</a>.</li>
+    <li><b>GLDAS 2.1 Noah 0.25 degrees</b>, soil moisture, snow and canopy, and the precipitation
+      forcing above 50 degrees.
+      <a href="https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary">disc.gsfc.nasa.gov,
+      GLDAS_NOAH025_M 2.1</a>.</li>
+    <li><b>CHIRPS v2.0</b> monthly precipitation, 50S to 50N.
+      <a href="https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_monthly/netcdf/byYear/">data.chc.ucsb.edu,
+      CHIRPS-2.0 global monthly</a>.</li>
+    <li>Method note, tables and scripts:
+      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/RED_METHODS.md">RED_METHODS.md</a>
+      and <a href="https://github.com/tristangrupp/graceful-replenishment/tree/main/global/red">global/red</a>
+      in the repository.</li>
   </ul>
 </footer>
 
