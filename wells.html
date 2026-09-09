@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>GRACE Basin Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Rate of change</a>
+  <a href="years.html">Year by year</a>
+  <a href="red.html">Downscaling test</a>
+  <a href="wells.html" aria-current="page">Against wells</a>
+  <span class="site" id="nav-window">&nbsp;</span>
+</nav>
+
+<header>
+  <div>
+    <h1>Does any of it agree with a well?</h1>
+    <p>The downscaling test used no outside data, so it could only detect failure. This page
+       brings in the one reference that can say whether a value is right: measured groundwater
+       levels. Two questions are asked of every well. Does a downscaled product track it better
+       than the coarse solution behind it? And does gravimetry of any resolution tell you
+       something about the well that precipitation, soil moisture and snow do not already?</p>
+  </div>
+  <div class="window">
+    <div><span class="eyebrow">Wells</span><b id="w-wells">&nbsp;</b></div>
+    <div><span class="eyebrow">Independent footprints</span><b id="w-mascons">&nbsp;</b></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="eyebrow">Color wells by</span>
+  <div class="seg" id="seg-layer">
+    <button data-v="cover" aria-pressed="true">Coverage</button>
+    <button data-v="rC" aria-pressed="false">Agreement, coarse</button>
+    <button data-v="rG" aria-pressed="false">Agreement, GRACE-SeDA</button>
+    <button data-v="rL" aria-pressed="false">Agreement, Li and Kusche</button>
+    <button data-v="dG" aria-pressed="false">SeDA minus coarse</button>
+    <button data-v="dL" aria-pressed="false">Li and Kusche minus coarse</button>
+  </div>
+  <span class="hint" id="hint"></span>
+</div>
+
+<div class="grid">
+  <div class="col">
+  <section class="panel">
+    <div class="panel-head">
+      <h2 id="map-title">Where the open well records are</h2>
+      <span class="eyebrow" id="map-sub"></span>
+    </div>
+    <p class="panel-note" id="map-note"></p>
+    <div class="canvas-wrap">
+      <canvas id="map" role="img" aria-label="World map of groundwater monitoring wells"></canvas>
+    </div>
+    <div class="bar" id="legend">
+      <div style="flex:1 1 240px">
+        <div class="ramp" id="ramp" style="width:100%"></div>
+        <div class="ticks" id="ticks"></div>
+      </div>
+      <span class="hint" id="legend-note"></span>
+    </div>
+    <table id="pick-table">
+      <thead><tr><th>Well under the pointer</th><th>value</th></tr></thead>
+      <tbody id="pick"><tr><td class="name">move over the map</td><td></td></tr></tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>The ablation</h2>
+      <span class="eyebrow">leave one mascon out</span>
+    </div>
+    <p class="panel-note">Three nested models predict the well's annual level anomaly. A uses
+       weather alone. B adds the coarse GRACE groundwater term. C adds a downscaled one. Splits
+       hold out a whole mascon at a time, because wells inside one mascon see the same
+       gravimetric observation and a random split would train and test on the same
+       measurement.</p>
+    <table>
+      <thead><tr><th>model</th><th>pooled R&sup2;</th><th>median well r</th>
+        <th>vs B, per mascon</th></tr></thead>
+      <tbody id="ablation"></tbody>
+    </table>
+    <p class="panel-note" id="ablation-note" style="margin-top:8px"></p>
+  </section>
+  </div>
+
+  <div class="col">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Agreement with the wells</h2>
+      <span class="eyebrow">median over scored wells</span>
+    </div>
+    <p class="panel-note">Correlation of annual anomalies at the well, 2002 to 2022. Nothing is
+       converted from water level to storage, so no specific yield enters and every number here
+       is unchanged by one.</p>
+    <table>
+      <thead><tr><th>solution</th><th>median r</th><th>wells</th></tr></thead>
+      <tbody id="agree"></tbody>
+    </table>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2>Downscaled against its own parent</h2>
+    </div>
+    <table>
+      <thead><tr><th>product</th><th>median &Delta;r</th><th>mascons better</th><th>p</th></tr></thead>
+      <tbody id="paired"></tbody>
+    </table>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2 id="dist-title">Distribution</h2>
+      <span class="eyebrow" id="dist-sub"></span>
+    </div>
+    <canvas id="dist" class="minichart"></canvas>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2>Split by how wet the well is</h2>
+    </div>
+    <p class="panel-note">The comparison reads cleanly only where precipitation flux does not
+       dominate the water balance, so the dry half is reported separately rather than averaged
+       into the wet half.</p>
+    <table>
+      <thead><tr><th>model</th><th>dry, under 500 mm/yr</th><th>wet, over 500</th></tr></thead>
+      <tbody id="wetness"></tbody>
+    </table>
+  </section>
+  </div>
+</div>
+
+<footer>
+  <h3>What this page can speak for</h3>
+  <p>The open well record is not global. It is North America, with France, Germany and
+     Scandinavia, some of Brazil, and New Zealand. Asia is almost absent. The compilation behind
+     it covers more than 40 countries, but only the part its database managers permitted to be
+     reposted is available, and that part leaves out North India, the North China Plain, Iran and
+     the Arabian Peninsula. Those are the places where the downscaling test found the most, and
+     this page cannot say anything about them.</p>
+  <p>Within the region it does cover, the well network is denser than the measurement. Tens of
+     thousands of wells sit inside a few hundred GRACE mascons, and a mascon is one gravimetric
+     observation. Every test on this page therefore counts mascons rather than wells. Counting
+     wells would turn a few hundred facts into tens of thousands of them and would make almost
+     any difference look certain.</p>
+
+  <h3>How a well is compared</h3>
+  <p>Annual depth to water is negated once, so that up means more water, and turned into an
+     anomaly against the well's own mean. Each product's total water storage is read at the cell
+     containing the well and the land surface term, GLDAS soil moisture, snow and canopy, is
+     subtracted at that product's own cell size. What remains is compared to the well.</p>
+  <p>Groundwater level is a head, not a storage. Converting one to the other needs a specific
+     yield, which is not known per well and would be the largest free parameter in the
+     comparison. Nothing here converts. Every score is a correlation or an out of sample R
+     squared on standardized series, and both are unchanged by any positive scale factor.</p>
+
+  <h3>What it still cannot do</h3>
+  <p>A well measures a head at a point in one aquifer. A GRACE cell measures a mass change over
+     thousands of square kilometers through the whole column. They are not the same quantity, and
+     a poor correlation can mean the product is wrong, the well is unrepresentative, or a
+     confined aquifer is responding to pressure rather than storage. The comparison is evidence,
+     not adjudication.</p>
+  <p>The ablation is the stronger of the two tests here, because it asks what a product adds
+     rather than how well it agrees. It still rests on a linear model of annual values, and a
+     product could hold information a linear model cannot use.</p>
+
+  <h3>Reference points</h3>
+  <ul>
+    <li id="foot-cover"></li>
+    <li id="foot-agree"></li>
+    <li id="foot-ablate"></li>
+  </ul>
+
+  <h3>The data</h3>
+  <ul>
+    <li><b>Groundwater levels</b>, Jasechko et al. (2024), annual depth to water, the subset
+      posted with permission.
+      <a href="https://doi.org/10.5281/zenodo.10003697">doi.org/10.5281/zenodo.10003697</a>.
+      Paper: <a href="https://doi.org/10.1038/s41586-023-06879-8">doi.org/10.1038/s41586-023-06879-8</a>.
+      The same records are browsable through IGRAC's Global Groundwater Information System at
+      <a href="https://ggis.un-igrac.org/view/ggmn/">ggis.un-igrac.org/view/ggmn</a>, whose own
+      bulk download asks for an email address and returns a link by mail. The Zenodo copy needs
+      no registration, which is why it is the one used here.</li>
+    <li><b>GRACE-SeDA v1</b>,
+      <a href="https://doi.org/10.3929/ethz-b-000648738">doi.org/10.3929/ethz-b-000648738</a>.
+      <b>Li and Kusche v2.0</b>,
+      <a href="https://doi.org/10.5281/zenodo.17265162">doi.org/10.5281/zenodo.17265162</a>.</li>
+    <li><b>JPL mascons</b> RL06.3Mv04 CRI and RL06.1Mv03 CRI, each product scored against the
+      release it names as its input.</li>
+    <li><b>GLDAS 2.1 Noah 0.25 degrees</b>, the land surface term and the weather predictors.
+      <a href="https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary">disc.gsfc.nasa.gov,
+      GLDAS_NOAH025_M 2.1</a>.</li>
+    <li>Method note, tables and scripts:
+      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/GREEN_METHODS.md">GREEN_METHODS.md</a>
+      and <a href="https://github.com/tristangrupp/graceful-replenishment/tree/main/global/green">global/green</a>
+      in the repository.</li>
+  </ul>
+</footer>
+
+<div id="tip" role="status" aria-live="polite"></div>
+<script src="wells_data.js"></script>
+<script src="wells.js"></script>
+</body>
+</html>
