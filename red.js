@@ -77,14 +77,14 @@
 
   var OWN = [
     { k: "RED_GEOMETRY", label: "Not resolved" },
-    { k: "RED_NO_DEPARTURE", label: "No departure" },
+    { k: "RED_NO_INDEPENDENT_DEPARTURE", label: "No independent departure" },
     { k: "RED_PREDICTOR_DERIVED", label: "Weather field" }
   ];
   var PAIR = [
     { k: "RED_DISAGREEMENT", label: "Products disagree" },
     { k: "RED_RANK_UNSTABLE", label: "Ranking unstable" }
   ];
-  var LABEL = { TREND: "Storage trend", ANY: "Any failure" };
+  var LABEL = { TREND: "Storage trend", ANY: "Flagged by any test" };
   OWN.concat(PAIR).forEach(function (f) { LABEL[f.k] = f.label; });
 
   /* ------------------------------------------------------------------ flags */
@@ -110,7 +110,7 @@
       var rk = R.shift[i] !== null && R.shift[i] > t.max_rank_shift;
 
       flag.RED_GEOMETRY[i] = g ? 1 : 0;
-      flag.RED_NO_DEPARTURE[i] = nd ? 1 : 0;
+      flag.RED_NO_INDEPENDENT_DEPARTURE[i] = nd ? 1 : 0;
       flag.RED_PREDICTOR_DERIVED[i] = wf ? 1 : 0;
       flag.RED_DISAGREEMENT[i] = dis ? 1 : 0;
       flag.RED_RANK_UNSTABLE[i] = rk ? 1 : 0;
@@ -341,14 +341,14 @@
     document.getElementById("evis-sub").textContent = P.name;
     var note = "";
     if (P.downscaled) {
-      note = "The trend map is not wrong arithmetic. It is a real least squares fit with annual " +
-        "and semi-annual harmonics, on a real series. It should not be read basin by basin " +
-        "because the two processing centers already disagree on the direction of change in " +
-        (signPair / nPair * 100).toFixed(0) + " percent of these basins before any downscaling, " +
-        "because the median gap between " + P.name + " and its own parent solution is " +
-        fmt(mg, 2) + " mm/yr against a median trend of " + fmt(mm, 2) + " mm/yr, and because " +
-        "the color of most basins is a mascon value repeated across every basin inside that " +
-        "mascon. Colour at this scale reads as resolution, and the resolution is not there.";
+      note = "The fit itself is sound: least squares with annual and semi-annual harmonics, on a " +
+        "real series. Three things argue against reading it basin by basin. Two processing " +
+        "centers already disagree on the direction of change in " +
+        (signPair / nPair * 100).toFixed(0) + " percent of these basins before any downscaling. " +
+        "The median gap between " + P.name + " and its own parent solution is " + fmt(mg, 2) +
+        " mm/yr against a median trend of " + fmt(mm, 2) + " mm/yr. And in most basins the " +
+        "value drawn is a mascon value repeated across every basin inside that mascon, so the " +
+        "color implies a resolution the observation does not have.";
     } else {
       note = "This is a coarse solution drawn on level 6 outlines. Neighboring basins inside one " +
         "mascon are given the same value, so any texture in this map is the basin outlines, not " +
@@ -361,7 +361,7 @@
   var DIST = {
     RED_GEOMETRY: { arr: function () { return R.fdom; }, log: false,
                     label: "share of basin inside one mascon", markKey: "max_frac_dominant" },
-    RED_NO_DEPARTURE: { arr: function () { return PRODUCTS[state.product].vr; }, log: true,
+    RED_NO_INDEPENDENT_DEPARTURE: { arr: function () { return PRODUCTS[state.product].vr; }, log: true,
                         label: "departure variance over coarse variance", markKey: "min_var_ratio" },
     RED_PREDICTOR_DERIVED: { arr: function () { return PRODUCTS[state.product].pr; }, log: false,
                              label: "adjusted R squared on weather fields", markKey: "max_pred_r2" },
@@ -707,7 +707,7 @@
       thousands(g.area_km2["50"]) + " km2 and holds " + g.median_n_cells_G +
       " GRACE-SeDA cells and " + g.median_n_cells_L + " Li and Kusche cells.";
     document.getElementById("foot-solution").innerHTML =
-      "<b>Two floors under the departure.</b> The median basin's departure from the release it " +
+      "<b>Two floors under the departure.</b> For the median basin the departure from the release it " +
       "was built from is " + fmt(m.medians.var_ratio_G, 3) + " of the coarse variance for " +
       "GRACE-SeDA and " + fmt(m.medians.var_ratio_L, 3) + " for Li and Kusche. Moving the same " +
       "center one release, JPL RL06.1 to RL06.3, costs " + fmt(m.medians.var_ratio_release, 5) +
