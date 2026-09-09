@@ -1,0 +1,25 @@
+{
+  "level": "06",
+  "n_basins": 16397,
+  "total_area_km2": 134971948.7,
+  "area_km2": {
+    "5": 273.20000000000016,
+    "25": 2334.1,
+    "50": 5317.6,
+    "75": 11068.2,
+    "95": 25290.859999999993
+  },
+  "reliable_area_threshold_km2": 63000,
+  "n_above_reliable_threshold": 48,
+  "area_share_above_reliable_threshold": 0.030652772963927728,
+  "median_n_cells_G": 2.0,
+  "median_n_cells_L": 9.0,
+  "median_n_native_footprints": 2.0,
+  "median_frac_dominant_mascon": 0.9742174825967757,
+  "n_frac_dominant_over_0p95": 8746,
+  "n_cells_G_under_2": 5986,
+  "raster_area_check": {
+    "median_ratio_raster_to_subarea": 0.9999143295805222,
+    "n_basins_with_no_raster_cell": 136
+  }
+}

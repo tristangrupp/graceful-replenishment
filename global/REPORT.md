@@ -143,8 +143,35 @@ returns 410 Gone, so `_shared/gldas_download.py`'s subsetting no longer works an
 bearer token is read from the file named by `EARTHDATA_TOKEN_FILE`, never placed
 on a command line and never written into any output.
 
+## The downscaling test, level 6
+
+A separate experiment sits beside this one and shares its plumbing:
+`RED_METHODS.md`, with outputs in `red/` and scripts `10_red_*` through
+`15_red_*`. It asks whether two published downscaled GRACE products, GRACE-SeDA
+at 0.5 deg and Li and Kusche at 0.25 deg, add usable information at HydroBASINS
+level 6, using no validation data at all.
+
+It runs on a different window and a different coarse reference, and neither
+choice is optional. The window is 2002-04 to 2022-12 because GRACE-SeDA stops
+there. The coarse term is JPL RL06.3Mv04 CRI rather than GSFC, because both
+downscaled products are built from JPL: differencing against GSFC would put
+center-to-center differences into the residual and score them as added
+information. GSFC is kept for one job, measuring how far apart two centers
+already are, and the answer is that the median level 6 basin differs by 25
+percent of its own variance and the two rankings agree at Spearman 0.798.
+
+Against that floor, 14,441 of 15,495 testable basins fail at least one test, 90
+percent of the tested land area. Li and Kusche departs from coarse JPL by 4
+percent of variance and preserves its ranking at 0.972. GRACE-SeDA departs by 42
+percent and ranks at 0.675, so it disagrees with its own parent by more than two
+processing centers disagree with each other.
+
 ## Sources
 
 - GSFC mascon RL06v2.0 - https://earth.gsfc.nasa.gov/geo/data/grace-mascons
 - GLDAS 2.1 monthly (NOAH025, VIC10, CLSM10) - NASA GES DISC
 - HydroSHEDS HydroBASINS v1c - https://www.hydrosheds.org
+- JPL mascon RL06.3Mv04 CRI - PO.DAAC, for the downscaling test
+- GRACE-SeDA v1 - https://doi.org/10.3929/ethz-b-000648738
+- Downscaled JPL mascons, Li and Kusche - https://doi.org/10.5281/zenodo.17265162
+- CHIRPS v2.0 global monthly - Climate Hazards Center

@@ -45,8 +45,9 @@ meaning.
 
 ```
 shared/      reusable pieces: mascon geometry and lookup, GLDAS downloaders,
-             the region-agnostic decorrelation analysis, figure styling
+             basin rasterization and area weighting, figure styling
 global/      the global pipeline, its outputs, and its report
+global/red/  the downscaling test, at HydroBASINS level 6
 site/        the interactive page
 regions/     six regional studies, each with scripts, tables, figures, and a report
 ```
@@ -63,6 +64,12 @@ regions/     six regional studies, each with scripts, tables, figures, and a rep
 | `global/scripts/05_level_compare.py` | level 3 versus level 4 |
 | `global/scripts/06_export_viz.py` | the payload the page reads |
 | `global/scripts/08_glacier_fraction.py` | glacier cover per basin, for the ice filter |
+| `global/scripts/10_red_geometry.py` | downscaling test 1, whether a level 6 basin is resolved at all |
+| `global/scripts/11_red_series.py` | basin-mean monthly series for every product and predictor |
+| `global/scripts/12_red_tests.py` | tests 2 and 3, the flag table, the sensitivity table |
+| `global/scripts/13_red_map.py` | the red maps and the two diagnostic figures |
+| `global/scripts/14_red_export.py` | the payload the downscaling page reads |
+| `global/scripts/15_red_methods.py` | the methods note, with the numbers injected |
 
 ```powershell
 cd C:\path\to\dark-water
@@ -81,14 +88,15 @@ $py = ".\.venv\Scripts\python.exe"
 ### The page
 
 It's live at https://tristangrupp.github.io/graceful-replenishment/, and it also runs from
-disk: open `site/index.html`. All six files in that folder have to stay together, because
-both pages share one 5 MB `data.js`.
+disk: open `site/index.html`. Every file in that folder has to stay together. The first two
+pages share one 5 MB `data.js`, and the third reads its own `red_data.js`.
 
 Page one maps a rate. It shows the slope of one line fitted through all 92 monthly
 solutions, in millimeters of water per year. That isn't the difference between the first
 year and the last. Page two does year by year with three frames: level, change from last
 year, and first year to last. It also folds each basin's deseasonalized record into one line
-per calendar year.
+per calendar year. Page three is the downscaling test below, and it ships the metrics rather
+than the verdicts, so moving any threshold redraws the map and the counts.
 
 ## Where the numbers landed
 
@@ -107,6 +115,58 @@ almost identically, yet 39 of 247 disagree on sign. That gap is why the page rep
 The endpoint difference rests on the 5 solved months of 2018 and the 3 of 2026, so 8 of the
 92 solutions decide it.
 
+## The downscaling test
+
+Two published global products claim to resolve storage finer than GRACE measures it.
+GRACE-SeDA runs at 0.5 degrees, from Gou and Soja. Li and Kusche runs at 0.25 degrees.
+Both are built from JPL mascons and neither was trained on wells. The question is whether either one
+adds usable information at HydroBASINS level 6, and the test answers it with no validation
+data at all. Full write-up in `global/RED_METHODS.md`.
+
+The design is one-sided on purpose. Five tests each detect one way of failing. The coarse
+footprint does not resolve the basin. The product barely departs from the coarse series.
+Precipitation and soil moisture explain the departure. The two products disagree with each
+other. A basin's rank moves between them. A basin that trips one has been shown to
+add nothing usable. A basin that trips none has only survived, and the map calls it "not
+tested as failing" rather than green.
+
+Over the common window 2002-04 to 2022-12, 214 months, 14,441 of the 15,495 testable basins
+fail at least one test. That is 90 percent of the tested land area.
+
+Three findings under that number.
+
+**Level 6 is mostly below the resolution.** 48 of 16,397 basins reach the roughly 63,000
+square kilometer reliable unit of Vishwakarma, Devaraju and Sneeuw (2018), which is 3.1
+percent of the level's land area. The median basin is 5,318 square kilometers and holds 2
+GRACE-SeDA cells. Half of all basins sit more than 97 percent inside a single coarse mascon,
+so any structure a product draws inside them came from somewhere other than gravimetry.
+
+**The two products fail in opposite ways.** Li and Kusche stays close to its parent: the
+median basin's departure is 4 percent of the coarse variance, and its depletion ranking
+matches the coarse ranking at Spearman 0.972. GRACE-SeDA departs by 42 percent and ranks
+basins differently, at 0.675. Neither is automatically the better behavior. Switching
+processing center, from JPL to GSFC, already moves the median basin by 25 percent of its
+variance and reorders the ranking to 0.798. So GRACE-SeDA disagrees with its own parent solution by more than two centers
+disagree with each other, and Li and Kusche disagrees by less than the rounding.
+
+**Downscaling changed the resolution, not the priority order.** The two downscaled products
+agree with each other at 0.699, worse than either agrees with a coarse solution. Where two
+products built from the same measurements disagree, at least one is wrong, and establishing
+that needs no outside data.
+
+The departure is not mostly a weather field: only 342 basins regress on precipitation, soil
+moisture and snow above an adjusted R squared of 0.8. That test was the weakest of the five,
+and its result is reported rather than buried.
+
+Every threshold is a judgement call, so `12_red_tests.py` emits a sensitivity table and the
+page lets a reader move each cut. The headline holds in the direction that
+matters. Loosening every threshold to the most generous value in its range still leaves most
+of the level flagged.
+
+What this cannot do is say that any downscaled value is right. That needs wells,
+evapotranspiration or InSAR, and an ablation of predictor-only against
+predictor-plus-GRACE scored against them.
+
 ## Regional studies
 
 | region | what it settled |
@@ -124,12 +184,16 @@ facts.
 
 ## What you won't find here
 
-Raw downloads stay out: 2.6 GB of GLDAS granules, the 172 MB Goddard mascon HDF5, and the
-rainfall, reservoir, and water-balance archives. Every script that needs them fetches them,
+Raw downloads stay out: 7.7 GB of GLDAS granules, the 172 MB Goddard mascon HDF5, the 3.6 GB
+of CHIRPS yearly files, the 2.5 GB of downscaled products, and the rainfall, reservoir, and
+water-balance archives. Every script that needs them fetches them,
 and the downloaders resume.
 
 The two GeoPackages of basin geometry with trends attached also stay out, at 47 MB and
-77 MB. `02_basins.py` regenerates them from the shapefiles and the CSVs that are here.
+77 MB, and so does the 208 MB level 6 one from the downscaling test. `02_basins.py` and
+`13_red_map.py` regenerate them from the shapefiles and the tables that are here. The basin
+series behind the downscaling test are 400 MB of parquet and stay out too; `11_red_series.py`
+rebuilds them.
 
 GLDAS needs an Earthdata Login bearer token. The downloader reads it from the file named by
 `EARTHDATA_TOKEN_FILE`. It never appears on a command line and never reaches any output. The
@@ -159,5 +223,8 @@ the write-good, Microsoft, and Google style packages. Run it with `vale README.m
 - HydroSHEDS HydroBASINS v1c, https://www.hydrosheds.org
 - CHIRPS v2.0, Climate Hazards Center
 - Natural Earth 10m glaciated areas, public domain, https://www.naturalearthdata.com
+- GRACE-SeDA v1, Gou and Soja, https://doi.org/10.3929/ethz-b-000648738
+- Downscaled JPL mascons, Li and Kusche, https://doi.org/10.5281/zenodo.17265162
+- JPL mascons RL06.3Mv04 CRI, `TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4`, from PO.DAAC
 - Reservoir and water-balance records from Mexico's national water commission, the Texas
   Water Development Board, and California's Department of Water Resources
