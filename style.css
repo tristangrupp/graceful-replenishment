@@ -166,3 +166,18 @@ footer h3:first-child{margin-top:0}
 footer ul{margin:0 0 6px;padding-left:16px}
 footer li{margin:0 0 3px}
 footer b{color:var(--ink-2);font-weight:600}
+
+/* Downscaling test tab. The level 6 map is a canvas because 16,397 basins is
+   more than the DOM wants as separate path elements. */
+.canvas-wrap{width:100%;background:var(--surface);border:1px solid var(--line);
+  line-height:0}
+.canvas-wrap canvas{display:block;width:100%;height:auto;cursor:crosshair}
+.minichart{width:100%;display:block;margin-top:4px}
+.slider{margin:0 0 10px}
+.slider label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  font-size:12px;color:var(--ink-2)}
+.slider label b{font-weight:500;font-size:12px;color:var(--ink)}
+.slider input[type=range]{width:100%;margin:3px 0 1px;accent-color:var(--accent)}
+.slider .snote{display:block;font-size:10.5px;color:var(--muted)}
+#pick-table td:first-child{color:var(--ink-2)}
+.grid .col{display:flex;flex-direction:column;gap:10px;min-width:0}

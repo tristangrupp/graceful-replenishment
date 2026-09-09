@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>GRACE Basin Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Rate of change</a>
+  <a href="years.html">Year by year</a>
+  <a href="red.html" aria-current="page">Downscaling test</a>
+  <span class="site" id="nav-window">&nbsp;</span>
+</nav>
+
+<header>
+  <div>
+    <h1>Does downscaled GRACE add anything at level 6?</h1>
+    <p>Two published global products claim to resolve water storage finer than GRACE measures it:
+       <b>GRACE-SeDA</b> at 0.5 degrees and <b>Li and Kusche</b> at 0.25 degrees. This page tests
+       both against the coarse JPL mascon solution they are built from, on 16,397 HydroBASINS
+       level 6 basins, using no wells and no other outside data. Red means a basin failed at least
+       one test. No basin turns green. A basin that passes has only survived tests built to catch
+       obvious failure, which is not the same as being right.</p>
+  </div>
+  <div class="window">
+    <div><span class="eyebrow">Common window</span><b id="w-window">&nbsp;</b></div>
+    <div><span class="eyebrow">Flagged</span><b id="w-red">&nbsp;</b></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="eyebrow">Show</span>
+  <div class="seg" id="seg-layer">
+    <button data-v="ANY" aria-pressed="true">Any failure</button>
+    <button data-v="RED_GEOMETRY" aria-pressed="false">Not resolved</button>
+    <button data-v="RED_NO_DEPARTURE" aria-pressed="false">No departure</button>
+    <button data-v="RED_PREDICTOR_DERIVED" aria-pressed="false">Weather field</button>
+    <button data-v="RED_DISAGREEMENT" aria-pressed="false">Products disagree</button>
+    <button data-v="RED_RANK_UNSTABLE" aria-pressed="false">Ranking unstable</button>
+  </div>
+  <button class="btn" id="reset" type="button" title="Put every threshold back to the value the experiment ran at">Reset thresholds</button>
+  <span class="hint" id="hint"></span>
+</div>
+
+<div class="grid">
+  <div class="col">
+  <section class="panel">
+    <div class="panel-head">
+      <h2 id="map-title">No usable added information</h2>
+      <span class="eyebrow" id="map-sub"></span>
+    </div>
+    <p class="panel-note" id="map-note"></p>
+    <div class="canvas-wrap">
+      <canvas id="map" role="img" aria-label="World map of level 6 basins that fail the tests"></canvas>
+    </div>
+    <div class="keys" style="margin-top:8px">
+      <span class="key"><i class="sw" style="background:#b5341c"></i>no usable added information</span>
+      <span class="key"><i class="sw" style="background:var(--sunk)"></i>not tested as failing</span>
+      <span class="key"><i class="sw" style="background:var(--nodata)"></i>not tested</span>
+    </div>
+    <table id="pick-table">
+      <thead><tr><th>Basin under the pointer</th><th>value</th></tr></thead>
+      <tbody id="pick"><tr><td class="name">move over the map</td><td></td></tr></tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Ranking, coarse against downscaled</h2>
+      <span class="eyebrow" id="rank-sub"></span>
+    </div>
+    <p class="panel-note">Percentile rank by depletion trend. Rank 0 is the most depleting basin.
+       Aqueduct ranks basins rather than reporting storage, so this is the comparison that decides
+       whether downscaling would change a priority list.</p>
+    <canvas id="ranks" class="minichart"></canvas>
+  </section>
+  </div>
+
+  <div class="col">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Thresholds</h2>
+      <span class="eyebrow">move one and the map redraws</span>
+    </div>
+    <p class="panel-note">Every cut below is a judgment call. The published run used the value in
+       the box. If a count moves a lot as you drag, that count is not a result.</p>
+    <div id="sliders"></div>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2>Counts at the current thresholds</h2>
+    </div>
+    <table>
+      <thead><tr><th>test</th><th>basins</th><th>share of tested area</th></tr></thead>
+      <tbody id="counts"></tbody>
+    </table>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2 id="dist-title">Distribution</h2>
+      <span class="eyebrow" id="dist-sub"></span>
+    </div>
+    <canvas id="dist" class="minichart"></canvas>
+  </section>
+  </div>
+</div>
+
+<footer>
+  <h3>What the test does</h3>
+  <p>Each basin gets a monthly series from every product, area weighted through a 0.05 degree
+     raster of the basin outlines. That is a conservative remap: a basin mean is the sum of cell
+     values times the area of each cell inside the basin, divided by the area inside the basin.
+     Nearest neighbour and bilinear do not conserve mass and are not used.</p>
+  <ul>
+    <li><b>Not resolved.</b> The basin holds fewer than two cells of a product, or more than
+      95 percent of it sits inside a single coarse mascon. Structure drawn inside one footprint
+      did not come from gravimetry.</li>
+    <li><b>No departure.</b> The variance of the downscaled series minus the coarse series is under
+      5 percent of the coarse variance. The product is the coarse series on a finer grid.</li>
+    <li><b>Weather field.</b> The departure regresses on precipitation, soil moisture, and snow with
+      an adjusted R squared above 0.8. Both products are built from GRACE plus model fields, so a
+      high value is partly expected by construction. Read it as a degree, not as a surprise.</li>
+    <li><b>Products disagree.</b> The two products correlate below 0.5, or their trends differ by
+      more than the size of the trend. Where they disagree, at least one is wrong, and that needs
+      no outside data to establish.</li>
+    <li><b>Ranking unstable.</b> The basin moves more than 20 percentile points between the two
+      products' depletion rankings.</li>
+  </ul>
+
+  <h3>What the test cannot do</h3>
+  <p>This produces red only. It cannot say whether a downscaled value is correct anywhere, whether
+     fine structure reflects groundwater rather than total storage, or whether apparent skill in a
+     wet region is real rather than a shared response to rainfall. Those need wells,
+     evapotranspiration or InSAR, and an ablation against them. That is a separate piece of work.</p>
+
+  <h3>Reference points</h3>
+  <ul>
+    <li id="foot-area"></li>
+    <li id="foot-solution"></li>
+    <li id="foot-spearman"></li>
+  </ul>
+
+  <h3>Sources</h3>
+  <ul>
+    <li>GRACE-SeDA v1, Gou and Soja, <code>10.3929/ethz-b-000648738</code>, 0.5 degrees, 2002-04 to
+      2022-12, millimeters, baseline 2004 to 2009 removed.</li>
+    <li>Li and Kusche, <code>10.5281/zenodo.17265162</code>, 0.25 degrees, 2002-04 to 2025-03,
+      stored in centimeters and converted to millimeters here.</li>
+    <li>JPL mascon RL06.3Mv04 CRI, the coarse reference. Gain factors are deliberately not applied:
+      they are a model-derived correction, and applying one would add the model structure the
+      test is looking for.</li>
+    <li>GSFC mascon RL06v2.0, a second coarse solution, used only to measure how far apart two
+      processing centers already are.</li>
+    <li>HydroBASINS v1c level 6, GLDAS 2.1 Noah, CHIRPS v2.0.</li>
+  </ul>
+</footer>
+
+<div id="tip" role="status" aria-live="polite"></div>
+<script src="red_data.js"></script>
+<script src="red.js"></script>
+</body>
+</html>
