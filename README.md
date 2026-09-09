@@ -71,7 +71,7 @@ regions/     six regional studies, each with scripts, tables, figures, and a rep
 | `global/scripts/14_red_export.py` | the payload the downscaling page reads |
 | `global/scripts/15_red_methods.py` | the methods note, with the numbers injected |
 
-```powershell
+```
 cd C:\path\to\dark-water
 $env:PYTHONPATH = "src"
 $py = ".\.venv\Scripts\python.exe"
@@ -130,24 +130,46 @@ other. A basin's rank moves between them. A basin that trips one has been shown 
 add nothing usable. A basin that trips none has only survived, and the map calls it "not
 tested as failing" rather than green.
 
-Over the common window 2002-04 to 2022-12, 214 months, 14,441 of the 15,495 testable basins
-fail at least one test. That is 90 percent of the tested land area.
+Each product is differenced against the release behind it. GRACE-SeDA v1 names JPL
+RL06.1Mv03 CRI, so that is its coarse term; Li and Kusche names no release and gets the
+current RL06.3Mv04. One shared reference would push a release change into one product's
+residual and score it as added information.
+
+Over the common window 2002-04 to 2022-12, 214 months, 14,444 of the 15,495 testable basins
+fail at least one test. That is 90 percent of the tested land area. Judged on its own three
+tests alone, without reference to the other product, GRACE-SeDA fails 9,965 basins and Li and
+Kusche fails 12,753.
 
 Three findings under that number.
 
-**Level 6 is mostly below the resolution.** 48 of 16,397 basins reach the roughly 63,000
+An independent recomputation from the raw files, by a second agent using exact polygon
+intersection rather than the 0.05 degree raster, reproduced every quantity: median
+`var_ratio_G` 0.4195 against 0.4200, `n_cells_G` median 2, trends within 0.007 mm/yr. It also
+caught the release mismatch above, which was real and worth fixing even though correcting it
+moved the headline by three basins.
+
+**Level 6 is mostly below the resolution.** 48 of 16,397 basins reach the 63,000
 square kilometer reliable unit of Vishwakarma, Devaraju and Sneeuw (2018), which is 3.1
 percent of the level's land area. The median basin is 5,318 square kilometers and holds 2
 GRACE-SeDA cells. Half of all basins sit more than 97 percent inside a single coarse mascon,
 so any structure a product draws inside them came from somewhere other than gravimetry.
 
-**The two products fail in opposite ways.** Li and Kusche stays close to its parent: the
+**The two products fail in different places.** Geometry catches most GRACE-SeDA failures: it moves away from its parent, and only 62
+of its basins fail the departure test. Departure
+catches Li and Kusche: 8,992 of its basins move less than 5 percent of the coarse variance
+away from the solution behind them. Its finer grid resolves more basins, so it fails the
+geometry test less often, 8,522 against 9,834.
+
+**They also disagree with the coarse solution in opposite directions.** Li and Kusche stays close to its parent: the
 median basin's departure is 4 percent of the coarse variance, and its depletion ranking
 matches the coarse ranking at Spearman 0.972. GRACE-SeDA departs by 42 percent and ranks
-basins differently, at 0.675. Neither is automatically the better behavior. Switching
-processing center, from JPL to GSFC, already moves the median basin by 25 percent of its
-variance and reorders the ranking to 0.798. So GRACE-SeDA disagrees with its own parent solution by more than two centers
-disagree with each other, and Li and Kusche disagrees by less than the rounding.
+basins differently, at 0.675. Neither is automatically the better behavior. Two floors say how to read
+those numbers, and both are measured rather than assumed. Moving one center across one
+release, JPL RL06.1 to RL06.3, costs 0.0005 of the variance and leaves the ranking at
+Spearman 0.9985. Moving between two centers, JPL to GSFC, costs 0.25 and drops the ranking to
+0.798. GRACE-SeDA moves away from its own parent by more than two centers move apart from
+each other, and the whole of Li and Kusche's departure is about a fifth of what changing
+center does to the same months.
 
 **Downscaling changed the resolution, not the priority order.** The two downscaled products
 agree with each other at 0.699, worse than either agrees with a coarse solution. Where two

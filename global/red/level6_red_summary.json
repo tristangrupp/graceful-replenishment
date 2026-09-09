@@ -11,16 +11,16 @@
   "tested_area_km2": 131601705.6,
   "flags": {
     "RED_GEOMETRY": {
-      "n": 9835,
-      "area_share_of_tested": 0.38045160791593874
+      "n": 9833,
+      "area_share_of_tested": 0.3801541847190163
     },
     "RED_NO_DEPARTURE": {
-      "n": 9010,
-      "area_share_of_tested": 0.6665463733928992
+      "n": 9008,
+      "area_share_of_tested": 0.6663740162042399
     },
     "RED_PREDICTOR_DERIVED": {
-      "n": 342,
-      "area_share_of_tested": 0.023111958816436497
+      "n": 332,
+      "area_share_of_tested": 0.022355880469682912
     },
     "RED_DISAGREEMENT": {
       "n": 6822,
@@ -31,20 +31,24 @@
       "area_share_of_tested": 0.26282602373809966
     },
     "RED_ANY": {
-      "n": 14441,
-      "area_share_of_tested": 0.9000324825577338
+      "n": 14444,
+      "area_share_of_tested": 0.9001596511223333
     },
     "RED_GEOMETRY_G": {
-      "n": 9834,
-      "area_share_of_tested": 0.38043553973513244
+      "n": 9830,
+      "area_share_of_tested": 0.3801119975758126
     },
     "RED_NO_DEPARTURE_G": {
-      "n": 62,
-      "area_share_of_tested": 0.005366828619582877
+      "n": 59,
+      "area_share_of_tested": 0.005307417535476076
     },
     "RED_PREDICTOR_DERIVED_G": {
-      "n": 284,
-      "area_share_of_tested": 0.019521070705636814
+      "n": 274,
+      "area_share_of_tested": 0.018764992358883226
+    },
+    "RED_ANY_OWN_G": {
+      "n": 9965,
+      "area_share_of_tested": 0.39650016663613824
     },
     "RED_GEOMETRY_L": {
       "n": 8522,
@@ -57,13 +61,17 @@
     "RED_PREDICTOR_DERIVED_L": {
       "n": 105,
       "area_share_of_tested": 0.006600922807492854
+    },
+    "RED_ANY_OWN_L": {
+      "n": 12753,
+      "area_share_of_tested": 0.7897563365622521
     }
   },
   "area": {
-    "median_km2_red": 5265.7,
-    "median_km2_not_red": 9286.25,
-    "n_not_red": 1054,
-    "area_share_not_red": 0.09996751744226635,
+    "median_km2_red": 5266.6,
+    "median_km2_not_red": 9341.5,
+    "n_not_red": 1051,
+    "area_share_not_red": 0.09984034887766682,
     "red_share_by_area_decile": [
       {
         "decile": 1,
@@ -81,7 +89,7 @@
           2062.28
         ],
         "n": 1549,
-        "red_share": 0.9967721110393802
+        "red_share": 0.9980632666236281
       },
       {
         "decile": 3,
@@ -90,7 +98,7 @@
           3091.3
         ],
         "n": 1549,
-        "red_share": 0.9786959328599096
+        "red_share": 0.9774047772756617
       },
       {
         "decile": 4,
@@ -99,7 +107,7 @@
           4221.040000000001
         ],
         "n": 1550,
-        "red_share": 0.9554838709677419
+        "red_share": 0.9548387096774194
       },
       {
         "decile": 5,
@@ -108,7 +116,7 @@
           5559.0
         ],
         "n": 1549,
-        "red_share": 0.9154293092317625
+        "red_share": 0.9160748870238864
       },
       {
         "decile": 6,
@@ -126,7 +134,7 @@
           9716.939999999995
         ],
         "n": 1549,
-        "red_share": 0.8921885087153002
+        "red_share": 0.894770819883796
       },
       {
         "decile": 8,
@@ -144,7 +152,7 @@
           19679.820000000003
         ],
         "n": 1549,
-        "red_share": 0.9031633311814073
+        "red_share": 0.9025177533892834
       },
       {
         "decile": 10,
@@ -163,14 +171,18 @@
     "L_vs_coarse": 0.9722558082846853,
     "n": 15495,
     "coarse_JPL_vs_GSFC": 0.7980169045443364,
-    "n_coarse_pair": 15488
+    "n_coarse_pair": 15488,
+    "coarse_RL0603_vs_RL0601": 0.9985471520528141
   },
   "medians": {
-    "var_ratio_G": 0.4199848570515245,
+    "var_ratio_G": 0.4167692707395682,
     "var_ratio_L": 0.04080249025727552,
+    "var_ratio_G_alt_release": 0.4199848570515245,
+    "var_ratio_L_alt_release": 0.040174731618028064,
+    "var_ratio_release": 0.00047830608503272675,
     "var_ratio_solution": 0.25485835469750984,
-    "pred_r2_G": 0.25150941706225366,
-    "pred_r2_eff_G": -0.0043003007617570255,
+    "pred_r2_G": 0.25007178281723985,
+    "pred_r2_eff_G": -0.006131878030620541,
     "pred_r2_L": 0.23040551140789767,
     "r_GL": 0.8538086148687994,
     "r_GC": 0.8430353868844084,
@@ -192,154 +204,154 @@
     "min_cells": [
       {
         "value": 1,
-        "n_RED_ANY": 14145,
-        "n_flag": 8831
+        "n_RED_ANY": 14148,
+        "n_flag": 8829
       },
       {
         "value": 2,
-        "n_RED_ANY": 14441,
-        "n_flag": 9835
+        "n_RED_ANY": 14444,
+        "n_flag": 9833
       },
       {
         "value": 3,
-        "n_RED_ANY": 14728,
-        "n_flag": 10924
+        "n_RED_ANY": 14725,
+        "n_flag": 10926
       },
       {
         "value": 4,
-        "n_RED_ANY": 14927,
-        "n_flag": 11799
+        "n_RED_ANY": 14915,
+        "n_flag": 11783
       }
     ],
     "max_frac_dominant": [
       {
         "value": 0.8,
-        "n_RED_ANY": 14846,
-        "n_flag": 11715
+        "n_RED_ANY": 14831,
+        "n_flag": 11695
       },
       {
         "value": 0.9,
-        "n_RED_ANY": 14590,
-        "n_flag": 10542
+        "n_RED_ANY": 14585,
+        "n_flag": 10537
       },
       {
         "value": 0.95,
-        "n_RED_ANY": 14441,
-        "n_flag": 9835
+        "n_RED_ANY": 14444,
+        "n_flag": 9833
       },
       {
         "value": 0.99,
-        "n_RED_ANY": 14257,
-        "n_flag": 9026
+        "n_RED_ANY": 14260,
+        "n_flag": 9017
       }
     ],
     "min_var_ratio": [
       {
         "value": 0.02,
-        "n_RED_ANY": 13194,
-        "n_flag": 3626
+        "n_RED_ANY": 13195,
+        "n_flag": 3625
       },
       {
         "value": 0.05,
-        "n_RED_ANY": 14441,
-        "n_flag": 9010
+        "n_RED_ANY": 14444,
+        "n_flag": 9008
       },
       {
         "value": 0.1,
-        "n_RED_ANY": 15092,
-        "n_flag": 12390
+        "n_RED_ANY": 15098,
+        "n_flag": 12394
       },
       {
         "value": 0.2,
-        "n_RED_ANY": 15380,
-        "n_flag": 14316
+        "n_RED_ANY": 15381,
+        "n_flag": 14318
       }
     ],
     "max_pred_r2": [
       {
         "value": 0.7,
-        "n_RED_ANY": 14504,
-        "n_flag": 891
+        "n_RED_ANY": 14502,
+        "n_flag": 883
       },
       {
         "value": 0.8,
-        "n_RED_ANY": 14441,
-        "n_flag": 342
+        "n_RED_ANY": 14444,
+        "n_flag": 332
       },
       {
         "value": 0.9,
-        "n_RED_ANY": 14425,
-        "n_flag": 72
+        "n_RED_ANY": 14428,
+        "n_flag": 73
       },
       {
         "value": 0.95,
-        "n_RED_ANY": 14419,
-        "n_flag": 15
+        "n_RED_ANY": 14422,
+        "n_flag": 13
       }
     ],
     "min_r_GL": [
       {
         "value": 0.3,
-        "n_RED_ANY": 14414,
+        "n_RED_ANY": 14417,
         "n_flag": 6634
       },
       {
         "value": 0.5,
-        "n_RED_ANY": 14441,
+        "n_RED_ANY": 14444,
         "n_flag": 6822
       },
       {
         "value": 0.7,
-        "n_RED_ANY": 14562,
+        "n_RED_ANY": 14564,
         "n_flag": 7450
       },
       {
         "value": 0.9,
-        "n_RED_ANY": 15129,
+        "n_RED_ANY": 15131,
         "n_flag": 11512
       }
     ],
     "max_trend_diff_ratio": [
       {
         "value": 0.5,
-        "n_RED_ANY": 14869,
+        "n_RED_ANY": 14868,
         "n_flag": 10338
       },
       {
         "value": 1.0,
-        "n_RED_ANY": 14441,
+        "n_RED_ANY": 14444,
         "n_flag": 6822
       },
       {
         "value": 2.0,
-        "n_RED_ANY": 14161,
+        "n_RED_ANY": 14170,
         "n_flag": 1741
       },
       {
         "value": 5.0,
-        "n_RED_ANY": 14161,
+        "n_RED_ANY": 14170,
         "n_flag": 1741
       }
     ],
     "max_rank_shift": [
       {
         "value": 10.0,
-        "n_RED_ANY": 14709,
+        "n_RED_ANY": 14706,
         "n_flag": 7955
       },
       {
         "value": 20.0,
-        "n_RED_ANY": 14441,
+        "n_RED_ANY": 14444,
         "n_flag": 4272
       },
       {
         "value": 30.0,
-        "n_RED_ANY": 14432,
+        "n_RED_ANY": 14436,
         "n_flag": 2357
       },
       {
         "value": 50.0,
-        "n_RED_ANY": 14432,
+        "n_RED_ANY": 14436,
         "n_flag": 769
       }
     ]
@@ -355,9 +367,9 @@
         "max_trend_diff_ratio": 5.0,
         "max_rank_shift": 50.0
       },
-      "n_RED_ANY": 10170,
-      "share_of_tested": 0.6563407550822846,
-      "area_share_of_tested": 0.5477405947845102
+      "n_RED_ANY": 10156,
+      "share_of_tested": 0.6554372378186512,
+      "area_share_of_tested": 0.5473181116582733
     },
     "strictest": {
       "config": {

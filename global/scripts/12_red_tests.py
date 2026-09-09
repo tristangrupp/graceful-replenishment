@@ -71,7 +71,7 @@ def load(name):
 
 
 seda, liku = load("seda"), load("liku")
-jpl, gsfc = load("jpl"), load("gsfc")
+jpl, jpl61, gsfc = load("jpl"), load("jpl61"), load("gsfc")
 precip, sm, snow = load("precip"), load("sm"), load("snowcanopy")
 have_L = liku is not None
 if not have_L:
@@ -87,23 +87,30 @@ print(f"common window {idx[0]:%Y-%m}..{idx[-1]:%Y-%m}, {len(idx)} months; "
 COMMON = [f"{idx[0]:%Y-%m}", f"{idx[-1]:%Y-%m}"]
 
 
-def centerd(df):
+def centered(df):
     """Re-center on the common months.
 
     The products state different baseline periods, and a difference of two
     baselines survives a subtraction as a constant offset with no physical
-    meaning. Re-centring both on the months actually compared removes it.
+    meaning. Re-centering both on the months actually compared removes it.
     """
     x = df.loc[idx].to_numpy(dtype="float64")
     return x - np.nanmean(x, axis=0, keepdims=True)
 
 
-D_G = centerd(seda)
-C = centerd(jpl)
-C2 = centerd(gsfc)
-D_L = centerd(liku) if have_L else None
+# Each product is differenced against the release it was built from. GRACE-SeDA
+# v1 names JPL RL06.1Mv03 CRI; Li and Kusche names no release, so it gets the
+# current one, RL06.3Mv04, with the alternative reported beside it. One release
+# for both would push a release change into one product's residual and score it
+# as information the downscaling added.
+D_G = centered(seda)
+C = centered(jpl)                    # RL06.3Mv04, the parent of Li and Kusche
+C61 = centered(jpl61)                # RL06.1Mv03, the parent of GRACE-SeDA
+C2 = centered(gsfc)                  # a second processing center
+D_L = centered(liku) if have_L else None
 
-complete = np.isfinite(D_G).all(axis=0) & np.isfinite(C).all(axis=0)
+complete = (np.isfinite(D_G).all(axis=0) & np.isfinite(C).all(axis=0)
+            & np.isfinite(C61).all(axis=0))
 if have_L:
     complete &= np.isfinite(D_L).all(axis=0)
 cover_ok = (geom["cover_G"].to_numpy() >= CONFIG["min_coverage"])
@@ -111,16 +118,24 @@ usable = complete & cover_ok & (len(idx) >= CONFIG["min_months"])
 print(f"{int(usable.sum())} of {n} basins have a complete series in every product")
 
 # --------------------------------------------------------------- test 2a
-R_G = D_G - C
+def ratio(num, den):
+    v = np.var(den, axis=0)
+    return np.divide(np.var(num, axis=0), v, out=np.full(n, np.nan), where=v > 0)
+
+
+R_G = D_G - C61
 R_L = (D_L - C) if have_L else None
-varC = np.var(C, axis=0)
-var_ratio_G = np.divide(np.var(R_G, axis=0), varC, out=np.full(n, np.nan), where=varC > 0)
-var_ratio_L = (np.divide(np.var(R_L, axis=0), varC, out=np.full(n, np.nan), where=varC > 0)
-               if have_L else np.full(n, np.nan))
-# How far apart two coarse solutions of the same months already are. A departure
-# below this floor is not distinguishable from the choice of processing center.
-var_ratio_solution = np.divide(np.var(C2 - C, axis=0), varC,
-                               out=np.full(n, np.nan), where=varC > 0)
+var_ratio_G = ratio(R_G, C61)
+var_ratio_L = ratio(R_L, C) if have_L else np.full(n, np.nan)
+# The same quantity against the other release, so the choice above can be seen
+# rather than taken on trust.
+var_ratio_G_alt = ratio(D_G - C, C)
+var_ratio_L_alt = ratio(D_L - C61, C61) if have_L else np.full(n, np.nan)
+# Two floors under any departure. The first is one center changing release; the
+# second is two centers processing the same months. A departure below either is
+# not distinguishable from a processing choice.
+var_ratio_release = ratio(C - C61, C61)
+var_ratio_solution = ratio(C2 - C, C)
 
 # --------------------------------------------------------------- test 2b
 def deseason(x, index):
@@ -214,6 +229,7 @@ def trends(x):
 trend_G, p_G = trends(D_G)
 trend_C, p_C = trends(C)
 trend_C2, _ = trends(C2)
+trend_C61, p_C61 = trends(C61)
 trend_L, p_L = (trends(D_L) if have_L else (np.full(n, np.nan), np.full(n, np.nan)))
 
 
@@ -268,6 +284,10 @@ else:
 cc = np.isfinite(trend_C) & np.isfinite(trend_C2)
 spearman["coarse_JPL_vs_GSFC"] = float(stats.spearmanr(trend_C[cc], trend_C2[cc]).statistic)
 spearman["n_coarse_pair"] = int(cc.sum())
+# The same centre, one release apart, which is the tighter of the two floors.
+rr = np.isfinite(trend_C) & np.isfinite(trend_C61)
+spearman["coarse_RL0603_vs_RL0601"] = float(
+    stats.spearmanr(trend_C[rr], trend_C61[rr]).statistic)
 
 # ------------------------------------------------------------------- flags
 def flags(cfg):
@@ -302,6 +322,13 @@ def flags(cfg):
                                         < cfg["min_var_ratio"])
         f[f"RED_PREDICTOR_DERIVED_{tag}"] = (np.nan_to_num(pr_, nan=-np.inf)
                                              > cfg["max_pred_r2"])
+        # Each product's own verdict, on its own three tests. The two
+        # comparison tests are left out of it deliberately: a reader who wants
+        # to judge one product without reference to the other needs a count
+        # that does not quietly fold the other one in.
+        f[f"RED_ANY_OWN_{tag}"] = (f[f"RED_GEOMETRY_{tag}"]
+                                   | f[f"RED_NO_DEPARTURE_{tag}"]
+                                   | f[f"RED_PREDICTOR_DERIVED_{tag}"])
     return f
 
 
@@ -313,6 +340,9 @@ out["common_period"] = f"{COMMON[0]}..{COMMON[1]}"
 out["usable"] = usable
 out["var_ratio_G"] = var_ratio_G
 out["var_ratio_L"] = var_ratio_L
+out["var_ratio_G_alt_release"] = var_ratio_G_alt
+out["var_ratio_L_alt_release"] = var_ratio_L_alt
+out["var_ratio_release"] = var_ratio_release
 out["var_ratio_solution"] = var_ratio_solution
 out["pred_r2_G"] = pred_r2_G
 out["pred_r2_L"] = pred_r2_L
@@ -325,6 +355,8 @@ out["trend_G"] = trend_G
 out["trend_L"] = trend_L
 out["trend_coarse"] = trend_C
 out["trend_coarse_gsfc"] = trend_C2
+out["trend_coarse_rl0601"] = trend_C61
+out["p_coarse_rl0601"] = p_C61
 out["p_G"] = p_G
 out["p_L"] = p_L
 out["p_coarse"] = p_C
@@ -421,6 +453,10 @@ summary = {
     "medians": {
         "var_ratio_G": float(np.nanmedian(var_ratio_G[usable])),
         "var_ratio_L": float(np.nanmedian(var_ratio_L[usable])) if have_L else None,
+        "var_ratio_G_alt_release": float(np.nanmedian(var_ratio_G_alt[usable])),
+        "var_ratio_L_alt_release": (float(np.nanmedian(var_ratio_L_alt[usable]))
+                                    if have_L else None),
+        "var_ratio_release": float(np.nanmedian(var_ratio_release[usable])),
         "var_ratio_solution": float(np.nanmedian(var_ratio_solution[usable])),
         "pred_r2_G": float(np.nanmedian(pred_r2_G[usable])),
         "pred_r2_eff_G": float(np.nanmedian(pred_r2_eff_G[usable])),

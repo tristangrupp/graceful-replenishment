@@ -114,10 +114,17 @@ payload = {
     # count by 22 basins, all of them sitting exactly on a cut.
     "fdom": arr("frac_dominant_mascon"),
     "vrG": arr("var_ratio_G"), "vrL": arr("var_ratio_L"), "vrS": arr("var_ratio_solution", 3),
+    "vrRel": arr("var_ratio_release", 5),
     "prG": arr("pred_r2_G"), "prL": arr("pred_r2_L"),
     "prGe": arr("pred_r2_eff_G", 3), "prLe": arr("pred_r2_eff_L", 3),
     "rGL": arr("r_GL"), "rGC": arr("r_GC", 3), "rLC": arr("r_LC", 3),
-    "tG": arr("trend_G", 2), "tL": arr("trend_L", 2), "tC": arr("trend_coarse", 2),
+    # Trends for all four solutions, so the page can draw the same storage rate
+    # map the first tab draws and then show what moves when the solution
+    # changes rather than when the water does.
+    "tG": arr("trend_G", 2), "tL": arr("trend_L", 2),
+    "tC": arr("trend_coarse", 2), "tC2": arr("trend_coarse_gsfc", 2),
+    "tC61": arr("trend_coarse_rl0601", 2), "pC61": arr("p_coarse_rl0601", 4),
+    "pG": arr("p_G", 4), "pL": arr("p_L", 4), "pC": arr("p_coarse", 4),
     "tdr": arr("trend_diff_ratio"),
     "rkG": arr("rank_G", 1), "rkL": arr("rank_L", 1), "rkC": arr("rank_coarse", 1),
     "shift": arr("rank_shift", 4),

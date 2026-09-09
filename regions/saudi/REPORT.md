@@ -368,7 +368,7 @@ there was nothing for it to do. Country-level aggregation was done directly.
 
 ## 9. Reproducing
 
-```powershell
+```
 cd C:\Users\grupp\dark-water-extract\dark-water-main
 $env:PYTHONPATH="src;E:\Water\Saudi\tmp\pylibs"
 .\.venv\Scripts\python.exe E:\Water\Saudi\tmp\01_inspect.py             # inventory

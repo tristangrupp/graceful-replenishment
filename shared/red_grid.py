@@ -13,7 +13,7 @@ Why this counts as conservative regridding. A basin mean here is
     sum_c ( area of cell c inside the basin )
 
 which is the exact area-weighted average a first-order conservative remap
-produces, up to the 0.05 degree quantisation of the overlap areas. Nearest
+produces, up to the 0.05 degree quantization of the overlap areas. Nearest
 neighbour and bilinear do not conserve mass and are not used anywhere.
 
 The 0.05 degree master grid divides every product grid used here exactly:
@@ -191,14 +191,24 @@ class GridWeights:
         return np.divide(got, self.basin_area_km2, out=np.zeros_like(got),
                          where=self.basin_area_km2 > 0)
 
-    def n_cells_centroid(self, basin_of: np.ndarray) -> np.ndarray:
+    def n_cells_centroid(self, basins: "gpd.GeoDataFrame") -> np.ndarray:
         """Product cells whose own center falls inside each basin.
 
         This is the count the geometry test uses, and it is deliberately not
         the number of cells that touch the basin: a cell clipped by a basin
         edge describes its neighbours as much as it describes this basin.
+
+        Point in polygon against the outlines, not a lookup in the 0.05 degree
+        raster. A 0.5 degree cell center such as 0.25 sits exactly on a raster
+        cell edge, so the raster answer is decided by a tie-break and differs
+        from the true count for about a third of basins, almost always by one.
+        The threshold this number feeds is two.
         """
-        jy, jx = master_index(self.lat, self.lon)
-        sub = basin_of[np.ix_(jy, jx)]
-        vals = sub[sub >= 0]
-        return np.bincount(vals, minlength=self.n_basins)
+        lon = ((self.lon + 180.0) % 360.0) - 180.0
+        LON, LAT = np.meshgrid(lon, self.lat)
+        pts = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy(LON.ravel(), LAT.ravel()), crs="EPSG:4326")
+        hit = gpd.sjoin(pts, basins[["basin_idx", "geometry"]], how="inner",
+                        predicate="within")
+        return np.bincount(hit["basin_idx"].to_numpy(dtype=np.int64),
+                           minlength=self.n_basins)

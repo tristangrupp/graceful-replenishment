@@ -30,6 +30,7 @@ LEVEL = "06"
 SEDA = rg.RAW / "downscaled" / "GRACE-SeDA_v1_2002_2022.nc"
 LIKU = rg.RAW / "downscaled" / "LiKusche_JPL_mascon_downscaled-v2.0.nc"
 JPL = rg.RAW / "jpl_mascon" / "jpl_mascon_rl0603v04_cri.nc"
+JPL61 = rg.RAW / "jpl_mascon" / "jpl_mascon_rl0601v03_cri.nc"
 SEC_PER_DAY = 86400.0
 
 basins = rg.load_basins(LEVEL)
@@ -102,22 +103,33 @@ else:
     print("Li and Kusche file not present; skipping")
 
 # ---------------------------------------------------------- JPL coarse mascons
-print("JPL mascon 0.5 deg grid")
-jpl = xr.open_dataset(JPL)
-assert jpl["lwe_thickness"].attrs["units"] == "cm", jpl["lwe_thickness"].attrs
-jv = np.asarray(jpl["lwe_thickness"].values, dtype="float64") * CM_TO_MM
-land = np.asarray(jpl["land_mask"].values) > 0
-jv[:, ~land] = np.nan
-wj = rg.GridWeights(braster, jpl["lat"].values, jpl["lon"].values, n)
-save("jpl", pd.to_datetime(jpl["time"].values), wj.means(jv))
-prov["jpl"] = {
-    "file": JPL.name, "short_name": "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4",
-    "units_in_file": "cm", "grid": "0.5 deg grid over 3 deg mascons",
-    "n_months_in_file": int(jpl.sizes["time"]),
-    "note": "gain factors deliberately not applied; they are a model-derived "
-            "correction and applying one would itself add model structure",
+# Two releases, because the products under test were built from different ones.
+# GRACE-SeDA v1 names JPL RL06.1Mv03 CRI as its input. Differencing it against
+# RL06.3Mv04 instead would put a release change into the residual and score it
+# as information the downscaling added.
+JPL_FILES = {
+    "jpl": (JPL, "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4", "RL06.3Mv04 CRI"),
+    "jpl61": (JPL61, "TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3, retired",
+              "RL06.1Mv03 CRI, the release GRACE-SeDA v1 names as its input"),
 }
-del jv
+for key, (path, short, note) in JPL_FILES.items():
+    print(f"JPL mascon 0.5 deg grid, {note}")
+    jpl = xr.open_dataset(path)
+    assert jpl["lwe_thickness"].attrs["units"] == "cm", jpl["lwe_thickness"].attrs
+    jv = np.asarray(jpl["lwe_thickness"].values, dtype="float64") * CM_TO_MM
+    land = np.asarray(jpl["land_mask"].values) > 0
+    jv[:, ~land] = np.nan
+    wj = rg.GridWeights(braster, jpl["lat"].values, jpl["lon"].values, n)
+    save(key, pd.to_datetime(jpl["time"].values), wj.means(jv))
+    prov[key] = {
+        "file": path.name, "short_name": short, "release": note,
+        "units_in_file": "cm", "grid": "0.5 deg grid over 3 deg mascons",
+        "n_months_in_file": int(jpl.sizes["time"]),
+        "note": "gain factors deliberately not applied; they are a model-derived "
+                "correction and applying one would itself add model structure",
+    }
+    del jv
+jpl = xr.open_dataset(JPL)
 
 # --------------------------------------------------------- GSFC coarse mascons
 print("GSFC mascons, second solution")

@@ -181,3 +181,4 @@ footer b{color:var(--ink-2);font-weight:600}
 .slider .snote{display:block;font-size:10.5px;color:var(--muted)}
 #pick-table td:first-child{color:var(--ink-2)}
 .grid .col{display:flex;flex-direction:column;gap:10px;min-width:0}
+[hidden]{display:none!important}

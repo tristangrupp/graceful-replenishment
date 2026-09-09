@@ -571,7 +571,7 @@ GRACE/GRACE-FO era split.
 
 ## 8. Reproducing
 
-```powershell
+```
 cd C:\Users\grupp\dark-water-extract\dark-water-main
 $env:PYTHONPATH = "src"
 $py = ".\.venv\Scripts\python.exe"

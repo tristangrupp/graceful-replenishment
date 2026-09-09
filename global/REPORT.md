@@ -119,7 +119,7 @@ above the solution's own systematic error.
 
 ## Reproducing
 
-```powershell
+```
 cd C:\Users\grupp\dark-water-extract\dark-water-main
 $env:PYTHONPATH = "src"
 $py = ".\.venv\Scripts\python.exe"

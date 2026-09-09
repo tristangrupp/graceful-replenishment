@@ -104,7 +104,7 @@ basins["frac_dominant_mascon"] = frac_dominant
 # ---------------------------------------------------------- downscaled products
 seda = xr.open_dataset(SEDA)
 ws = rg.GridWeights(braster, seda["latitude"].values, seda["longitude"].values, n)
-basins["n_cells_G"] = ws.n_cells_centroid(braster)
+basins["n_cells_G"] = ws.n_cells_centroid(basins)
 seda_valid = np.asarray(seda["mask"].values).T > 0        # stored (lon, lat)
 basins["cover_G"] = ws.coverage(seda_valid)
 
@@ -113,14 +113,14 @@ if LIKU.exists():
     lat_name = "lat" if "lat" in liku.coords else "latitude"
     lon_name = "lon" if "lon" in liku.coords else "longitude"
     wl = rg.GridWeights(braster, liku[lat_name].values, liku[lon_name].values, n)
-    basins["n_cells_L"] = wl.n_cells_centroid(braster)
+    basins["n_cells_L"] = wl.n_cells_centroid(basins)
 else:
     print("Li and Kusche file not present yet; n_cells_L left empty")
     basins["n_cells_L"] = np.nan
 
 # The JPL grid is 0.5 degrees too, so cell counts there say what the coarse
 # solution nominally offers before the mascon footprint is taken into account.
-basins["n_cells_coarse"] = wj.n_cells_centroid(braster)
+basins["n_cells_coarse"] = wj.n_cells_centroid(basins)
 
 out = basins.drop(columns="geometry")
 out.to_parquet(RED / "level6_geometry.parquet")

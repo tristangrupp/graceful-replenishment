@@ -80,24 +80,42 @@ stores millimeters. Li and Kusche stores time as a decimal year at mid-month,
 where GRACE-SeDA stores a Modified Julian Date. Neither is stated anywhere
 except in the file.
 
-Because Li and Kusche does not state a baseline, every series is re-centerd on
+Because Li and Kusche does not state a baseline, every series is re-centered on
 the common months before anything is differenced. A difference of two baselines
 survives a subtraction as a constant offset with no physical meaning.
 
 ## Coarse reference
 
-JPL mascon RL06.3Mv04 CRI, `{src['jpl']['short_name']}`. Both downscaled products
-are built from JPL mascons, so JPL is the right coarse term: differencing against
-a different center's solution would put center-to-center differences into the
-residual and score them as added information.
+Each product is differenced against the release it was built from, not against
+one shared reference. GRACE-SeDA v1 names JPL RL06.1Mv03 CRI in its readme, so
+that is its coarse term. Li and Kusche names no release, so it gets the current
+one, RL06.3Mv04 CRI, with the alternative reported beside it as
+`var_ratio_L_alt_release`. Using one release for both would push a release
+change into one product's residual and score it as information the downscaling
+added.
+
+The RL06.1_V3 collection is retired from the data catalogue. The file is still
+served under `podaac-ops-cumulus-protected/`, and a HEAD request to it returns
+403 while a GET returns the file, which is worth knowing before concluding it
+has gone.
 
 Gain factors are deliberately not applied. They are a model-derived correction,
-and applying one would add the model structure this experiment is looking
-for.
+and applying one would add the model structure this experiment is looking for.
 
-GSFC RL06v2.0 is used for one thing only: to measure how far apart two coarse
-solutions of the same months already are, which puts a floor under what a
-departure from any one of them can mean.
+Two floors sit under any departure, and both are measured here rather than
+assumed:
+
+| what changes | cost, median basin | rank agreement |
+|---|---|---|
+| one center, one release: JPL RL06.1 to RL06.3 | {m['var_ratio_release']:.5f} | {sp['coarse_RL0603_vs_RL0601']:.4f} |
+| two centers, same months: JPL to GSFC | {m['var_ratio_solution']:.3f} | {sp['coarse_JPL_vs_GSFC']:.3f} |
+
+Cost is the variance of the difference over the variance of the coarse series,
+the same quantity test 2a uses. Changing release is 500 times cheaper than
+changing center, which is why getting the release right mattered for the
+argument and barely moved the answer: GRACE-SeDA's median departure went from
+{m['var_ratio_G_alt_release']:.4f} against RL06.3 to {m['var_ratio_G']:.4f} against
+RL06.1.
 
 ## Common period
 
@@ -114,7 +132,7 @@ Every product sits on a different grid, so the basins are rasterized once at
 0.05 degrees and every coarser grid inherits its overlap from that raster. A
 basin mean is the sum of cell values times the area of each cell inside the
 basin, divided by the area inside the basin. That is what a first-order
-conservative remap computes, to the 0.05 degree quantisation of the overlap.
+conservative remap computes, to the 0.05 degree quantization of the overlap.
 Nearest neighbour and bilinear do not conserve mass and are used nowhere.
 
 Two checks on the bookkeeping. The rasterized area of a basin against the area
@@ -159,7 +177,8 @@ significance discounts serial correlation through the effective sample size of
 Dawdy and Matalas (1964). The predictor regression reports the ordinary adjusted
 R squared, which is what the 0.8 threshold means, and beside it the same figure
 with the effective sample size in the denominator. Median values are
-{m['pred_r2_G']:.2f} and {m['pred_r2_eff_G']:.2f} for GRACE-SeDA.
+{m['pred_r2_G']:.3f} and {m['pred_r2_eff_G']:.3f} for GRACE-SeDA, so the
+serial-correlation correction removes essentially all of the apparent fit.
 
 No random k-fold cross-validation is used anywhere. Nothing here is fitted for
 prediction.
@@ -178,11 +197,22 @@ passing.
 |---|---|---|
 {rows}
 
-By product, for the three tests that split by product:
+Each product also has a verdict of its own, on its own three tests, with the two
+comparison tests left out. A reader judging one product without reference to the
+other needs a count that does not quietly fold the other one in.
+`RED_ANY_OWN_G` and `RED_ANY_OWN_L` are those counts.
 
 | flag | basins | share of tested land area |
 |---|---|---|
 {by_product}
+
+The two fail in different places. Geometry catches most GRACE-SeDA failures: it moves away from its parent
+solution, and only
+{n(f['RED_NO_DEPARTURE_G']['n'])} of its basins fail the departure test. Departure
+catches Li and Kusche: {n(f['RED_NO_DEPARTURE_L']['n'])} of its basins move less
+than 5 percent of the coarse variance away from the solution behind it. Its finer
+grid does resolve more basins geometrically, which is why it fails that test less
+often.
 
 ### Red follows basin size
 
