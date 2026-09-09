@@ -299,7 +299,7 @@ def flags(cfg):
     f["RED_GEOMETRY"] = ((n_cells < cfg["min_cells"])
                          | (geom["frac_dominant_mascon"].to_numpy() > cfg["max_frac_dominant"]))
     vr = np.nanmin(np.vstack([var_ratio_G, var_ratio_L]), axis=0) if have_L else var_ratio_G
-    f["RED_NO_DEPARTURE"] = vr < cfg["min_var_ratio"]
+    f["RED_NO_INDEPENDENT_DEPARTURE"] = vr < cfg["min_var_ratio"]
     pr = np.nanmax(np.vstack([pred_r2_G, pred_r2_L]), axis=0) if have_L else pred_r2_G
     f["RED_PREDICTOR_DERIVED"] = pr > cfg["max_pred_r2"]
     f["RED_DISAGREEMENT"] = ((r_GL < cfg["min_r_GL"])
@@ -318,7 +318,7 @@ def flags(cfg):
             (nc < cfg["min_cells"])
             | (geom["frac_dominant_mascon"].to_numpy() > cfg["max_frac_dominant"]),
             nan=False).astype(bool)
-        f[f"RED_NO_DEPARTURE_{tag}"] = (np.nan_to_num(vr_, nan=np.inf)
+        f[f"RED_NO_INDEPENDENT_DEPARTURE_{tag}"] = (np.nan_to_num(vr_, nan=np.inf)
                                         < cfg["min_var_ratio"])
         f[f"RED_PREDICTOR_DERIVED_{tag}"] = (np.nan_to_num(pr_, nan=-np.inf)
                                              > cfg["max_pred_r2"])
@@ -327,7 +327,7 @@ def flags(cfg):
         # to judge one product without reference to the other needs a count
         # that does not quietly fold the other one in.
         f[f"RED_ANY_OWN_{tag}"] = (f[f"RED_GEOMETRY_{tag}"]
-                                   | f[f"RED_NO_DEPARTURE_{tag}"]
+                                   | f[f"RED_NO_INDEPENDENT_DEPARTURE_{tag}"]
                                    | f[f"RED_PREDICTOR_DERIVED_{tag}"])
     return f
 
@@ -391,7 +391,7 @@ for key, values in SENSITIVITY.items():
                      "n_RED_ANY": int((ff["RED_ANY"] & usable).sum()),
                      "n_flag": int((ff[{
                          "min_cells": "RED_GEOMETRY", "max_frac_dominant": "RED_GEOMETRY",
-                         "min_var_ratio": "RED_NO_DEPARTURE",
+                         "min_var_ratio": "RED_NO_INDEPENDENT_DEPARTURE",
                          "max_pred_r2": "RED_PREDICTOR_DERIVED",
                          "min_r_GL": "RED_DISAGREEMENT",
                          "max_trend_diff_ratio": "RED_DISAGREEMENT",

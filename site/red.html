@@ -25,9 +25,10 @@
     <p>Two published global products claim to resolve water storage finer than GRACE measures it.
        <b>GRACE-SeDA</b> runs at 0.5 degrees; <b>Li and Kusche</b> runs at 0.25 degrees. Each one is
        tested on its own here, against the coarse JPL mascon solution that produced it, on 16,397
-       HydroBASINS level 6 basins, using no wells and no other outside data. Red means a basin
-       failed at least one test. No basin turns green: passing means a basin survived tests built
-       to catch obvious failure, which is not the same as being right.</p>
+       HydroBASINS level 6 basins, using no wells and no other outside data. A red flag means there is a
+       specific reason not to treat that basin's result as independently resolved or robust. An
+       unflagged basin does not mean validated: it survived a set of tests designed to identify
+       specific, detectable failure modes, and that is the full claim.</p>
   </div>
   <div class="window">
     <div><span class="eyebrow">Common window</span><b id="w-window">&nbsp;</b></div>
@@ -51,9 +52,9 @@
   <span class="eyebrow">Layer</span>
   <div class="seg" id="seg-layer">
     <button data-v="TREND" aria-pressed="true">Storage trend</button>
-    <button data-v="ANY" aria-pressed="false">Any failure</button>
+    <button data-v="ANY" aria-pressed="false">Flagged by any test</button>
     <button data-v="RED_GEOMETRY" aria-pressed="false">Not resolved</button>
-    <button data-v="RED_NO_DEPARTURE" aria-pressed="false">No departure</button>
+    <button data-v="RED_NO_INDEPENDENT_DEPARTURE" aria-pressed="false">No independent departure</button>
     <button data-v="RED_PREDICTOR_DERIVED" aria-pressed="false">Weather field</button>
   </div>
   <span class="eyebrow">Both products</span>
@@ -85,8 +86,8 @@
       <span class="hint">millimeters of water per year, clipped at &plusmn;30</span>
     </div>
     <div class="keys" id="legend-flags" hidden>
-      <span class="key"><i class="sw" style="background:#b5341c"></i>no usable added information</span>
-      <span class="key"><i class="sw" style="background:var(--sunk)"></i>not tested as failing</span>
+      <span class="key"><i class="sw" style="background:#b5341c"></i>flagged: a specific reason not to treat it as resolved</span>
+      <span class="key"><i class="sw" style="background:var(--sunk)"></i>not flagged</span>
       <span class="key"><i class="sw" style="background:var(--nodata)"></i>not tested</span>
     </div>
     <table id="pick-table">
@@ -151,78 +152,127 @@
 
 <footer>
   <h3>How a basin gets its numbers</h3>
-  <p>Each product sits on its own grid, so the basin outlines are rasterized once at 0.05 degrees
-     and every coarser grid inherits its overlap from that raster. A basin mean is the sum of cell
-     values times the area of each cell inside the basin, divided by the area inside the basin.
-     That is what a conservative remap computes. Nearest neighbor and bilinear do not conserve
-     mass and are used nowhere here. Cells missing in a month drop out of the numerator and the
-     denominator together, so a partly covered basin is renormalized rather than scored as zero
-     over the part that did not report.</p>
-  <p>Each product is then tested on its own. Nothing below asks the two products to agree, except
-     the last two tests, which exist because their disagreement is measurable without outside
-     data.</p>
+  <p>Each product is defined on its own grid. Basin boundaries are rasterized once at 0.05
+     degrees, and each coarser grid inherits its basin overlap from that raster. A basin mean is
+     the area-weighted mean of the cells that overlap the basin: the sum of cell values multiplied
+     by the area of each cell inside the basin, divided by the total area represented. This is a
+     conservative remapping. Nearest-neighbor and bilinear interpolation are not used, because
+     they do not conserve the quantity being aggregated.</p>
+  <p>If a product has no value for a cell in a given month, that cell is removed from both the
+     numerator and the denominator. A basin is renormalized over the area actually observed rather
+     than treating missing area as zero.</p>
+  <p>Each product is evaluated on its own terms, against the coarse release it names as its input.
+     The tests do not require the two products to agree, except for the final two, which use their
+     disagreement because that disagreement can be measured without outside observations.</p>
 
   <h3>The five tests</h3>
+  <table class="tests">
+    <thead><tr><th>test</th><th>quantity</th><th>cut</th></tr></thead>
+    <tbody>
+      <tr><td class="name">1. Not resolved</td>
+        <td>product cells with centers in the basin; share of basin area in its largest mascon</td>
+        <td>under 2 cells, or over 95%</td></tr>
+      <tr><td class="name">2. No independent departure</td>
+        <td>variance of (downscaled &minus; coarse) over variance of coarse</td>
+        <td>under 0.05</td></tr>
+      <tr><td class="name">3. Weather field</td>
+        <td>adjusted R&sup2; of the departure on precipitation, soil moisture, snow</td>
+        <td>over 0.8</td></tr>
+      <tr><td class="name">4. Products disagree</td>
+        <td>correlation of the two series; trend gap over trend magnitude</td>
+        <td>under 0.5, or over 1</td></tr>
+      <tr><td class="name">5. Ranking unstable</td>
+        <td>shift in percentile rank between the two products</td>
+        <td>over 20 points</td></tr>
+    </tbody>
+  </table>
 
-  <h4>Not resolved</h4>
-  <p><b>What it measures.</b> Whether the basin is large enough for the product to describe it as a
-     field rather than a point, and whether GRACE ever measured anything inside it. Two numbers:
-     how many product cells have their center in the basin, and what share of the basin's area
-     falls in its single largest coarse mascon.</p>
-  <p><b>The cut.</b> Fewer than 2 cells, or more than 95 percent of the area inside one mascon.</p>
-  <p><b>What tripping it means.</b> A basin contained in one mascon has one gravimetric number
-     attached to it, and one number has no shape. Whatever pattern a downscaled product draws
-     across that basin came from the model field the downscaling was conditioned on, not from the
-     satellites. That holds before any question of skill, and validation would not change it.</p>
+  <h4>1. Not resolved</h4>
+  <p><b>What it measures.</b> Whether the basin contains enough independent spatial information
+     for the product to support a basin-scale pattern, and whether GRACE sampled the basin at more
+     than a single coarse spatial unit. Two quantities: the number of product cells whose centers
+     fall inside the basin, and the share of the basin's area contained within its largest coarse
+     mascon.</p>
+  <p><b>The cut.</b> Fewer than 2 product cells, or more than 95 percent of the basin's area
+     within a single mascon.</p>
+  <p><b>What tripping it means.</b> If a basin falls almost entirely within one GRACE mascon, the
+     gravimetric observation available to GRACE is one coarse value. That observation contains no
+     information about how storage varies within the basin. Any finer spatial pattern a downscaled
+     product produces there comes from the model information used in the downscaling, not from
+     additional spatial information measured by GRACE. This is a limitation of spatial resolution,
+     not a question of predictive skill: external validation cannot change the fact that the
+     underlying gravimetric observation did not resolve that pattern.</p>
 
-  <h4>No departure</h4>
-  <p><b>What it measures.</b> How far the downscaled basin series moves away from the coarse basin
-     series. Subtract the two monthly series and compare the variance of the difference with the
-     variance of the coarse series.</p>
-  <p><b>The cut.</b> Under 5 percent of the coarse variance.</p>
-  <p><b>What tripping it means.</b> The product is the coarse series on a finer grid. That may be
-     exactly what its authors intended, and nothing about it is wrong, but it holds nothing a user could
-     not have read off the coarse solution. Read the number against the floor beneath it: two
-     coarse solutions of the same months, from two processing centers, already differ by more than
-     this cut in most basins.</p>
+  <h4>2. No independent departure</h4>
+  <p><b>What it measures.</b> How much the downscaled basin series differs from the corresponding
+     coarse GRACE series. The variance of the monthly difference between the two series, divided
+     by the variance of the coarse series.</p>
+  <p><b>The cut.</b> Less than 5 percent of the variance of the coarse series.</p>
+  <p><b>What tripping it means.</b> The downscaled product is reproducing the coarse series at the
+     basin scale. That may be exactly what the downscaling method is designed to do, and it is not
+     necessarily an error, but it means the finer product has not demonstrated basin-level
+     information beyond the coarse solution.</p>
+  <p>The comparison needs a reference floor, and two are measured here rather than assumed. Moving
+     one processing center across one release, JPL RL06.1 to RL06.3, costs 0.0005 of the coarse
+     variance in the median basin. Moving between two centers, JPL to GSFC, costs 0.25. A departure
+     smaller than the second is difficult to distinguish from the differences introduced by the
+     choice of GRACE processing center.</p>
 
-  <h4>Weather field</h4>
-  <p><b>What it measures.</b> Whether the departure is a hydrometeorological field wearing a
-     gravimetry label. The departure series is regressed on basin precipitation at lags of zero to
-     three months, the accumulated precipitation anomaly, soil moisture, and snow plus canopy.</p>
-  <p><b>The cut.</b> Adjusted R squared above 0.8.</p>
-  <p><b>What tripping it means.</b> Ranking basins by that departure ranks them by rainfall and
-     soil moisture structure. Both products are built from GRACE plus model fields, so some of this
-     follows by construction and a high value is not a scandal. Read it as a degree: a basin at
-     0.95 is a different object from one at 0.55. This test flags the fewest basins of the five,
-     which is reported here rather than buried.</p>
+  <h4>3. Weather field</h4>
+  <p><b>What it measures.</b> Whether the downscaled departure from coarse GRACE is largely
+     explained by hydrometeorological predictor fields rather than by information attributable to
+     the gravimetric observations. The departure series is regressed against basin precipitation at
+     zero to three month lags, accumulated precipitation anomaly, soil moisture, and snow plus
+     canopy.</p>
+  <p><b>The cut.</b> Adjusted R&sup2; above 0.8.</p>
+  <p><b>What tripping it means.</b> A large share of the departure is explained by the same
+     hydrometeorological fields used to characterize the water system. Ranking basins by the
+     departure may then largely amount to ranking them by the spatial and temporal structure of
+     precipitation and soil moisture.</p>
+  <p>Some relationship is expected, because both products combine GRACE observations with
+     model-derived information. A high R&sup2; is not by itself evidence of an error; it indicates
+     how strongly the departure is coupled to the predictor fields. The distinction still matters:
+     a basin at R&sup2; 0.95 is behaving differently from one at 0.55. This test flags the fewest
+     basins of the five, and that result is reported rather than hidden.</p>
 
-  <h4>Products disagree</h4>
-  <p><b>What it measures.</b> Whether the two products describe the same basin. Their monthly
-     series are correlated, and the gap between their fitted trends is compared with the size of
-     the trend itself.</p>
-  <p><b>The cut.</b> Correlation under 0.5, or a trend gap larger than the trend.</p>
-  <p><b>What tripping it means.</b> Two methods built from the same measurements disagree, so at
-     least one of them is wrong. That is a lower bound on error and it needs no wells to establish.
-     This test does not depend on which solution is selected above.</p>
+  <h4>4. Products disagree</h4>
+  <p><b>What it measures.</b> Whether the two downscaled products produce similar basin-scale time
+     series and depletion trends. The monthly series are compared by correlation, and the
+     difference between their fitted trends is compared with the magnitude of the trend itself.</p>
+  <p><b>The cut.</b> Correlation below 0.5, or a difference between fitted trends larger than the
+     magnitude of the trend.</p>
+  <p><b>What tripping it means.</b> The two methods start from the same underlying GRACE
+     observations and produce materially different basin-scale results. Without external
+     observations this does not establish which product is correct. It establishes that the result
+     is method dependent, and it puts a lower bound on the uncertainty that can be inferred from
+     the products themselves. This test does not depend on which solution is selected above.</p>
 
-  <h4>Ranking unstable</h4>
-  <p><b>What it measures.</b> Where a basin sits in a global list ordered by depletion trend, under
-     one product against the other, in percentile points.</p>
+  <h4>5. Ranking unstable</h4>
+  <p><b>What it measures.</b> Whether a basin occupies the same position in a global ranking of
+     depletion trends under the two products, compared in percentile points.</p>
   <p><b>The cut.</b> A shift of more than 20 percentile points.</p>
-  <p><b>What tripping it means.</b> A priority list built on one product puts this basin in a
-     different band from a list built on the other. For any use that ranks basins rather than
-     reporting a storage number, that is the failure that matters.</p>
+  <p><b>What tripping it means.</b> A basin that is a high-priority depletion basin under one
+     product may fall into a substantially different priority band under the other. For
+     applications that rank basins rather than report a storage estimate, this instability may
+     matter more than the absolute difference between the two estimates. A ranking that changes
+     substantially with the choice of downscaled product is not a robust basis for
+     prioritization.</p>
 
-  <h3>What the test cannot do</h3>
-  <p>This produces red only. A basin that trips nothing has not been shown to be trustworthy. It
-     survived tests built to catch obvious failure, and that is the whole claim.</p>
-  <p>It cannot say whether a downscaled value is correct anywhere. It cannot say whether fine
-     structure reflects groundwater rather than total storage. It cannot say whether skill in a wet
-     region is real or a shared response to rainfall. Each of those needs outside data, wells or
-     evapotranspiration or InSAR, and an ablation of predictor-only against predictor-plus-GRACE
-     scored against that data. That is a separate piece of work, and it reads cleanly only where
-     precipitation flux does not dominate the water balance.</p>
+  <h3>What the tests cannot do</h3>
+  <p>These tests produce red flags, not certificates of validity. A red flag means there is a
+     specific reason not to treat a result as independently resolved or robust. An unflagged basin
+     does not mean validated.</p>
+  <p>A basin that trips none of the tests has not been shown to be trustworthy. It survived a set
+     of tests designed to identify specific, detectable failure modes. That is the full claim.</p>
+  <p>The tests cannot establish that a downscaled value is correct at fine spatial scales. They
+     cannot establish that fine-scale variation represents groundwater rather than total
+     terrestrial water storage. They cannot establish that apparent skill in a wet region reflects
+     real spatial information rather than a shared response to precipitation.</p>
+  <p>Those questions require independent observations: wells, evapotranspiration, InSAR, or other
+     measurements capable of testing the relevant mechanism. They also require an ablation test
+     comparing predictor-only against predictor-plus-GRACE models against those observations. That
+     is a separate validation exercise, and it is most informative where precipitation flux does
+     not dominate the water balance.</p>
 
   <h3>Reference points</h3>
   <ul>
@@ -243,8 +293,8 @@
       converted to millimeters here.
       <a href="https://doi.org/10.5281/zenodo.17265162">doi.org/10.5281/zenodo.17265162</a>.
       Paper: <a href="https://doi.org/10.1029/2025GL119881">doi.org/10.1029/2025GL119881</a>.</li>
-    <li><b>JPL mascon RL06.3Mv04 CRI</b>, the coarse reference for Li and Kusche, whose own file
-      names no release.
+    <li><b>JPL mascon RL06.3Mv04 CRI</b>, the coarse reference for Li and Kusche, whose file names
+      no release.
       <a href="https://podaac.jpl.nasa.gov/dataset/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4">podaac.jpl.nasa.gov,
       TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4</a>. Gain factors are deliberately not applied:
       they are a model-derived correction, and applying one would add the model structure this test
@@ -254,9 +304,7 @@
       catalogue; the file is still served at
       <code>podaac-ops-cumulus-protected/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3/</code>.
       Differencing GRACE-SeDA against RL06.3 instead would put a release change into its residual
-      and score it as information the downscaling added. Moving between the two releases costs
-      0.0005 of the coarse variance in the median basin, against 0.25 for moving between two
-      processing centers, so the correction matters for honesty more than for the answer.</li>
+      and score it as information the downscaling added.</li>
     <li><b>GSFC mascon RL06v2.0</b>, a second coarse solution, used to measure how far apart two
       processing centers already are.
       <a href="https://earth.gsfc.nasa.gov/geo/data/grace-mascons">earth.gsfc.nasa.gov/geo/data/grace-mascons</a>.</li>

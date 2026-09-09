@@ -59,10 +59,12 @@ doc = f"""# Red experiment methods note
 Whether a published downscaled GRACE product adds usable information over native
 resolution GRACE, on HydroBASINS level 6, with no validation data of any kind.
 
-The experiment produces red only. A basin flagged red has been shown to add
-nothing usable. A basin not flagged has survived a set of tests built to catch
-obvious failure, which is a different statement from being correct. Nothing here
-can produce a green basin, and the map and the page both say so.
+The experiment produces red flags, not certificates of validity. A red flag
+means there is a specific reason not to treat a basin's result as independently
+resolved or robust. An unflagged basin does not mean validated: it survived a
+set of tests designed to identify specific, detectable failure modes, and that
+is the full claim. Nothing here can produce a green basin, and the map and the
+page both say so.
 
 ## Products under test
 
@@ -154,9 +156,9 @@ redraw.
 | test | flag | rule | threshold |
 |---|---|---|---|
 | 1 | `RED_GEOMETRY` | fewer product cells than this, or more of the basin than this inside one mascon | {c['min_cells']} cells, {c['max_frac_dominant']} |
-| 2a | `RED_NO_DEPARTURE` | variance of (downscaled minus coarse) over variance of coarse | {c['min_var_ratio']} |
+| 2a | `RED_NO_INDEPENDENT_DEPARTURE` | variance of (downscaled minus coarse) over variance of coarse | {c['min_var_ratio']} |
 | 2b | `RED_PREDICTOR_DERIVED` | adjusted R squared of the departure on precipitation, soil moisture, and snow | {c['max_pred_r2']} |
-| 3 | `RED_DISAGREEMENT` | correlation between the two products, or trend difference over trend size | {c['min_r_GL']}, {c['max_trend_diff_ratio']} |
+| 3 | `RED_DISAGREEMENT` | correlation between the two products, or trend gap over trend magnitude | {c['min_r_GL']}, {c['max_trend_diff_ratio']} |
 | 3b | `RED_RANK_UNSTABLE` | percentile rank shift between the two products | {c['max_rank_shift']} |
 
 Justification for each, in order. Two cells is the smallest number that can
@@ -167,10 +169,13 @@ about the level at which a departure stops being distinguishable from the
 difference between two processing centers, which is measured here rather than
 assumed: see below. An adjusted R squared of 0.8 leaves a fifth of the departure
 unexplained by weather, which is a generous bar given that both products are
-built from weather fields. Correlation 0.5 and a trend difference equal to the
-trend itself are the points at which two products stop describing the same
-basin. Twenty percentile points is roughly the width of a decision band in a
-ranked list.
+built from weather fields. Correlation 0.5 and a trend gap equal to the trend
+itself are the points at which the two products stop describing the same basin.
+Their disagreement does not identify which one is closer to the truth, which
+would need outside observations; it establishes that the basin-scale result is
+method dependent and puts a lower bound on the uncertainty inferable from the
+products themselves. Twenty percentile points is about the width of a decision
+band in a ranked list.
 
 Trends are fitted with a slope plus annual and semi-annual harmonics, and
 significance discounts serial correlation through the effective sample size of
@@ -208,8 +213,8 @@ other needs a count that does not quietly fold the other one in.
 
 The two fail in different places. Geometry catches most GRACE-SeDA failures: it moves away from its parent
 solution, and only
-{n(f['RED_NO_DEPARTURE_G']['n'])} of its basins fail the departure test. Departure
-catches Li and Kusche: {n(f['RED_NO_DEPARTURE_L']['n'])} of its basins move less
+{n(f['RED_NO_INDEPENDENT_DEPARTURE_G']['n'])} of its basins fail the departure test. Departure
+catches Li and Kusche: {n(f['RED_NO_INDEPENDENT_DEPARTURE_L']['n'])} of its basins move less
 than 5 percent of the coarse variance away from the solution behind it. Its finer
 grid does resolve more basins geometrically, which is why it fails that test less
 often.

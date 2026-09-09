@@ -1,11 +1,10 @@
 """Red experiment figures: the map, the area dependence, and the ranking check.
 
-The map has three states and one of them is deliberately missing. Red means a
-basin failed at least one test. Grey means it could not be tested. Everything
-else is left uncoloured, and the legend calls it "no evidence of added
-information", not "validated". Nothing here can produce a green basin: the tests
-only detect failure, so passing them is the absence of a finding rather than a
-finding of skill.
+The map has three states and the fourth is deliberately missing. Red marks a
+specific reason not to treat the basin as independently resolved. Grey marks a
+basin the tests could not reach. Everything else is left uncoloured and labelled
+"not flagged", never "validated". The tests detect named failure modes, so a
+basin surviving them is the absence of a finding, not a finding of skill.
 """
 
 import json
@@ -65,8 +64,8 @@ def map_figure(mask, title, subtitle, outfile, note):
     g[tested & mask].plot(ax=ax, color=RED_FILL, linewidth=0, zorder=4)
     ax.set_axis_off()
     ax.set_aspect("equal")
-    handles = [Patch(facecolor=RED_FILL, label="no usable added information"),
-               Patch(facecolor=PLAIN_FILL, edgecolor=AXIS, label="not tested as failing"),
+    handles = [Patch(facecolor=RED_FILL, label="flagged: a specific reason not to treat it as resolved"),
+               Patch(facecolor=PLAIN_FILL, edgecolor=AXIS, label="not flagged"),
                Patch(facecolor=GREY_FILL, label="not tested")]
     ax.legend(handles=handles, loc="lower left", frameon=False, fontsize=8.5,
               labelcolor=INK2, bbox_to_anchor=(0.02, 0.02))
@@ -81,7 +80,7 @@ n_red, n_tested = int(red.sum()), int(tested.sum())
 share = summ["flags"]["RED_ANY"]["area_share_of_tested"]
 map_figure(
     red,
-    "Where downscaled GRACE adds nothing usable at HydroBASINS level 6",
+    "Where downscaled GRACE is not independently resolved at HydroBASINS level 6",
     f"{n_red:,} of {n_tested:,} tested basins fail at least one test, "
     f"{share*100:.0f} percent of the tested land area. Common window {cp[0]} to {cp[1]}.",
     "fig_red_level6.png",
@@ -90,9 +89,9 @@ map_figure(
     "or InSAR, and that is a different experiment.")
 
 for flag, label in [("RED_GEOMETRY", "the basin is not nominally resolved"),
-                    ("RED_NO_DEPARTURE", "the product barely departs from coarse GRACE"),
-                    ("RED_PREDICTOR_DERIVED", "the departure is a hydrometeorological field"),
-                    ("RED_DISAGREEMENT", "the two products disagree"),
+                    ("RED_NO_INDEPENDENT_DEPARTURE", "the product reproduces coarse GRACE at basin scale"),
+                    ("RED_PREDICTOR_DERIVED", "predictor fields explain the departure"),
+                    ("RED_DISAGREEMENT", "the basin-scale result is method dependent"),
                     ("RED_RANK_UNSTABLE", "the ranking is not stable between products")]:
     if flag not in g.columns:
         continue
@@ -146,7 +145,7 @@ if pairs:
         ax.tick_params(labelsize=8, colors=MUTED)
         for s in ax.spines.values():
             s.set_color(AXIS)
-    titleblock(fig, "Downscaling changed the resolution, not the priority order",
+    titleblock(fig, "Downscaling changed the resolution without reordering the priority list",
                "Level 6 basins ranked by depletion trend. Rank 0 is the most depleting basin.")
     fig.savefig(FIG / "fig_red_ranks.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
     plt.close(fig)

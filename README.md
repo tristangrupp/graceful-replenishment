@@ -126,9 +126,10 @@ data at all. Full write-up in `global/RED_METHODS.md`.
 The design is one-sided on purpose. Five tests each detect one way of failing. The coarse
 footprint does not resolve the basin. The product barely departs from the coarse series.
 Precipitation and soil moisture explain the departure. The two products disagree with each
-other. A basin's rank moves between them. A basin that trips one has been shown to
-add nothing usable. A basin that trips none has only survived, and the map calls it "not
-tested as failing" rather than green.
+other. A basin's rank moves between them. A red flag means there is a specific reason not to
+treat that basin's result as independently resolved or robust. An unflagged basin does not
+mean validated: it survived tests designed to identify specific, detectable failure modes,
+and that is the full claim.
 
 Each product is differenced against the release behind it. GRACE-SeDA v1 names JPL
 RL06.1Mv03 CRI, so that is its coarse term; Li and Kusche names no release and gets the
@@ -171,10 +172,11 @@ Spearman 0.9985. Moving between two centers, JPL to GSFC, costs 0.25 and drops t
 each other, and the whole of Li and Kusche's departure is about a fifth of what changing
 center does to the same months.
 
-**Downscaling changed the resolution, not the priority order.** The two downscaled products
-agree with each other at 0.699, worse than either agrees with a coarse solution. Where two
-products built from the same measurements disagree, at least one is wrong, and establishing
-that needs no outside data.
+**Downscaling changed the resolution without reordering the priority list.** The two
+downscaled products agree with each other at 0.699, worse than either agrees with a coarse
+solution. That does not identify which one is closer to the truth, which would need outside
+observations. It does establish that the basin-scale result is method dependent, and it puts
+a lower bound on the uncertainty inferable from the products themselves.
 
 The departure is not mostly a weather field: only 342 basins regress on precipitation, soil
 moisture and snow above an adjusted R squared of 0.8. That test was the weakest of the five,

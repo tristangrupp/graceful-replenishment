@@ -14,7 +14,7 @@
       "n": 9833,
       "area_share_of_tested": 0.3801541847190163
     },
-    "RED_NO_DEPARTURE": {
+    "RED_NO_INDEPENDENT_DEPARTURE": {
       "n": 9008,
       "area_share_of_tested": 0.6663740162042399
     },
@@ -38,7 +38,7 @@
       "n": 9830,
       "area_share_of_tested": 0.3801119975758126
     },
-    "RED_NO_DEPARTURE_G": {
+    "RED_NO_INDEPENDENT_DEPARTURE_G": {
       "n": 59,
       "area_share_of_tested": 0.005307417535476076
     },
@@ -54,7 +54,7 @@
       "n": 8522,
       "area_share_of_tested": 0.3491715535942112
     },
-    "RED_NO_DEPARTURE_L": {
+    "RED_NO_INDEPENDENT_DEPARTURE_L": {
       "n": 8992,
       "area_share_of_tested": 0.6653408069507574
     },
