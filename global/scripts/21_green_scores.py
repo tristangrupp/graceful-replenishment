@@ -53,11 +53,13 @@ def load(name):
     if not p.exists():
         return None
     df = pd.read_parquet(p)
-    df.columns = [int(c) for c in df.columns]
+    df.columns = [str(c) for c in df.columns]
     return df
 
 
-sites = pd.read_parquet(GREEN / "well_sites.parquet").set_index("StnID")
+sites = pd.read_parquet(GREEN / "well_sites.parquet")
+sites["StnID"] = sites["StnID"].astype(str)
+sites = sites.set_index("StnID")
 level = load("level_anomaly_m")
 gws = {k: load(f"gws_{k}") for k in ("seda", "liku", "jpl", "jpl61")}
 pred = {k: load(f"pred_{k}") for k in ("precip_accum", "sm", "snow", "precip")}
@@ -73,8 +75,9 @@ mascon = pd.Series(np.asarray(jpl["mascon_ID"].values)[iy, ix].astype(int),
                    index=sites.index)
 print(f"wells fall in {mascon.nunique():,} distinct mascons")
 
-mean_precip = (pd.read_parquet(GREEN / "well_mean_precip.parquet")
-               .set_index("StnID")["mean_precip_mm_yr"])
+mean_precip = pd.read_parquet(GREEN / "well_mean_precip.parquet")
+mean_precip["StnID"] = mean_precip["StnID"].astype(str)
+mean_precip = mean_precip.set_index("StnID")["mean_precip_mm_yr"]
 
 
 def paired_r(a, b):

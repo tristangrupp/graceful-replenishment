@@ -220,33 +220,35 @@ predictor-plus-GRACE scored against them.
 ## Against wells
 
 The downscaling test used no outside data, so it could only detect failure. This half brings
-in the reference that can say whether a value is right: measured groundwater levels, from the
-open subset of the compilation behind Jasechko et al. (2024), on Zenodo at
-`10.5281/zenodo.10003697`. The same records are browsable through IGRAC's Global Groundwater
-Information System, whose bulk download asks for an email address and replies by mail; the
-Zenodo copy needs no registration. Full write-up in `global/GREEN_METHODS.md`.
+in the reference that can say whether a value is right: measured groundwater levels. Two
+sources, both annual depth to water. The open subset of the compilation behind Jasechko et al.
+(2024), on Zenodo at `10.5281/zenodo.10003697`, and CONAGUA's national piezometric network for
+Mexico, at https://sigagis.conagua.gob.mx/rp20/. Full write-up in `global/GREEN_METHODS.md`.
 
-77,556 wells hold at least 10 annual values between 2002 and 2022, and 58,010 of them have a
-GRACE cell. They fall inside 172 mascons. That ratio is the frame for everything below: the
+81,091 wells hold at least 10 annual values between 2002 and 2022, and 60,844 of them have a
+GRACE cell. They fall inside 195 mascons. That ratio is the frame for everything below: the
 well network is far denser than the measurement it is testing, so every test counts mascons
 rather than wells.
 
-**The coverage is not global.** It is North America, with France, Germany and Scandinavia,
-some of Brazil and New Zealand. Asia is close to absent. North India, the North China Plain,
-Iran and the Arabian Peninsula, which is where the downscaling test found the most, have no
-open well records here at all.
+**The coverage is not global.** It is North America, with Mexico, France, Germany and
+Scandinavia, some of Brazil and New Zealand. Asia is close to absent. North India, the North
+China Plain, Iran and the Arabian Peninsula, which is where the downscaling test found the
+most, have no open well records at all. Mexico was added because it puts a semi-arid irrigated
+aquifer system outside the United States into the comparison, and the two sources do not
+overlap: the nearest Mexican well to any well in the other source is 668 metres away.
 
 **Neither downscaled product agrees with a well better than the coarse solution behind it.**
-The coarse JPL solution tracks the median well at r 0.388. Li and Kusche reaches 0.374 and
-GRACE-SeDA 0.324. Paired at the same well and counted by mascon, GRACE-SeDA is worse by 0.035
-at p 0.94 and Li and Kusche is unchanged at p 0.74.
+The coarse JPL solution tracks the median well at r 0.380. Li and Kusche reaches 0.364 and
+GRACE-SeDA 0.320. Paired at the same well and counted by mascon, neither improves on the
+release it was built from.
 
-**Gravimetry does add something a well can see; the finer grid does not.** Three nested models
+**Gravimetry adds something a well can see; the finer grid does not.** Three nested models
 predict a well's annual level anomaly, scored out of sample by holding out one mascon at a
-time over 782,186 well-years. Weather alone reaches 0.093. Adding the coarse GRACE
-groundwater term lifts it to 0.125. Substituting a downscaled term gives 0.122 for GRACE-SeDA
-and 0.129 for Li and Kusche. Judged inside each of 133 held-out mascons, which is the unit
-that can carry a p-value here, none of those three differences is separable from zero.
+time over 819,731 well-years. Weather alone reaches 0.086. Adding the coarse GRACE groundwater
+term lifts it to 0.121. Substituting a downscaled term gives 0.117 for GRACE-SeDA and 0.125
+for Li and Kusche. Judged inside each of 152 held-out mascons, which is the unit that can
+carry a p-value here, the coarse GRACE term beats weather alone at p 0.04, while neither
+downscaled term separates from the coarse one.
 
 The dry and wet halves disagree about which downscaled product does better, which is itself a
 reason not to read either as a validation.

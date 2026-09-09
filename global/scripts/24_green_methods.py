@@ -13,6 +13,13 @@ a = s["ablation"]
 p = s["ablation_paired_by_mascon"]
 w = s["ablation_by_wetness"]
 sg = s["paired_against_parent"]
+rows_src = [
+    "| source | reference |", "|---|---|",
+]
+for x in src["sources"]:
+    rows_src.append("| " + x["name"] + " | " + (x.get("doi") or x.get("url") or "") + " |")
+by_src = ", ".join(f"{k} {v:,}" for k, v in src.get("wells_by_source", {}).items())
+src_rows = chr(10).join(rows_src) + chr(10) * 2 + "Wells by source: " + by_src + "."
 base = "B_plus_coarse_RL0603"
 
 
@@ -54,8 +61,18 @@ narrow.
 
 ## The wells
 
-{src['source']}, `{src['doi']}`. Annual depth to water, negated once so that up
-means more water, then taken as an anomaly against each well's own mean.
+Two sources, both annual depth to water in metres, both positive downward, and
+both negated once here so that up means more water. Each well is then taken as
+an anomaly against its own mean.
+
+{src_rows}
+
+They are held in one table with a source tag rather than merged blindly. The two
+do not overlap: the closest CONAGUA well to any Jasechko well is 668 metres away
+and only one pair falls within a kilometre, which is checked in the code rather
+than assumed. The Jasechko wells that sit inside a Mexican bounding box are all
+between 25.9 and 32.7 degrees north, which is the United States side of the
+border.
 
 {n(s['n_wells'])} wells hold at least {src['min_years']} annual values between
 {s['window'][0]} and {s['window'][1]}. {n(s['n_scored']['jpl'])} of them have a

@@ -38,6 +38,7 @@ GREEN = rg.ROOT / "green"
 GREEN.mkdir(parents=True, exist_ok=True)
 WELLS = (rg.RAW / "wells" / "Jasechko_et_al_2024_GroundwaterLevelData"
          / "AnnualDepthToGroundwater.csv")
+CONAGUA = rg.RAW / "wells" / "conagua_pozos_06_2026.geojson"
 SEDA = rg.RAW / "downscaled" / "GRACE-SeDA_v1_2002_2022.nc"
 LIKU = rg.RAW / "downscaled" / "LiKusche_JPL_mascon_downscaled-v2.0.nc"
 JPL = rg.RAW / "jpl_mascon" / "jpl_mascon_rl0603v04_cri.nc"
@@ -48,20 +49,83 @@ MIN_YEARS = 10
 SEC_PER_DAY = 86400.0
 
 # ------------------------------------------------------------------- the wells
-d = pd.read_csv(WELLS)
-d = d[(d.IntegerYear >= Y0) & (d.IntegerYear <= Y1)]
-n_year = d.groupby("StnID")["IntegerYear"].nunique()
-keep = n_year[n_year >= MIN_YEARS].index
-d = d[d.StnID.isin(keep)]
-sites = (d.groupby("StnID")[["Lat", "Lon"]].first()
-         .join(n_year.rename("n_years")).reset_index())
+# Two sources, both annual depth to water in metres, both positive downward.
+# They are kept in one table with a source tag rather than merged blindly, so a
+# later reader can see which country came from where and drop one if needed.
+def load_jasechko():
+    d = pd.read_csv(WELLS)
+    d = d.rename(columns={"StnID": "well", "Lat": "lat", "Lon": "lon",
+                          "IntegerYear": "year", "DepthToWater_m": "depth_m"})
+    d["well"] = "JAS:" + d["well"].astype(str)
+    d["source"] = "Jasechko"
+    return d[["well", "lat", "lon", "year", "depth_m", "source"]]
+
+
+def load_conagua():
+    """CONAGUA's national piezometric network, one GeoJSON of annual columns.
+
+    PNE is profundidad del nivel estatico, depth to the static level in metres,
+    positive downward, which is the same convention and unit as the Jasechko
+    table. Zeros are treated as missing: 79 of them sit in a field whose real
+    values run from under a metre to 372, and a true zero would mean the water
+    table stands exactly at the ground surface.
+    """
+    if not CONAGUA.exists():
+        print("CONAGUA file absent; skipping Mexico")
+        return None
+    j = json.load(open(CONAGUA, encoding="utf-8"))
+    cols = [c for c in j["features"][0]["properties"] if c.startswith("PNE_")]
+    rows = []
+    for f in j["features"]:
+        pr = f["properties"]
+        g = (f.get("geometry") or {}).get("coordinates") or [None, None]
+        if g[0] is None:
+            continue
+        for c in cols:
+            v = pr.get(c)
+            if v in (None, "", 0, 0.0):
+                continue
+            try:
+                v = float(v)
+            except (TypeError, ValueError):
+                continue
+            if v <= 0:
+                continue
+            rows.append(("MX:" + str(pr.get("NOMBRE_POZ")) + "|" + str(pr.get("CLAVE_ACUI")),
+                         float(g[1]), float(g[0]), int(c[4:]), v, "CONAGUA"))
+    d = pd.DataFrame(rows, columns=["well", "lat", "lon", "year", "depth_m", "source"])
+    print(f"  CONAGUA: {d.well.nunique():,} wells, {len(d):,} well-years")
+    return d
+
+
+parts = [load_jasechko()]
+mx = load_conagua()
+if mx is not None:
+    parts.append(mx)
+d = pd.concat(parts, ignore_index=True)
+d = d[(d.year >= Y0) & (d.year <= Y1)]
+d = d.groupby(["well", "year"], as_index=False).agg(
+    lat=("lat", "first"), lon=("lon", "first"),
+    depth_m=("depth_m", "mean"), source=("source", "first"))
+
+n_year = d.groupby("well")["year"].nunique()
+d = d[d.well.isin(n_year[n_year >= MIN_YEARS].index)]
+sites = (d.groupby("well")[["lat", "lon", "source"]].first()
+         .join(n_year.rename("n_years")).reset_index()
+         .rename(columns={"well": "StnID", "lat": "Lat", "lon": "Lon"}))
 print(f"{len(sites):,} wells with at least {MIN_YEARS} annual values in "
       f"{Y0}..{Y1}, {len(d):,} well-years")
+print(sites.groupby("source").size().to_string())
+
+# Mexico is absent from the Jasechko posted subset, so the two sources should
+# not overlap. Checked rather than assumed.
+inmx = sites[(sites.Lat.between(14, 33)) & (sites.Lon.between(-118, -86))]
+print(f"inside Mexico's bounding box: " +
+      ", ".join(f"{k} {v}" for k, v in inmx.groupby("source").size().items()))
 
 # Depth to water increases as the water table falls, so the sign is flipped once
 # here and never again. Everything downstream reads "up is more water".
-lvl = d.pivot_table(index="IntegerYear", columns="StnID", values="DepthToWater_m",
-                    aggfunc="mean")
+lvl = d.pivot_table(index="year", columns="well", values="depth_m", aggfunc="mean")
 lvl = -lvl
 lvl = lvl.reindex(index=range(Y0, Y1 + 1), columns=sites.StnID.to_numpy())
 lvl = lvl - lvl.mean()
@@ -239,11 +303,18 @@ product_at_wells("jpl61", JPL61, "lwe_thickness", "lat", "lon", CM_TO_MM,
 for k, v in pred.items():
     v.to_parquet(GREEN / f"well_pred_{k}.parquet")
 
-json.dump({"wells_file": WELLS.name, "doi": "10.5281/zenodo.10003697",
-           "source": "Jasechko et al. (2024), annual depth to water, open subset",
-           "window": [Y0, Y1], "min_years": MIN_YEARS,
-           "n_wells": int(len(sites)), "n_well_years": int(len(d)),
-           "sign": "depth to water negated, so up is more water",
-           "note": "no specific yield is applied anywhere; every score is scale free"},
-          open(GREEN / "wells_sources.json", "w"), indent=2)
+json.dump({
+    "sources": [
+        {"name": "Jasechko et al. (2024), annual depth to water, open subset",
+         "doi": "10.5281/zenodo.10003697", "file": WELLS.name},
+        {"name": "CONAGUA, Mediciones Piezometricas, national network",
+         "url": "https://sigagis.conagua.gob.mx/rp20/",
+         "file": CONAGUA.name if CONAGUA.exists() else None},
+    ],
+    "window": [Y0, Y1], "min_years": MIN_YEARS,
+    "n_wells": int(len(sites)), "n_well_years": int(len(d)),
+    "wells_by_source": {k: int(v) for k, v in sites.groupby("source").size().items()},
+    "sign": "depth to water negated, so up is more water",
+    "note": "no specific yield is applied anywhere; every score is scale free"},
+    open(GREEN / "wells_sources.json", "w"), indent=2)
 print("wrote", GREEN)

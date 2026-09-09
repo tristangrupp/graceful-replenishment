@@ -11,12 +11,27 @@ narrow.
 
 ## The wells
 
-Jasechko et al. (2024), annual depth to water, open subset, `10.5281/zenodo.10003697`. Annual depth to water, negated once so that up
-means more water, then taken as an anomaly against each well's own mean.
+Two sources, both annual depth to water in metres, both positive downward, and
+both negated once here so that up means more water. Each well is then taken as
+an anomaly against its own mean.
 
-77,556 wells hold at least 10 annual values between
-2002 and 2022. 58,010 of them have a
-GRACE cell and could be scored. They fall inside 172 mascons.
+| source | reference |
+|---|---|
+| Jasechko et al. (2024), annual depth to water, open subset | 10.5281/zenodo.10003697 |
+| CONAGUA, Mediciones Piezometricas, national network | https://sigagis.conagua.gob.mx/rp20/ |
+
+Wells by source: CONAGUA 3,535, Jasechko 77,556.
+
+They are held in one table with a source tag rather than merged blindly. The two
+do not overlap: the closest CONAGUA well to any Jasechko well is 668 metres away
+and only one pair falls within a kilometre, which is checked in the code rather
+than assumed. The Jasechko wells that sit inside a Mexican bounding box are all
+between 25.9 and 32.7 degrees north, which is the United States side of the
+border.
+
+81,091 wells hold at least 10 annual values between
+2002 and 2022. 60,844 of them have a
+GRACE cell and could be scored. They fall inside 195 mascons.
 
 That last number is the one to hold on to. The well network is far denser than
 the measurement it is testing: tens of thousands of wells, a few hundred
@@ -63,18 +78,18 @@ Correlation of annual anomalies at the same well.
 
 | solution | median r | wells scored |
 |---|---|---|
-| JPL RL06.3, coarse | 0.388 | 58,010 |
-| JPL RL06.1, coarse | 0.386 | 58,010 |
-| GRACE-SeDA | 0.324 | 58,046 |
-| Li and Kusche | 0.374 | 55,769 |
+| JPL RL06.3, coarse | 0.380 | 60,844 |
+| JPL RL06.1, coarse | 0.379 | 60,844 |
+| GRACE-SeDA | 0.320 | 60,880 |
+| Li and Kusche | 0.364 | 58,965 |
 
 The coarse solution tracks the median well better than either downscaled
 product. Paired at the same well and counted by mascon:
 
 | product | median change in r | mascons better | sign test p |
 |---|---|---|---|
-| GRACE-SeDA against its parent | -0.035 | 75 of 152 | 0.94 |
-| Li and Kusche against its parent | +0.001 | 73 of 151 | 0.74 |
+| GRACE-SeDA against its parent | -0.033 | 83 of 172 | 0.70 |
+| Li and Kusche against its parent | +0.001 | 84 of 170 | 0.94 |
 
 Neither improves on the release it was built from.
 
@@ -90,46 +105,46 @@ inside one mascon see the same gravimetric observation, so a random split would
 train and test on the same measurement and report memorisation as skill.
 
 All models are fitted and scored on one common panel of
-782,186 well-years, so no model is judged on an
+819,731 well-years, so no model is judged on an
 easier sample than another.
 
 | model | pooled out of sample R squared | median well r | against B, inside each mascon |
 |---|---|---|---|
-| A, weather only | 0.0928 | +0.384 | -0.0088, 58/133, p 0.17 |
-| B, A plus coarse RL06.3 | 0.1248 | +0.452 | reference |
-| B, A plus coarse RL06.1 | 0.1245 | +0.451 |  |
-| C, A plus GRACE-SeDA | 0.1217 | +0.429 | +0.0097, 77/133, p 0.08 |
-| C, A plus Li and Kusche | 0.1287 | +0.459 | +0.0018, 71/133, p 0.49 |
+| A, weather only | 0.0862 | +0.369 | -0.0115, 63/152, p 0.04 |
+| B, A plus coarse RL06.3 | 0.1211 | +0.442 | reference |
+| B, A plus coarse RL06.1 | 0.1208 | +0.442 |  |
+| C, A plus GRACE-SeDA | 0.1173 | +0.421 | +0.0054, 82/152, p 0.37 |
+| C, A plus Li and Kusche | 0.1245 | +0.446 | +0.0022, 87/152, p 0.09 |
 
 Two readings, and they differ for a reason worth stating. Pooled, adding the
-coarse GRACE term lifts skill from 0.093 to
-0.125. Inside each held-out mascon, the same comparison gives a
-median change of -0.0088 with
-58 of
-133 mascons better, sign test p
-0.17. The pooled figure includes
+coarse GRACE term lifts skill from 0.086 to
+0.121. Inside each held-out mascon, the same comparison gives a
+median change of -0.0115 with
+63 of
+152 mascons better, sign test p
+0.04. The pooled figure includes
 getting the level right between mascons, which is where a regional gravimetric
 signal helps; the per-mascon figure only measures fit within one footprint. Both
 are honest and they answer different questions.
 
 Neither reading supports the finer grid. GRACE-SeDA sits at
-0.1217 and Li and Kusche at 0.1287
-against 0.1248 for the coarse solution, and per mascon neither
+0.1173 and Li and Kusche at 0.1245
+against 0.1211 for the coarse solution, and per mascon neither
 difference is separable from zero.
 
 ### Split by how wet the well is
 
 The comparison reads cleanly only where precipitation flux does not dominate the
 water balance, so the halves are reported rather than averaged together.
-29,889 wells sit under 500 mm per year and
-43,946 above it.
+30,690 wells sit under 500 mm per year and
+46,620 above it.
 
 | model | dry, under 500 mm/yr | wet, over 500 |
 |---|---|---|
-| A, weather only | 0.0821 | 0.0853 |
-| B, A plus coarse RL06.3 | 0.1249 | 0.1170 |
-| C, A plus GRACE-SeDA | 0.0981 | 0.1240 |
-| C, A plus Li and Kusche | 0.1321 | 0.1199 |
+| A, weather only | 0.0742 | 0.0796 |
+| B, A plus coarse RL06.3 | 0.1229 | 0.1133 |
+| C, A plus GRACE-SeDA | 0.0949 | 0.1192 |
+| C, A plus Li and Kusche | 0.1296 | 0.1158 |
 
 The two halves disagree about which downscaled product does better, which is
 itself a reason not to read either as a validation.

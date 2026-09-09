@@ -51,12 +51,15 @@ pts[ok].plot(ax=ax, color=WARM, markersize=0.6, alpha=0.5, zorder=4)
 ax.set_axis_off()
 ax.set_aspect("equal")
 n_ok = int(ok.sum())
+src = json.load(open(GREEN / "wells_sources.json"))
+by_src = ", ".join(f"{k} {v:,}" for k, v in src["wells_by_source"].items())
 titleblock(fig, "Where the open well records are",
            f"{len(t):,} wells with at least 10 annual values between 2002 and 2022, "
-           f"{n_ok:,} of them scored against GRACE.\nJasechko et al. (2024), the subset "
-           "posted with permission. Asia is almost absent, so the green half cannot "
-           "speak for\nNorth India, the North China Plain, Iran or the Arabian Peninsula, "
-           "which is where the red half found the most.")
+           f"{n_ok:,} of them scored against GRACE. By source: {by_src}.\n"
+           "Jasechko et al. (2024), the subset posted with permission, plus CONAGUA's "
+           "national piezometric network for Mexico.\nAsia is still almost absent, so "
+           "nothing here speaks for North India, the North China Plain, Iran or the "
+           "Arabian Peninsula,\nwhich is where the red half found the most.")
 fig.savefig(FIG / "fig_green_wells.png", dpi=190, facecolor=SURFACE, bbox_inches="tight")
 plt.close(fig)
 print("wrote fig_green_wells.png")

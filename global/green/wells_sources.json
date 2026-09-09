@@ -1,14 +1,27 @@
 {
-  "wells_file": "AnnualDepthToGroundwater.csv",
-  "doi": "10.5281/zenodo.10003697",
-  "source": "Jasechko et al. (2024), annual depth to water, open subset",
+  "sources": [
+    {
+      "name": "Jasechko et al. (2024), annual depth to water, open subset",
+      "doi": "10.5281/zenodo.10003697",
+      "file": "AnnualDepthToGroundwater.csv"
+    },
+    {
+      "name": "CONAGUA, Mediciones Piezometricas, national network",
+      "url": "https://sigagis.conagua.gob.mx/rp20/",
+      "file": "conagua_pozos_06_2026.geojson"
+    }
+  ],
   "window": [
     2002,
     2022
   ],
   "min_years": 10,
-  "n_wells": 77556,
-  "n_well_years": 1136060,
+  "n_wells": 81091,
+  "n_well_years": 1184608,
+  "wells_by_source": {
+    "CONAGUA": 3535,
+    "Jasechko": 77556
+  },
   "sign": "depth to water negated, so up is more water",
   "note": "no specific yield is applied anywhere; every score is scale free"
 }
