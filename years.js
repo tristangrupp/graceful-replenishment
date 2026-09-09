@@ -44,7 +44,9 @@ function colorFor(v, lim) {
 const cur = () => D.levels[state.level];
 const serKey = () => (state.product === "t" ? "t" : "g");
 const fmt = n => (n > 0 ? "+" : "") + n.toFixed(1);
-const label = b => b.region + " " + b.id;
+/* A HydroSHEDS basin has no name, so its region and id are all there is. A
+   WHYMAP unit does have a character, so it is named by that instead. */
+const label = b => b.grp ? b.region + ", " + b.grp : b.region + " " + b.id;
 
 /* ------------------------------------------------- deseasonalise and fold
    Each month of the year gets its own mean over the record, and that mean is

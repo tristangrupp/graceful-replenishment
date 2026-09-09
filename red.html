@@ -22,11 +22,12 @@
 
 <header>
   <div>
-    <h1>Does downscaled GRACE add anything at level 6?</h1>
+    <h1>Does downscaled GRACE add anything at this scale?</h1>
     <p>Two published global products claim to resolve water storage finer than GRACE measures it.
        <b>GRACE-SeDA</b> runs at 0.5 degrees; <b>Li and Kusche</b> runs at 0.25 degrees. Each one is
-       tested on its own here, against the coarse JPL mascon solution that produced it, on 16,397
-       HydroBASINS level 6 basins, using no wells and no other outside data. A red flag means there is a
+       tested on its own here, against the coarse JPL mascon solution that produced it, on either 16,397
+       HydroBASINS level 6 catchments or 3,291 WHYMAP hydrogeological units, using no wells
+       and no other outside data. A red flag means there is a
        specific reason not to treat that basin's result as independently resolved or robust. An
        unflagged basin does not mean validated: it survived a set of tests designed to identify
        specific, detectable failure modes, and that is the full claim.</p>
@@ -36,6 +37,15 @@
     <div><span class="eyebrow">Flagged</span><b id="w-red">&nbsp;</b></div>
   </div>
 </header>
+
+<div class="toolbar">
+  <span class="eyebrow">Unit</span>
+  <div class="seg" id="seg-unit">
+    <button data-v="level06" aria-pressed="true">Basins, level 6</button>
+    <button data-v="aquifer" aria-pressed="false">Aquifers</button>
+  </div>
+  <span class="hint" id="unit-hint"></span>
+</div>
 
 <div class="toolbar">
   <span class="eyebrow">Solution</span>
@@ -326,7 +336,7 @@
 </footer>
 
 <div id="tip" role="status" aria-live="polite"></div>
-<script src="red_data.js"></script>
+<script src="red_data_level06.js"></script>
 <script src="red.js"></script>
 </body>
 </html>
