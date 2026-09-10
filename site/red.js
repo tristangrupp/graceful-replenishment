@@ -327,7 +327,7 @@
         thousands(signSel) + " of " + thousands(nSel) +
         ", " + (signSel / nSel * 100).toFixed(0) + "%"]);
     }
-    rows.push(["basins whose sign flips between the two processing centers",
+    rows.push(["basins whose sign flips between the two labs, JPL and NASA Goddard",
       thousands(signPair) + " of " + thousands(nPair) +
       ", " + (signPair / nPair * 100).toFixed(0) + "%"]);
     if (nP) {
@@ -364,7 +364,7 @@
       note = "This is a coarse solution drawn on level 6 outlines. Neighboring basins inside one " +
         "mascon are given the same value, so any texture in this map is the basin outlines, not " +
         "the gravity field. Switch to the other coarse solution to see how much of the pattern " +
-        "survives a change of processing center.";
+        "survives a change of lab.";
     }
     document.getElementById("evis-note").textContent = note;
   }
@@ -757,11 +757,11 @@
     document.getElementById("foot-solution").innerHTML =
       "<b>Two floors under the departure.</b> For the median basin the departure from the release it " +
       "was built from is " + fmt(m.medians.var_ratio_G, 3) + " of the coarse variance for " +
-      "GRACE-SeDA and " + fmt(m.medians.var_ratio_L, 3) + " for Li and Kusche. Moving the same " +
-      "center one release, JPL RL06.1 to RL06.3, costs " + fmt(m.medians.var_ratio_release, 5) +
-      ". Moving between two centers, JPL to GSFC, costs " +
+      "GRACE-SeDA and " + fmt(m.medians.var_ratio_L, 3) + " for Li and Kusche. Staying with one " +
+      "lab and moving a version on, JPL RL06.1 to RL06.3, changes " + fmt(m.medians.var_ratio_release, 5) +
+      ". Changing lab, JPL to NASA Goddard, changes " +
       fmt(m.medians.var_ratio_solution, 3) + ", so the whole of Li and Kusche's departure is " +
-      "about a fifth of what changing processing center does to the same months.";
+      "about a fifth of what changing lab does to the same months.";
     var sp = m.spearman || {};
     document.getElementById("foot-spearman").innerHTML =
       "<b>Ranking.</b> Ranked by depletion trend, GRACE-SeDA agrees with the coarse solution at " +

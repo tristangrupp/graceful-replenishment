@@ -36,37 +36,24 @@
 
 <section class="method">
   <div class="method-col">
-    <h2>How the estimate is built</h2>
-    <dl>
-      <dt>Standard mass balance</dt>
-      <dd>Groundwater is isolated by subtracting soil moisture, snow water equivalent and canopy
-        storage from total water storage, the standard workflow for satellite gravimetry.</dd>
-      <dt>Three models, not one</dt>
-      <dd>Those terms are averaged across the Noah, VIC and CLSM models of the Global Land Data
-        Assimilation System, so model bias becomes a stated spread instead of a hidden
-        assumption.</dd>
-      <dt>Seasonality removed by fitting</dt>
-      <dd>Annual and semi-annual harmonics are fitted alongside the slope, so a reported rate is a
-        long-term trend rather than the seasonal cycle leaking into it.</dd>
-      <dt>Autocorrelation corrected</dt>
-      <dd>Monthly storage anomalies correlate strongly month to month. Significance discounts that
-        through an effective sample size, so p &lt; 0.05 is not a false positive manufactured by
-        the correlation.</dd>
-    </dl>
+    <span class="eyebrow">How it is built</span>
+    <p><b>Mass balance.</b> Soil moisture, snow water equivalent and canopy storage subtracted
+       from total water storage.</p>
+    <p><b>Three models, not one.</b> Those terms averaged across Noah, VIC and CLSM, so model
+       bias is a spread rather than one choice.</p>
+    <p><b>Season fitted out.</b> Annual and semi-annual harmonics fitted alongside the slope, so
+       a rate is a trend.</p>
+    <p><b>Autocorrelation discounted.</b> Significance uses an effective sample size, so
+       p &lt; 0.05 is not manufactured by month-to-month correlation.</p>
   </div>
   <div class="method-col">
-    <h2>What the estimate cannot do</h2>
-    <dl>
-      <dt>A footprint, not a point</dt>
-      <dd>One mascon covers about 12,400 km&sup2;. A small basin reports the signal of the mascons
-        under it rather than its own, and the mascon count travels with every basin.</dd>
-      <dt>Leakage is uncertainty, not a correction</dt>
-      <dd>Spatial leakage is left uncorrected and stated as an uncertainty. Read every magnitude
-        here as a lower bound.</dd>
-      <dt>Ice excluded</dt>
-      <dd>Basins more than one fifth glacier or ice sheet are withheld from the groundwater layer.
-        Subtracting modeled snow from ice sheet loss does not measure groundwater.</dd>
-    </dl>
+    <span class="eyebrow">What it cannot do</span>
+    <p><b>A footprint, not a point.</b> One mascon covers about 12,400 km&sup2;. A small basin
+       reports the mascons under it; the count is in the table.</p>
+    <p><b>Leakage is uncertainty.</b> Left uncorrected and stated. Read every magnitude as a
+       lower bound.</p>
+    <p><b>Ice excluded.</b> Basins over one fifth glacier or ice sheet are withheld from the
+       groundwater layer.</p>
   </div>
 </section>
 

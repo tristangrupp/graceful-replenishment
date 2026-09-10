@@ -210,20 +210,23 @@
   <p>Measures if the downscaled product actually departs from the coarse data. If the variance is
      too low, under 5 percent, it reveals the downscaling added no independent basin-level
      information.</p>
-  <p>Read it against a floor, and both are measured here rather than assumed. Moving one
-     processing center across one release, JPL RL06.1 to RL06.3, costs 0.0005 of the coarse
-     variance in the median basin. Moving between two centers, JPL to GSFC, costs 0.25. A
-     departure smaller than the second is hard to tell from the choice of processing center.</p>
+  <p>Five percent is not an arbitrary cut. Several labs turn the same satellite data into storage
+     maps, and their maps do not match, so their mismatch sets the size a departure has to beat.
+     Both floors are measured here. Staying with one lab and moving up a version, JPL RL06.1 to
+     RL06.3, changes 0.0005 of the coarse variance in the median basin. Changing lab, JPL to NASA
+     Goddard, changes 0.25. A departure below that second number is no bigger than the gap between
+     two labs reading the same satellite, so it says nothing new about the basin.</p>
 
   <h4>Weather echoes, flagged as "weather field"</h4>
   <p>Regresses the departure from coarse GRACE against local meteorology: precipitation at lags of
      zero to three months, the accumulated precipitation anomaly, soil moisture, and snow plus
      canopy. An R&sup2; above 0.8 flags that the added "information" is just an echo of the
      weather model used to downscale it.</p>
-  <p>Some relationship is expected, because both products combine GRACE observations with
-     model-derived fields. Read the number as a degree rather than a verdict: a basin at 0.95 is a
-     different object from one at 0.55. This test flags the fewest basins of the five, and that
-     result is reported rather than hidden.</p>
+  <p>Some relationship is expected, because both products are built partly from those same
+     weather fields. So the number is a matter of degree, not a pass or fail. At 0.95 the weather
+     model accounts for nearly everything the downscaling added. At 0.55 most of what it added
+     still comes from the satellite. Few basins cross 0.8, fewer than for any other test here,
+     and the counts above say how many.</p>
 
   <h4>Method dependency, flagged as "products disagree" and "ranking unstable"</h4>
   <p>Cross-examines the two downscaled models against each other. If their data trends disagree,
@@ -282,7 +285,7 @@
       Differencing GRACE-SeDA against RL06.3 instead would put a release change into its residual
       and score it as information the downscaling added.</li>
     <li><b>GSFC mascon RL06v2.0</b>, a second coarse solution, used to measure how far apart two
-      processing centers already are.
+      labs solving the same satellite data already are.
       <a href="https://earth.gsfc.nasa.gov/geo/data/grace-mascons">earth.gsfc.nasa.gov/geo/data/grace-mascons</a>.</li>
     <li><b>HydroBASINS v1c level 6</b>, 16,397 basins.
       <a href="https://www.hydrosheds.org/products/hydrobasins">hydrosheds.org/products/hydrobasins</a>.</li>
