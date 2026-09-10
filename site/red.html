@@ -178,96 +178,61 @@
 
   <h3>The five tests</h3>
   <table class="tests">
-    <thead><tr><th>test</th><th>quantity</th><th>cut</th></tr></thead>
+    <thead><tr><th>test</th><th>what it asks</th><th>cut</th></tr></thead>
     <tbody>
-      <tr><td class="name">1. Not resolved</td>
-        <td>product cells with centers in the basin; share of basin area in its largest mascon</td>
+      <tr><td class="name">Spatial resolution<br><span class="ns">Not resolved</span></td>
+        <td>Is the basin smaller than 2 product cells, or swallowed by a single mascon?</td>
         <td>under 2 cells, or over 95%</td></tr>
-      <tr><td class="name">2. No independent departure</td>
-        <td>variance of (downscaled &minus; coarse) over variance of coarse</td>
-        <td>under 0.05</td></tr>
-      <tr><td class="name">3. Weather field</td>
-        <td>adjusted R&sup2; of the departure on precipitation, soil moisture, snow</td>
-        <td>over 0.8</td></tr>
-      <tr><td class="name">4. Products disagree</td>
-        <td>correlation of the two series; trend gap over trend magnitude</td>
-        <td>under 0.5, or over 1</td></tr>
-      <tr><td class="name">5. Ranking unstable</td>
-        <td>shift in percentile rank between the two products</td>
-        <td>over 20 points</td></tr>
+      <tr><td class="name">Signal contribution<br><span class="ns">No independent departure</span></td>
+        <td>Does the downscaled product actually depart from the coarse data?</td>
+        <td>under 5% of variance</td></tr>
+      <tr><td class="name">Weather echoes<br><span class="ns">Weather field</span></td>
+        <td>Is the departure just an echo of the meteorology used to downscale it?</td>
+        <td>R&sup2; over 0.8</td></tr>
+      <tr><td class="name">Method dependency<br><span class="ns">Products disagree</span></td>
+        <td>Do the two downscaled products describe the same basin?</td>
+        <td>r under 0.5, or trend gap over 1</td></tr>
+      <tr><td class="name">Method dependency<br><span class="ns">Ranking unstable</span></td>
+        <td>Does a basin's global depletion rank hold between them?</td>
+        <td>over 20 percentile points</td></tr>
     </tbody>
   </table>
 
-  <h4>1. Not resolved</h4>
-  <p><b>What it measures.</b> Whether the basin contains enough independent spatial information
-     for the product to support a basin-scale pattern, and whether GRACE sampled the basin at more
-     than a single coarse spatial unit. Two quantities: the number of product cells whose centers
-     fall inside the basin, and the share of the basin's area contained within its largest coarse
-     mascon.</p>
-  <p><b>The cut.</b> Fewer than 2 product cells, or more than 95 percent of the basin's area
-     within a single mascon.</p>
-  <p><b>What tripping it means.</b> If a basin falls almost entirely within one GRACE mascon, the
-     gravimetric observation available to GRACE is one coarse value. That observation contains no
-     information about how storage varies within the basin. Any finer spatial pattern a downscaled
-     product produces there comes from the model information used in the downscaling, not from
-     additional spatial information measured by GRACE. This is a limitation of spatial resolution,
-     not a question of predictive skill: external validation cannot change the fact that the
-     underlying gravimetric observation did not resolve that pattern.</p>
+  <h4>Spatial resolution, flagged as "not resolved"</h4>
+  <p>Flags basins that are smaller than 2 product cells or entirely swallowed by a single mascon.
+     This correctly identifies when a fine-scale pattern is purely derived from a background
+     model, not a satellite measurement.</p>
+  <p>It is a limitation of spatial resolution, not of predictive skill. External validation
+     cannot change the fact that the underlying gravimetric observation did not resolve the
+     pattern.</p>
 
-  <h4>2. No independent departure</h4>
-  <p><b>What it measures.</b> How much the downscaled basin series differs from the corresponding
-     coarse GRACE series. The variance of the monthly difference between the two series, divided
-     by the variance of the coarse series.</p>
-  <p><b>The cut.</b> Less than 5 percent of the variance of the coarse series.</p>
-  <p><b>What tripping it means.</b> The downscaled product is reproducing the coarse series at the
-     basin scale. That may be exactly what the downscaling method is designed to do, and it is not
-     necessarily an error, but it means the finer product has not demonstrated basin-level
-     information beyond the coarse solution.</p>
-  <p>The comparison needs a reference floor, and two are measured here rather than assumed. Moving
-     one processing center across one release, JPL RL06.1 to RL06.3, costs 0.0005 of the coarse
-     variance in the median basin. Moving between two centers, JPL to GSFC, costs 0.25. A departure
-     smaller than the second is difficult to distinguish from the differences introduced by the
-     choice of GRACE processing center.</p>
+  <h4>Signal contribution, flagged as "no independent departure"</h4>
+  <p>Measures if the downscaled product actually departs from the coarse data. If the variance is
+     too low, under 5 percent, it reveals the downscaling added no independent basin-level
+     information.</p>
+  <p>Read it against a floor, and both are measured here rather than assumed. Moving one
+     processing center across one release, JPL RL06.1 to RL06.3, costs 0.0005 of the coarse
+     variance in the median basin. Moving between two centers, JPL to GSFC, costs 0.25. A
+     departure smaller than the second is hard to tell from the choice of processing center.</p>
 
-  <h4>3. Weather field</h4>
-  <p><b>What it measures.</b> Whether the downscaled departure from coarse GRACE is largely
-     explained by hydrometeorological predictor fields rather than by information attributable to
-     the gravimetric observations. The departure series is regressed against basin precipitation at
-     zero to three month lags, accumulated precipitation anomaly, soil moisture, and snow plus
-     canopy.</p>
-  <p><b>The cut.</b> Adjusted R&sup2; above 0.8.</p>
-  <p><b>What tripping it means.</b> A large share of the departure is explained by the same
-     hydrometeorological fields used to characterize the water system. Ranking basins by the
-     departure may then largely amount to ranking them by the spatial and temporal structure of
-     precipitation and soil moisture.</p>
+  <h4>Weather echoes, flagged as "weather field"</h4>
+  <p>Regresses the departure from coarse GRACE against local meteorology: precipitation at lags of
+     zero to three months, the accumulated precipitation anomaly, soil moisture, and snow plus
+     canopy. An R&sup2; above 0.8 flags that the added "information" is just an echo of the
+     weather model used to downscale it.</p>
   <p>Some relationship is expected, because both products combine GRACE observations with
-     model-derived information. A high R&sup2; is not by itself evidence of an error; it indicates
-     how strongly the departure is coupled to the predictor fields. The distinction still matters:
-     a basin at R&sup2; 0.95 is behaving differently from one at 0.55. This test flags the fewest
-     basins of the five, and that result is reported rather than hidden.</p>
+     model-derived fields. Read the number as a degree rather than a verdict: a basin at 0.95 is a
+     different object from one at 0.55. This test flags the fewest basins of the five, and that
+     result is reported rather than hidden.</p>
 
-  <h4>4. Products disagree</h4>
-  <p><b>What it measures.</b> Whether the two downscaled products produce similar basin-scale time
-     series and depletion trends. The monthly series are compared by correlation, and the
-     difference between their fitted trends is compared with the magnitude of the trend itself.</p>
-  <p><b>The cut.</b> Correlation below 0.5, or a difference between fitted trends larger than the
-     magnitude of the trend.</p>
-  <p><b>What tripping it means.</b> The two methods start from the same underlying GRACE
-     observations and produce materially different basin-scale results. Without external
-     observations this does not establish which product is correct. It establishes that the result
-     is method dependent, and it puts a lower bound on the uncertainty that can be inferred from
-     the products themselves. This test does not depend on which solution is selected above.</p>
-
-  <h4>5. Ranking unstable</h4>
-  <p><b>What it measures.</b> Whether a basin occupies the same position in a global ranking of
-     depletion trends under the two products, compared in percentile points.</p>
-  <p><b>The cut.</b> A shift of more than 20 percentile points.</p>
-  <p><b>What tripping it means.</b> A basin that is a high-priority depletion basin under one
-     product may fall into a substantially different priority band under the other. For
-     applications that rank basins rather than report a storage estimate, this instability may
-     matter more than the absolute difference between the two estimates. A ranking that changes
-     substantially with the choice of downscaled product is not a robust basis for
-     prioritization.</p>
+  <h4>Method dependency, flagged as "products disagree" and "ranking unstable"</h4>
+  <p>Cross-examines the two downscaled models against each other. If their data trends disagree,
+     or shift a basin's global priority depletion rank by more than 20 percentile points, it
+     highlights that the data is too unstable for policy tools like WRI's Aqueduct.</p>
+  <p>Without external observations this does not establish which product is correct. It
+     establishes that the basin-scale result is method dependent, and it puts a lower bound on the
+     uncertainty inferable from the products themselves. These two tests compare the pair, so
+     they do not move when the solution above changes.</p>
 
   <h3>What the tests cannot do</h3>
   <p>These tests produce red flags, not certificates of validity. A red flag means there is a

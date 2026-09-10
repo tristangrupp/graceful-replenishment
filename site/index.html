@@ -34,6 +34,42 @@
   </div>
 </header>
 
+<section class="method">
+  <div class="method-col">
+    <h2>How the estimate is built</h2>
+    <dl>
+      <dt>Standard mass balance</dt>
+      <dd>Groundwater is isolated by subtracting soil moisture, snow water equivalent and canopy
+        storage from total water storage, the standard workflow for satellite gravimetry.</dd>
+      <dt>Three models, not one</dt>
+      <dd>Those terms are averaged across the Noah, VIC and CLSM models of the Global Land Data
+        Assimilation System, so model bias becomes a stated spread instead of a hidden
+        assumption.</dd>
+      <dt>Seasonality removed by fitting</dt>
+      <dd>Annual and semi-annual harmonics are fitted alongside the slope, so a reported rate is a
+        long-term trend rather than the seasonal cycle leaking into it.</dd>
+      <dt>Autocorrelation corrected</dt>
+      <dd>Monthly storage anomalies correlate strongly month to month. Significance discounts that
+        through an effective sample size, so p &lt; 0.05 is not a false positive manufactured by
+        the correlation.</dd>
+    </dl>
+  </div>
+  <div class="method-col">
+    <h2>What the estimate cannot do</h2>
+    <dl>
+      <dt>A footprint, not a point</dt>
+      <dd>One mascon covers about 12,400 km&sup2;. A small basin reports the signal of the mascons
+        under it rather than its own, and the mascon count travels with every basin.</dd>
+      <dt>Leakage is uncertainty, not a correction</dt>
+      <dd>Spatial leakage is left uncorrected and stated as an uncertainty. Read every magnitude
+        here as a lower bound.</dd>
+      <dt>Ice excluded</dt>
+      <dd>Basins more than one fifth glacier or ice sheet are withheld from the groundwater layer.
+        Subtracting modeled snow from ice sheet loss does not measure groundwater.</dd>
+    </dl>
+  </div>
+</section>
+
 <div class="toolbar">
   <span class="eyebrow">Layer</span>
   <div class="seg" id="seg-product">
@@ -112,12 +148,9 @@
   <h3>How to read the map</h3>
   <p>Total water storage is all the water GRACE detects. That includes groundwater, soil
   moisture, snow, surface water, and ice.</p>
-  <p>The groundwater layer subtracts three modeled terms: soil moisture, snow water
-  equivalent, and canopy storage. They come from the Global Land Data Assimilation System,
-  averaged across its Noah, VIC, and CLSM models. That makes the groundwater layer a
-  measurement minus a model average. Treat it as an estimate, not a reading.</p>
-  <p>Some basins are more than one fifth glacier or ice sheet. The groundwater layer leaves
-  those out. Subtracting modeled snow from ice sheet loss doesn't measure groundwater.</p>
+  <p>The groundwater layer subtracts three modeled terms from it, so it is a measurement
+  minus a model average. Treat it as an estimate, not a reading. The method panel at the top
+  of the page states what is subtracted and what is excluded.</p>
 
   <h3>What the marks mean</h3>
   <ul>
@@ -133,10 +166,8 @@
   <ul>
     <li>The record is short. It holds 92 monthly solutions, and hatching covers about half
       the basins.</li>
-    <li>One mascon covers about <code>12,400&nbsp;km&sup2;</code>. A small basin rests on a
-      few mascons, so it reports their signal rather than its own. The table shows how many.</li>
-    <li>Neighboring basins share mascons. They aren't independent measurements.</li>
-    <li>Leakage is an uncertainty, not a correction. Read every value as a lower bound.</li>
+    <li>Neighboring basins share mascons, so they aren't independent measurements. The table
+      shows how many mascons each basin rests on.</li>
     <li>Glacier cover comes from Natural Earth's 10m glaciated areas. The extremes list can
       use it to drop basins whose trend is ice loss. It draws coarse polygons, so treat the
       threshold as approximate.</li>
