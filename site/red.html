@@ -23,14 +23,10 @@
 <header>
   <div>
     <h1>Does downscaled GRACE add anything at this scale?</h1>
-    <p>Two published global products claim to resolve water storage finer than GRACE measures it.
-       <b>GRACE-SeDA</b> runs at 0.5 degrees; <b>Li and Kusche</b> runs at 0.25 degrees. Each one is
-       tested on its own here, against the coarse JPL mascon solution that produced it, on either 16,397
-       HydroBASINS level 6 catchments or 3,291 WHYMAP hydrogeological units, using no wells
-       and no other outside data. A red flag means there is a
-       specific reason not to treat that basin's result as independently resolved or robust. An
-       unflagged basin does not mean validated: it survived a set of tests designed to identify
-       specific, detectable failure modes, and that is the full claim.</p>
+    <p><b>GRACE-SeDA</b> at 0.5 degrees and <b>Li and Kusche</b> at 0.25 degrees, each tested
+       against the coarse JPL solution behind it, on 16,397 HydroBASINS level 6 catchments
+       or 3,291 WHYMAP units, using no outside data. A flag is a reason not to treat a basin as
+       independently resolved. No flag is not validation.</p>
   </div>
   <div class="window">
     <div><span class="eyebrow">Common window</span><b id="w-window">&nbsp;</b></div>
@@ -112,9 +108,8 @@
       <h2>Why these trends should not be read at this scale</h2>
       <span class="eyebrow" id="evis-sub"></span>
     </div>
-    <p class="panel-note">The map above uses the estimator the first tab uses and the color scale
-       the first tab uses, drawn on 16,397 basins instead of 247. It looks like more information.
-       The rows below are what happens to it when the solution changes rather than the water.</p>
+    <p class="panel-note">Same estimator and scale as the first tab, on 16,397 basins instead of
+       247. Below: what changes when the solution changes rather than the water.</p>
     <table>
       <thead><tr><th>check</th><th>result</th></tr></thead>
       <tbody id="evis"></tbody>
@@ -127,9 +122,8 @@
       <h2>Ranking, coarse against downscaled</h2>
       <span class="eyebrow" id="rank-sub"></span>
     </div>
-    <p class="panel-note">Percentile rank by depletion trend. Rank 0 is the most depleting basin.
-       Aqueduct ranks basins rather than reporting storage, so this is the comparison that decides
-       whether downscaling would change a priority list.</p>
+    <p class="panel-note">Percentile rank by depletion trend, rank 0 the most depleting. Aqueduct
+       ranks basins, so this decides whether downscaling would reorder a priority list.</p>
     <canvas id="ranks" class="minichart"></canvas>
   </section>
   </div>
@@ -140,8 +134,8 @@
       <h2>Thresholds</h2>
       <span class="eyebrow">move one and the map redraws</span>
     </div>
-    <p class="panel-note">Every cut below is a judgment call. The published run used the value in
-       the box. If a count moves a lot as you drag, that count is not a result.</p>
+    <p class="panel-note">Every cut is a judgment call. The box holds the published value. A count
+       that moves a lot as you drag is not a result.</p>
     <div id="sliders"></div>
 
     <div class="panel-head" style="margin-top:14px">
@@ -163,95 +157,44 @@
 
 <footer>
   <h3>How a basin gets its numbers</h3>
-  <p>Each product is defined on its own grid. Basin boundaries are rasterized once at 0.05
-     degrees, and each coarser grid inherits its basin overlap from that raster. A basin mean is
-     the area-weighted mean of the cells that overlap the basin: the sum of cell values multiplied
-     by the area of each cell inside the basin, divided by the total area represented. This is a
-     conservative remapping. Nearest-neighbor and bilinear interpolation are not used, because
-     they do not conserve the quantity being aggregated.</p>
-  <p>If a product has no value for a cell in a given month, that cell is removed from both the
-     numerator and the denominator. A basin is renormalized over the area actually observed rather
-     than treating missing area as zero.</p>
-  <p>Each product is evaluated on its own terms, against the coarse release it names as its input.
-     The tests do not require the two products to agree, except for the final two, which use their
-     disagreement because that disagreement can be measured without outside observations.</p>
+  <p>Boundaries are rasterized once at 0.05 degrees and each coarser grid inherits that overlap. A
+  basin mean is the area-weighted mean of the cells over it, a conservative remapping. Missing
+  cells leave both the numerator and the denominator, so a basin is renormalized over the area
+  actually observed. Each product is scored against the coarse release it names as its input.</p>
 
   <h3>The five tests</h3>
   <table class="tests">
     <thead><tr><th>test</th><th>what it asks</th><th>cut</th></tr></thead>
     <tbody>
       <tr><td class="name">Spatial resolution<br><span class="ns">Not resolved</span></td>
-        <td>Is the basin smaller than 2 product cells, or swallowed by a single mascon?</td>
+        <td>Is the basin smaller than 2 product cells, or swallowed by a single mascon? Then the
+          fine pattern comes from a background model, not from the satellite.</td>
         <td>under 2 cells, or over 95%</td></tr>
       <tr><td class="name">Signal contribution<br><span class="ns">No independent departure</span></td>
-        <td>Does the downscaled product actually depart from the coarse data?</td>
+        <td>Does the product differ from the coarse data at all? Below the cut the downscaling
+          added no basin-level information.</td>
         <td>under 5% of variance</td></tr>
       <tr><td class="name">Weather echoes<br><span class="ns">Weather field</span></td>
-        <td>Is the departure just an echo of the meteorology used to downscale it?</td>
+        <td>Is that departure an echo of the meteorology used to downscale it? Some relationship is
+          expected, so read it as a degree.</td>
         <td>R&sup2; over 0.8</td></tr>
       <tr><td class="name">Method dependency<br><span class="ns">Products disagree</span></td>
-        <td>Do the two downscaled products describe the same basin?</td>
+        <td>Do the two products describe the same basin?</td>
         <td>r under 0.5, or trend gap over 1</td></tr>
       <tr><td class="name">Method dependency<br><span class="ns">Ranking unstable</span></td>
-        <td>Does a basin's global depletion rank hold between them?</td>
+        <td>Does a basin's depletion rank hold between them? Beyond the cut a priority list would
+          reorder.</td>
         <td>over 20 percentile points</td></tr>
     </tbody>
   </table>
-
-  <h4>Spatial resolution, flagged as "not resolved"</h4>
-  <p>Flags basins that are smaller than 2 product cells or entirely swallowed by a single mascon.
-     This correctly identifies when a fine-scale pattern is purely derived from a background
-     model, not a satellite measurement.</p>
-  <p>It is a limitation of spatial resolution, not of predictive skill. External validation
-     cannot change the fact that the underlying gravimetric observation did not resolve the
-     pattern.</p>
-
-  <h4>Signal contribution, flagged as "no independent departure"</h4>
-  <p>Measures if the downscaled product actually departs from the coarse data. If the variance is
-     too low, under 5 percent, it reveals the downscaling added no independent basin-level
-     information.</p>
-  <p>Five percent is not an arbitrary cut. Several labs turn the same satellite data into storage
-     maps, and their maps do not match, so their mismatch sets the size a departure has to beat.
-     Both floors are measured here. Staying with one lab and moving up a version, JPL RL06.1 to
-     RL06.3, changes 0.0005 of the coarse variance in the median basin. Changing lab, JPL to NASA
-     Goddard, changes 0.25. A departure below that second number is no bigger than the gap between
-     two labs reading the same satellite, so it says nothing new about the basin.</p>
-
-  <h4>Weather echoes, flagged as "weather field"</h4>
-  <p>Regresses the departure from coarse GRACE against local meteorology: precipitation at lags of
-     zero to three months, the accumulated precipitation anomaly, soil moisture, and snow plus
-     canopy. An R&sup2; above 0.8 flags that the added "information" is just an echo of the
-     weather model used to downscale it.</p>
-  <p>Some relationship is expected, because both products are built partly from those same
-     weather fields. So the number is a matter of degree, not a pass or fail. At 0.95 the weather
-     model accounts for nearly everything the downscaling added. At 0.55 most of what it added
-     still comes from the satellite. Few basins cross 0.8, fewer than for any other test here,
-     and the counts above say how many.</p>
-
-  <h4>Method dependency, flagged as "products disagree" and "ranking unstable"</h4>
-  <p>Cross-examines the two downscaled models against each other. If their data trends disagree,
-     or shift a basin's global priority depletion rank by more than 20 percentile points, it
-     highlights that the data is too unstable for policy tools like WRI's Aqueduct.</p>
-  <p>Without external observations this does not establish which product is correct. It
-     establishes that the basin-scale result is method dependent, and it puts a lower bound on the
-     uncertainty inferable from the products themselves. These two tests compare the pair, so
-     they do not move when the solution above changes.</p>
-
-  <h3>What the tests cannot do</h3>
-  <p>These tests produce red flags, not certificates of validity. A red flag means there is a
-     specific reason not to treat a result as independently resolved or robust. An unflagged basin
-     does not mean validated.</p>
-  <p>A basin that trips none of the tests has not been shown to be trustworthy. It survived a set
-     of tests designed to identify specific, detectable failure modes. That is the full claim.</p>
-  <p>The tests cannot establish that a downscaled value is correct at fine spatial scales. They
-     cannot establish that fine-scale variation represents groundwater rather than total
-     terrestrial water storage. They cannot establish that apparent skill in a wet region reflects
-     real spatial information rather than a shared response to precipitation.</p>
-  <p>Those questions require independent observations: wells, evapotranspiration, InSAR, or other
-     measurements capable of testing the relevant mechanism. They also require an ablation test
-     comparing predictor-only against predictor-plus-GRACE models against those observations. That
-     is a separate validation exercise, and it is most informative where precipitation flux does
-     not dominate the water balance.</p>
+  <p>The 5 percent cut is not arbitrary. Several labs turn the same satellite data into storage
+  maps and
+  their maps differ, which sets the size a departure has to beat. One lab across one version, JPL
+  RL06.1 to RL06.3, changes 0.0005 of the coarse variance in the median basin. Changing lab, JPL to
+  NASA Goddard, changes 0.25.</p>
+  <p>Disagreement does not say which product is right. It puts a floor under their combined error.
+  Naming the right one needs wells, evapotranspiration or InSAR, which is the next tab and a
+  different experiment.</p>
 
   <h3>Reference points</h3>
   <ul>
@@ -275,11 +218,11 @@
     <li><b>JPL mascon RL06.3Mv04 CRI</b>, the coarse reference for Li and Kusche, whose file names
       no release.
       <a href="https://podaac.jpl.nasa.gov/dataset/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4">podaac.jpl.nasa.gov,
-      TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4</a>. Gain factors are deliberately not applied:
+      TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.3_V4</a>. Gain factors are not applied:
       they are a model-derived correction, and applying one would add the model structure this test
       looks for.</li>
     <li><b>JPL mascon RL06.1Mv03 CRI</b>, the release GRACE-SeDA v1 names as its input, and the
-      coarse reference it is differenced against here. The collection is retired from the data
+      coarse reference used here. The collection is retired from the data
       catalogue; the file is still served at
       <code>podaac-ops-cumulus-protected/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06.1_V3/</code>.
       Differencing GRACE-SeDA against RL06.3 instead would put a release change into its residual

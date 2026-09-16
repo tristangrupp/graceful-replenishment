@@ -23,11 +23,7 @@
 <header>
   <div>
     <h1>Year by year, 2018 to 2026</h1>
-    <p>Each frame shows storage itself, not a rate. <b>Level</b> gives how far a year sat over or
-       under the record mean. <b>Change from last year</b> gives the step from the year before it.
-       <b>First year to last</b> compares the two ends of the record, 2026 with 2018, and holds
-       still while the animation runs. All three come from the deseasonalized monthly series. No
-       year gets flattered or punished by which of its months the satellites solved.</p>
+    <p>Storage, not a rate, from the deseasonalized monthly series.</p>
   </div>
   <div class="window">
     <div><span class="eyebrow">Years</span><b id="w-years">&nbsp;</b></div>
@@ -80,7 +76,7 @@
       <h2 id="pick-title">Pick a basin</h2>
       <button class="btn" id="clear" type="button">Clear</button>
     </div>
-    <p class="panel-note" id="pick-sub">Select any basin on the map to open its deseasonalized record.</p>
+    <p class="panel-note" id="pick-sub">Select a basin.</p>
 
     <span class="eyebrow">Deseasonalized monthly series, one line per year</span>
     <svg id="cycle" class="chart" role="img" aria-label="Deseasonalized monthly series folded by year"></svg>
@@ -102,36 +98,24 @@
 <div id="tip" role="status" aria-live="polite"></div>
 
 <footer>
-  <h3>What deseasonalized means</h3>
-  <p>For each basin, the code averages every January in the record and removes that average
-  from every January. It repeats this for each month of the year. What remains in a given
-  month is the part its time of year doesn't explain.</p>
-  <p>This matters for annual figures. 2018 holds only June to December, and 2026 only January
-  to March. Averaging raw months would set one year's summer beside another year's winter.
-  Both partial years have a dashed outline in the year buttons.</p>
-
-  <h3>The three frames</h3>
+  <h3>Frames</h3>
   <ul>
-    <li><b>Level.</b> How far a year sits from that basin's own record mean. Zero means the
-      mean, not an absolute amount of water.</li>
-    <li><b>Change from last year.</b> The difference between two annual means. 2018 has no
-      earlier year, so the map is blank on that frame.</li>
-    <li><b>First year to last.</b> The 2026 annual mean minus the 2018 one. It holds still
-      while the animation runs.</li>
+    <li><b>Level.</b> Distance from that basin's record mean, not an absolute amount.</li>
+    <li><b>Change from last year.</b> Difference of two annual means. 2018 is blank.</li>
+    <li><b>First year to last.</b> 2026 minus 2018. It uses 8 of the 92 solutions; the fitted rate
+      on the first tab uses all 92, so the two can disagree.</li>
   </ul>
 
-  <h3>Read the endpoint difference with care</h3>
-  <p>It uses 8 of the 92 monthly solutions: 5 from 2018 and 3 from 2026. It throws away
-  everything between them. The fitted rate on the other page uses all 92.</p>
-  <p>The two can disagree, and a wet or dry patch at either end is usually the reason. The tooltip and the table show both numbers together.</p>
+  <h3>Deseasonalized</h3>
+  <p>Every January in the record is averaged and that average removed from every January, and so
+  on for each month. 2018 holds June to December and 2026 January to March, both dashed in the
+  year buttons.</p>
 
   <h3>Limits</h3>
   <ul>
-    <li>An annual mean from 7 to 12 solutions still holds their measurement error.</li>
-    <li>No significance test runs on a single year. Read the frames as a sequence, not as
-      year-by-year verdicts.</li>
-    <li>One mascon covers about <code>12,400&nbsp;km&sup2;</code>, so small basins share a
-      signal with their neighbors.</li>
+    <li>An annual mean of 7 to 12 solutions still holds their error, and no significance test runs
+      on a single year.</li>
+    <li>A mascon covers about <code>12,400&nbsp;km&sup2;</code>, so small basins share a signal.</li>
   </ul>
 </footer>
 

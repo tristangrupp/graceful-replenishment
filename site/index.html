@@ -23,11 +23,8 @@
 <header>
   <div>
     <h1>How fast each basin is gaining or losing water</h1>
-    <p>Color is a <b>rate</b>. It shows the slope of one line fitted through all 92 monthly
-       solutions from the Gravity Recovery and Climate Experiment (GRACE), in millimeters of water
-       per year. A basin at &minus;20 mm/yr lost about 20 mm of stored water in an average year of
-       this record. That isn't the difference between 2018 and 2026, and it isn't change within a
-       year. For those, see <a href="years.html">Year by year</a>.</p>
+    <p>Slope of one line through 92 monthly GRACE solutions, mm per year. For the change between
+       two years, see <a href="years.html">Year by year</a>.</p>
   </div>
   <div class="window">
     <div><span class="eyebrow">Window</span><b id="w-window">&nbsp;</b></div>
@@ -36,24 +33,16 @@
 
 <section class="method">
   <div class="method-col">
-    <span class="eyebrow">How it is built</span>
-    <p><b>Mass balance.</b> Soil moisture, snow water equivalent and canopy storage subtracted
-       from total water storage.</p>
-    <p><b>Three models, not one.</b> Those terms averaged across Noah, VIC and CLSM, so model
-       bias is a spread rather than one choice.</p>
-    <p><b>Season fitted out.</b> Annual and semi-annual harmonics fitted alongside the slope, so
-       a rate is a trend.</p>
-    <p><b>Autocorrelation discounted.</b> Significance uses an effective sample size, so
-       p &lt; 0.05 is not manufactured by month-to-month correlation.</p>
+    <span class="eyebrow">Built</span>
+    <p>Total water storage minus GLDAS soil moisture, snow and canopy, averaged over Noah, VIC and
+       CLSM. Slope fitted with annual and semi-annual harmonics. Significance uses an effective
+       sample size for month-to-month autocorrelation.</p>
   </div>
   <div class="method-col">
-    <span class="eyebrow">What it cannot do</span>
-    <p><b>A footprint, not a point.</b> One mascon covers about 12,400 km&sup2;. A small basin
-       reports the mascons under it; the count is in the table.</p>
-    <p><b>Leakage is uncertainty.</b> Left uncorrected and stated. Read every magnitude as a
-       lower bound.</p>
-    <p><b>Ice excluded.</b> Basins over one fifth glacier or ice sheet are withheld from the
-       groundwater layer.</p>
+    <span class="eyebrow">Limits</span>
+    <p>A mascon covers about 12,400 km&sup2; and neighbours share them. Leakage is uncorrected, so
+       magnitudes are lower bounds. Basins over one fifth ice are withheld from the groundwater
+       layer.</p>
   </div>
 </section>
 
@@ -70,7 +59,7 @@
     <button data-v="aq" aria-pressed="false">Aquifers</button>
   </div>
   <button class="btn" id="drop" type="button" aria-pressed="false"
-          title="Remove basins whose rate the test cannot separate from zero, and basins withheld from this layer">Drop unresolved</button>
+          title="Hide basins whose trend is not significant at p &lt; 0.05, and basins with no value in this layer. Hidden does not mean no change.">Drop unresolved</button>
   <span class="hint" id="hint"></span>
 </div>
 
@@ -80,8 +69,6 @@
       <h2 id="map-title">Total water storage trend</h2>
       <span class="eyebrow" id="map-sub"></span>
     </div>
-    <p class="panel-note">Average rate over 2018-06 to 2026-03, seasonal cycle removed by fitting
-       annual and semi-annual harmonics alongside the slope.</p>
     <svg id="map" class="map" role="img" aria-label="World map of basin storage rates"></svg>
     <div class="bar">
       <div style="flex:1 1 260px;min-width:200px">
@@ -132,99 +119,44 @@
 <div id="tip" role="status" aria-live="polite"></div>
 
 <footer>
-  <h3>How to read the map</h3>
-  <p>Total water storage is all the water GRACE detects. That includes groundwater, soil
-  moisture, snow, surface water, and ice.</p>
-  <p>The groundwater layer subtracts three modeled terms from it, so it is a measurement
-  minus a model average. Treat it as an estimate, not a reading. The method panel at the top
-  of the page states what is subtracted and what is excluded.</p>
-
-  <h3>What the marks mean</h3>
+  <h3>Marks</h3>
   <ul>
-    <li><b>Hatching.</b> The trend isn't distinguishable from zero at p &lt; 0.05, after a
-      correction for month-to-month autocorrelation.</li>
-    <li><b>Grey fill.</b> No value in this layer.</li>
-    <li><b>Dashed line.</b> The fitted rate for a selected basin, drawn through its record
-      mean.</li>
-    <li><b>Dotted line.</b> The global land average, for scale.</li>
+    <li><b>Hatching.</b> p &ge; 0.05. The record cannot tell the slope from flat, which is not the
+      same as no change.</li>
+    <li><b>Grey.</b> No value in this layer: under half coverage, or over one fifth ice.</li>
+    <li><b>Dashed line.</b> Fitted rate. <b>Dotted line.</b> Global land mean.</li>
+    <li><b>Drop unresolved.</b> Hides both, on the map only.</li>
   </ul>
 
-  <h3>Limits</h3>
+  <h3>Steps</h3>
   <ul>
-    <li>The record is short. It holds 92 monthly solutions, and hatching covers about half
-      the basins.</li>
-    <li>Neighboring basins share mascons, so they aren't independent measurements. The table
-      shows how many mascons each basin rests on.</li>
-    <li>Glacier cover comes from Natural Earth's 10m glaciated areas. The extremes list can
-      use it to drop basins whose trend is ice loss. It draws coarse polygons, so treat the
-      threshold as approximate.</li>
-  </ul>
-
-  <h3>How the number is made, step by step</h3>
-  <ol class="steps">
-    <li><b>Read the mascons.</b> GSFC RL06v2.0, solution <code>OBP-ICE6GD</code>, already
-      corrected for glacial isostatic adjustment. Values are stored in centimeters and converted
-      to millimeters. Ocean mascons are dropped; Greenland, Antarctica and the ice caps are kept
-      as terrestrial mass, because a filter on the ice-free land code alone silently drops
-      Greenland.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/shared/gsfc_grid.py">shared/gsfc_grid.py</a></li>
-    <li><b>Subtract the modeled terms.</b> Soil moisture, snow water equivalent and canopy
-      storage from GLDAS 2.1, averaged over Noah, VIC and CLSM, are aggregated onto the native
-      mascons by cos(lat) weight rather than GRACE being interpolated down. Interpolating up
-      invents structure the measurement does not have. Total water storage minus that average is
-      the groundwater layer.
+    <li>Read GSFC mascons, <code>OBP-ICE6GD</code>, GIA corrected, cm to mm, ocean dropped.
+      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/shared/gsfc_grid.py">gsfc_grid.py</a></li>
+    <li>Subtract the GLDAS three-model mean, aggregated up onto the mascons rather than GRACE
+      interpolated down. <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/01_global_gws.py">01_global_gws.py</a></li>
+    <li>Fit slope and harmonics; Dawdy and Matalas (1964) for autocorrelation.
       <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/01_global_gws.py">01_global_gws.py</a></li>
-    <li><b>Fit the trend.</b> One least-squares fit per series: slope, annual and semi-annual
-      harmonics together. Significance uses an effective sample size for residual lag-1
-      autocorrelation, following Dawdy and Matalas (1964). The estimator itself sits in the
-      <code>dark_water.depletion_watchlist.depletion.trend</code> module, outside this repository;
-      both the mascon step and the basin step call it, so a mascon trend and a basin trend are the
-      same fit on different series.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/01_global_gws.py">01_global_gws.py</a>,
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/02_basins.py">02_basins.py</a></li>
-    <li><b>Put it on basins.</b> Mascons and basins do not nest, so every terrestrial cell on a
-      0.1 degree grid inherits the trend of the mascon containing it and is assigned to the
-      polygon it falls inside. A basin is the cos(lat)-weighted mean of its cells. The basin
-      series is built first and the trend fitted on it, so the p-value belongs to the basin.
-      Coverage is tracked, never averaged in as zero: a basin below half coverage is dropped from
-      the groundwater layer, and so is one over one fifth ice.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/02_basins.py">02_basins.py</a></li>
-    <li><b>Measure the ice.</b> Glacier share per basin from Natural Earth's 10m glaciated areas.
-      GSFC's own ice codes cannot answer this: they name Greenland, Antarctica and a short list of
-      ice caps, leaving Svalbard, Novaya Zemlya, Ellesmere, Iceland and Patagonia as ordinary
-      land, and those are exactly the basins whose trend is glacier loss.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/08_glacier_fraction.py">08_glacier_fraction.py</a></li>
-    <li><b>Check it against a second code path.</b> The regional Arabia run subset GLDAS through
-      OPeNDAP and averaged cells inside each mascon box; this pipeline downloads whole granules
-      and assigns cells by search. Same mascons, same months, compared.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/04_crosscheck.py">04_crosscheck.py</a></li>
-    <li><b>Export what this page reads.</b> Basins simplified for drawing, trends, p-values,
-      mascon counts, coverage and glacier share, for levels 3 and 4 and for the aquifer units.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/06_export_viz.py">06_export_viz.py</a></li>
-  </ol>
+    <li>Basins on a 0.1 degree grid, series first, then fit. Coverage tracked, never
+      zero-filled. <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/02_basins.py">02_basins.py</a></li>
+    <li>Glacier share from Natural Earth. <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/08_glacier_fraction.py">08_glacier_fraction.py</a></li>
+    <li>Cross-check against the regional run. <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/04_crosscheck.py">04_crosscheck.py</a></li>
+    <li>Export this page. <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/06_export_viz.py">06_export_viz.py</a></li>
+  </ul>
 
-  <h3>The data</h3>
+  <h3>Sources</h3>
   <ul>
-    <li><b>GSFC global mascons RL06v2.0</b>, solution <code>OBP-ICE6GD</code>, about
-      12,400 km&sup2; per mascon, 2002-04 to 2026-03. The window here starts at the first
-      GRACE-FO month and ends where this release stops.
-      <a href="https://earth.gsfc.nasa.gov/geo/data/grace-mascons">earth.gsfc.nasa.gov/geo/data/grace-mascons</a>.</li>
-    <li><b>GLDAS 2.1</b>, Noah 0.25 degrees, VIC 1.0 degrees and CLSM 1.0 degrees, monthly.
-      <a href="https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary">disc.gsfc.nasa.gov,
-      GLDAS 2.1</a>.</li>
-    <li><b>HydroSHEDS HydroBASINS v1c</b>, levels 3 and 4, all nine regions.
-      <a href="https://www.hydrosheds.org/products/hydrobasins">hydrosheds.org/products/hydrobasins</a>.</li>
-    <li><b>WHYMAP Groundwater Resources of the World v1</b>, BGR and UNESCO, 1:25,000,000, the
-      aquifer unit.
-      <a href="https://www.whymap.org/whymap/EN/Maps_Data/Gwr/gwr_node_en.html">whymap.org,
-      Groundwater Resources</a>.
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/30_aquifer_units.py">30_aquifer_units.py</a></li>
-    <li><b>Natural Earth 10m glaciated areas</b>, public domain, generalised.
-      <a href="https://www.naturalearthdata.com/downloads/10m-physical-vectors/">naturalearthdata.com,
-      10m physical vectors</a>.</li>
-    <li>Run notes, tables and every script:
-      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/REPORT.md">REPORT.md</a> and
-      <a href="https://github.com/tristangrupp/graceful-replenishment/tree/main/global/scripts">global/scripts</a> in the repository.</li>
+    <li>GSFC mascons RL06v2.0.
+      <a href="https://earth.gsfc.nasa.gov/geo/data/grace-mascons">earth.gsfc.nasa.gov</a></li>
+    <li>GLDAS 2.1 Noah, VIC, CLSM.
+      <a href="https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary">disc.gsfc.nasa.gov</a></li>
+    <li>HydroBASINS v1c, levels 3 and 4, all regions.
+      <a href="https://www.hydrosheds.org/products/hydrobasins">hydrosheds.org</a></li>
+    <li>WHYMAP Groundwater Resources v1, the aquifer unit.
+      <a href="https://www.whymap.org/whymap/EN/Maps_Data/Gwr/gwr_node_en.html">whymap.org</a></li>
+    <li>Natural Earth 10m glaciated areas.
+      <a href="https://www.naturalearthdata.com/downloads/10m-physical-vectors/">naturalearthdata.com</a></li>
+    <li><a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/REPORT.md">REPORT.md</a>,
+      <a href="https://github.com/tristangrupp/graceful-replenishment/tree/main/global/scripts">global/scripts</a></li>
   </ul>
 </footer>
 

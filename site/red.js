@@ -352,19 +352,14 @@
     document.getElementById("evis-sub").textContent = P.name;
     var note = "";
     if (P.downscaled) {
-      note = "The fit itself is sound: least squares with annual and semi-annual harmonics, on a " +
-        "real series. Three things argue against reading it basin by basin. Two processing " +
-        "centers already disagree on the direction of change in " +
-        (signPair / nPair * 100).toFixed(0) + " percent of these basins before any downscaling. " +
-        "The median gap between " + P.name + " and its own parent solution is " + fmt(mg, 2) +
-        " mm/yr against a median trend of " + fmt(mm, 2) + " mm/yr. And in most basins the " +
-        "value drawn is a mascon value repeated across every basin inside that mascon, so the " +
-        "color implies a resolution the observation does not have.";
+      note = "The fit is sound; reading it basin by basin is not. Two labs already disagree on " +
+        "direction in " + (signPair / nPair * 100).toFixed(0) + " percent of these basins " +
+        "before any downscaling. " + P.name + " sits " + fmt(mg, 2) + " mm/yr from its own " +
+        "parent against a median trend of " + fmt(mm, 2) + ". In most basins the value drawn " +
+        "is one mascon value repeated.";
     } else {
-      note = "This is a coarse solution drawn on level 6 outlines. Neighboring basins inside one " +
-        "mascon are given the same value, so any texture in this map is the basin outlines, not " +
-        "the gravity field. Switch to the other coarse solution to see how much of the pattern " +
-        "survives a change of lab.";
+      note = "A coarse solution on level 6 outlines. Basins inside one mascon share a value, so " +
+        "the texture is the outlines, not the gravity field. Switch labs to see what survives.";
     }
     document.getElementById("evis-note").textContent = note;
   }
@@ -644,22 +639,17 @@
     if (isTrend) {
       sub.textContent = R.meta.n_months + " months, " + R.meta.common_period[0] + " to " +
         R.meta.common_period[1];
-      note.textContent = "Slope of one line fitted through every month, with annual and " +
-        "semi-annual harmonics alongside it, in millimeters of water per year. Same estimator " +
-        "and same color scale as the first tab, on " + thousands(R.meta.n_basins) + " " +
-        (state.unit === "aquifer" ? "WHYMAP hydrogeological units"
-                                  : "HydroSHEDS level 6 catchments") +
-        ", and over 2002 to 2022 rather than the GRACE-FO window. Read the panel below " +
-        "before using any of it.";
+      note.textContent = "Slope with annual and semi-annual harmonics, mm per year, on " +
+        thousands(R.meta.n_basins) + " " +
+        (state.unit === "aquifer" ? "WHYMAP units" : "level 6 catchments") +
+        " over 2002 to 2022. Read the panel below first.";
     } else {
       var c = tally(active());
       sub.textContent = thousands(c.n) + " of " + thousands(R.meta.n_tested) +
         " tested basins, " + (c.share * 100).toFixed(0) + "% of tested land area";
       note.textContent = PAIR.some(function (f) { return f.k === state.layer; })
-        ? "This test compares the two products with each other, so it does not move when the " +
-          "solution above changes."
-        : "Computed for " + P.name + " alone. Nothing in this layer asks the two products to " +
-          "agree.";
+        ? "Compares the two products, so it does not move with the solution above."
+        : P.name + " alone. Nothing here asks the two products to agree.";
     }
   }
 

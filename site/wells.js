@@ -299,31 +299,26 @@
 
     var a = M.ablation, base3 = a[base];
     document.getElementById("ablation-note").textContent =
-      "Pooled skill rises from " + fmt(a.A_predictors_only.oos_r2, 3) + " to " +
-      fmt(base3.oos_r2, 3) + " when the coarse GRACE term is added, so gravimetry does say " +
-      "something about a well that the weather fields do not. Adding a downscaled term instead " +
-      "of the coarse one moves it to " + fmt(a.C_plus_seda.oos_r2, 3) + " for GRACE-SeDA and " +
-      fmt(a.C_plus_liku.oos_r2, 3) + " for Li and Kusche. Judged inside each mascon, which is " +
-      "the unit that can carry a p-value here, none of those three differences is separable " +
-      "from zero.";
+      "Skill rises from " + fmt(a.A_predictors_only.oos_r2, 3) + " to " + fmt(base3.oos_r2, 3) +
+      " with coarse GRACE, then " + fmt(a.C_plus_seda.oos_r2, 3) + " with GRACE-SeDA and " +
+      fmt(a.C_plus_liku.oos_r2, 3) + " with Li and Kusche. Counted by mascon, none of the three " +
+      "differences is separable from zero.";
 
     var scored = M.n_scored.jpl;
     document.getElementById("foot-cover").innerHTML =
-      "<b>Coverage.</b> " + thousands(M.n_wells) + " wells hold at least 10 annual values " +
-      "between " + M.window[0] + " and " + M.window[1] + ", and " + thousands(scored) +
-      " of them could be scored against GRACE. They fall inside " + M.n_mascons +
-      " mascons, so the well network is far denser than the measurement it is testing.";
+      "<b>Coverage.</b> " + thousands(M.n_wells) + " wells with 10 or more annual values, " +
+      M.window[0] + " to " + M.window[1] + ". " + thousands(scored) + " scored, inside " +
+      M.n_mascons + " mascons.";
     document.getElementById("foot-agree").innerHTML =
-      "<b>Agreement.</b> The coarse solution tracks the median well at r " +
-      fmt(M.median_r.jpl, 3) + ". GRACE-SeDA reaches " + fmt(M.median_r.seda, 3) +
-      " and Li and Kusche " + fmt(M.median_r.liku, 3) + ". Paired at the same well and counted " +
-      "by mascon, neither downscaled product improves on the release it was built from: " +
+      "<b>Agreement.</b> Median well r: coarse " + fmt(M.median_r.jpl, 3) + ", GRACE-SeDA " +
+      fmt(M.median_r.seda, 3) + ", Li and Kusche " + fmt(M.median_r.liku, 3) + ". Paired by " +
+      "mascon, neither downscaled product beats its own parent: " +
       signed(M.paired_against_parent.seda.median_delta_r, 3) + " for GRACE-SeDA at p " +
       fmt(M.paired_against_parent.seda.p_value_by_mascon, 2) + ", " +
       signed(M.paired_against_parent.liku.median_delta_r, 3) + " for Li and Kusche at p " +
       fmt(M.paired_against_parent.liku.p_value_by_mascon, 2) + ".";
     document.getElementById("foot-ablate").innerHTML =
-      "<b>The ablation.</b> Out of sample, holding out one mascon at a time over " +
+      "<b>Ablation.</b> Leave one mascon out, " +
       thousands(a.A_predictors_only.n_rows) + " well-years: weather alone " +
       fmt(a.A_predictors_only.oos_r2, 3) + ", plus coarse GRACE " + fmt(base3.oos_r2, 3) +
       ", plus GRACE-SeDA " + fmt(a.C_plus_seda.oos_r2, 3) + ", plus Li and Kusche " +
@@ -346,13 +341,12 @@
     var mb = by["Major groundwater basin"], ls = by["Local and shallow aquifer"];
     if (mb && ls && mb.models.A_predictors_only && ls.models.A_predictors_only) {
       document.getElementById("aquifer-note").textContent =
-        "Gravimetry earns its place where the aquifer is a major basin. There weather alone " +
-        "reaches " + fmt(mb.models.A_predictors_only.oos_r2, 3) + " and adding the coarse GRACE " +
-        "term nearly doubles it to " + fmt(mb.models.B_plus_coarse_RL0603.oos_r2, 3) +
-        ". Over local and shallow aquifers weather alone already reaches " +
-        fmt(ls.models.A_predictors_only.oos_r2, 3) + ", because a shallow water table answers to " +
-        "rainfall directly, and GRACE adds far less. In every class the downscaled terms land on " +
-        "top of the coarse one.";
+        "Over a major basin, weather alone reaches " +
+        fmt(mb.models.A_predictors_only.oos_r2, 3) + " and coarse GRACE nearly doubles it to " +
+        fmt(mb.models.B_plus_coarse_RL0603.oos_r2, 3) + ". Over local and shallow aquifers " +
+        "weather alone already reaches " + fmt(ls.models.A_predictors_only.oos_r2, 3) + ", since " +
+        "a shallow table answers to rainfall, and GRACE adds less. Downscaled terms land on the " +
+        "coarse one in every class.";
     }
   }
 
@@ -368,10 +362,8 @@
       cover ? thousands(M.n_scored.jpl) + " of " + thousands(M.n_wells) + " scored"
             : spec.label;
     document.getElementById("map-note").textContent = cover
-      ? "Red where a well has enough annual values and a GRACE cell to be scored, grey where "
-        + "it does not. The gaps are the limit of what this page can speak for."
-      : "One dot per well, colored by " + spec.label + ". Wells that could not be scored are "
-        + "left off this layer.";
+      ? "Red where a well could be scored, grey where it could not. The gaps are the limit."
+      : "One dot per well. Unscored wells are left off this layer.";
     document.getElementById("hint").textContent = cover
       ? "hover a well for its numbers" : "";
     if (!cover && !cat) {

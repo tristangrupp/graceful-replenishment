@@ -91,6 +91,7 @@ header p{margin:4px 0 0;color:var(--ink-2);max-width:78ch;font-size:13px}
 .panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
   margin-bottom:3px}
 .panel-note{color:var(--muted);font-size:11.5px;margin:0 0 8px}
+.drop-note{margin-top:-4px;padding-left:8px;border-left:2px solid var(--line-strong)}
 
 .map{width:100%;height:auto;display:block;cursor:crosshair}
 .map path.basin{stroke:var(--surface);stroke-width:6;stroke-linejoin:round}
