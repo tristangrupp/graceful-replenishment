@@ -1,0 +1,434 @@
+{
+  "unit": "level06",
+  "n_units": 16397,
+  "threshold_cm_yr": -0.2,
+  "threshold_mm_yr": -2.0,
+  "source": "JPL mascon RL06.3Mv04 CRI, aggregated conservatively, no downscaling and no bias correction",
+  "paper": "Chandanpurkar et al. 2025, Science Advances 11(30) eadx0298, doi 10.1126/sciadv.adx0298",
+  "not_a_replication": "the paper contours a GLDAS-2.2-DA bias-corrected 0.25 degree field, which it does not release; this applies its threshold and its merge rule to the unmodified coarse solution on basin polygons",
+  "ice": "units over one fifth glacier or ice sheet are excluded, as the paper excludes Greenland and Antarctica; Natural Earth 10m",
+  "windows": {
+    "paper_2003_02_to_2024_04": {
+      "months": 222,
+      "n_with_trend": 15633,
+      "n_drying": 6450,
+      "n_drying_including_ice": 6797,
+      "drying_share_of_land_area_including_ice": 0.4048339487728225,
+      "n_units_over_one_fifth_ice": 413,
+      "drying_share_of_units": 0.41258875455766647,
+      "drying_area_km2": 51693386.3,
+      "drying_share_of_land_area": 0.3941354587083957,
+      "n_drying_significant_p05": 4625,
+      "n_drying_significant_by_fdr": 3080,
+      "by_fdr_p_cut": 0.0017251370879270164,
+      "median_trend_mm_yr_all": -0.7786079952097769,
+      "median_trend_mm_yr_drying": -5.826750956545721,
+      "n_clusters_over_200k_km2": 19,
+      "clusters": [
+        {
+          "units": 2626,
+          "area_km2": 21448157.7,
+          "area_share_of_land": 0.16353116092028025,
+          "paper_region": "4 MENA and Pan-Eurasia",
+          "share_inside_that_box": 0.704,
+          "lon_range": [
+            -8.021820927626678,
+            121.82708320704572
+          ],
+          "lat_range": [
+            1.9526898701985917,
+            60.87065667046442
+          ],
+          "median_trend_mm_yr": -7.26280555807501
+        },
+        {
+          "units": 1006,
+          "area_km2": 7588507.1,
+          "area_share_of_land": 0.05785846006320576,
+          "paper_region": "3 southwestern North America and Central America",
+          "share_inside_that_box": 0.584,
+          "lon_range": [
+            -136.83250786267797,
+            -82.56894117362597
+          ],
+          "lat_range": [
+            9.158182017008489,
+            69.92708333333334
+          ],
+          "median_trend_mm_yr": -7.024397893457351
+        },
+        {
+          "units": 576,
+          "area_km2": 4564804.9,
+          "area_share_of_land": 0.03480428739441727,
+          "paper_region": "2 northern Russia",
+          "share_inside_that_box": 0.985,
+          "lon_range": [
+            67.38920691256939,
+            161.37842648264643
+          ],
+          "lat_range": [
+            49.76794857449005,
+            76.16766069200304
+          ],
+          "median_trend_mm_yr": -3.3563673301549635
+        },
+        {
+          "units": 484,
+          "area_km2": 3746009.3999999994,
+          "area_share_of_land": 0.028561393224010207,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -63.42384998045513,
+            -35.01912976133338
+          ],
+          "lat_range": [
+            -24.62471635606551,
+            -3.115092807345897
+          ],
+          "median_trend_mm_yr": -8.762602137580046
+        },
+        {
+          "units": 319,
+          "area_km2": 2987771.8,
+          "area_share_of_land": 0.02278022186580973,
+          "paper_region": "4 MENA and Pan-Eurasia",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -10.489586667852244,
+            21.12519710641194
+          ],
+          "lat_range": [
+            22.8123233371311,
+            36.856919352213566
+          ],
+          "median_trend_mm_yr": -3.8994554077086154
+        },
+        {
+          "units": 132,
+          "area_km2": 1137045.7,
+          "area_share_of_land": 0.008669388109749524,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            114.53116579939834,
+            135.2779424936575
+          ],
+          "lat_range": [
+            -28.09889475504554,
+            -19.48096635606552
+          ],
+          "median_trend_mm_yr": -3.0020931956570536
+        },
+        {
+          "units": 131,
+          "area_km2": 960313.9000000001,
+          "area_share_of_land": 0.007321899116532602,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            26.043904989020284,
+            37.04639251371604
+          ],
+          "lat_range": [
+            -27.59583333333331,
+            -10.732429928249758
+          ],
+          "median_trend_mm_yr": -3.7898423675058837
+        },
+        {
+          "units": 41,
+          "area_km2": 881101.3,
+          "area_share_of_land": 0.006717943820292226,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -73.96450163146811,
+            -66.47503767962601
+          ],
+          "lat_range": [
+            -22.416666666666636,
+            -4.598494466145807
+          ],
+          "median_trend_mm_yr": -3.402812750117448
+        },
+        {
+          "units": 97,
+          "area_km2": 811468.0,
+          "area_share_of_land": 0.006187025755114528,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -71.6654370042,
+            -59.32604166666665
+          ],
+          "lat_range": [
+            -40.65857450697155,
+            -29.08541666666664
+          ],
+          "median_trend_mm_yr": -10.220739352790694
+        },
+        {
+          "units": 87,
+          "area_km2": 650927.2,
+          "area_share_of_land": 0.004962984801747678,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -164.96770833333335,
+            -139.5018135255349
+          ],
+          "lat_range": [
+            58.64149000379777,
+            67.34166666666668
+          ],
+          "median_trend_mm_yr": -6.6607307658152735
+        },
+        {
+          "units": 71,
+          "area_km2": 643396.2999999999,
+          "area_share_of_land": 0.004905565566165755,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 0.722,
+          "lon_range": [
+            -105.48380986561612,
+            -87.15465349418906
+          ],
+          "lat_range": [
+            46.501067437066,
+            55.47334153917104
+          ],
+          "median_trend_mm_yr": -3.8692830624757732
+        },
+        {
+          "units": 86,
+          "area_km2": 556737.2999999999,
+          "area_share_of_land": 0.004244835303342735,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -74.94339966809687,
+            -66.12425361812859
+          ],
+          "lat_range": [
+            -53.5124816894531,
+            -43.418808492024716
+          ],
+          "median_trend_mm_yr": -17.60526513162554
+        }
+      ]
+    },
+    "full_record": {
+      "months": 257,
+      "n_with_trend": 15633,
+      "n_drying": 6125,
+      "n_drying_including_ice": 6471,
+      "drying_share_of_land_area_including_ice": 0.387170757693799,
+      "n_units_over_one_fifth_ice": 413,
+      "drying_share_of_units": 0.39179939870786157,
+      "drying_area_km2": 49332828.0,
+      "drying_share_of_land_area": 0.37613741688968033,
+      "n_drying_significant_p05": 4648,
+      "n_drying_significant_by_fdr": 3464,
+      "by_fdr_p_cut": 0.001934058591306542,
+      "median_trend_mm_yr_all": -0.6690483221352608,
+      "median_trend_mm_yr_drying": -5.94290573159374,
+      "n_clusters_over_200k_km2": 20,
+      "clusters": [
+        {
+          "units": 2431,
+          "area_km2": 19817821.299999997,
+          "area_share_of_land": 0.15110068516978767,
+          "paper_region": "4 MENA and Pan-Eurasia",
+          "share_inside_that_box": 0.754,
+          "lon_range": [
+            -6.956816494317528,
+            121.82708320704572
+          ],
+          "lat_range": [
+            15.216577233208579,
+            60.87065667046442
+          ],
+          "median_trend_mm_yr": -7.055850420342283
+        },
+        {
+          "units": 574,
+          "area_km2": 4419538.6,
+          "area_share_of_land": 0.033696706640216005,
+          "paper_region": "3 southwestern North America and Central America",
+          "share_inside_that_box": 0.978,
+          "lon_range": [
+            -123.90247909294197,
+            -82.56894117362597
+          ],
+          "lat_range": [
+            9.158182017008489,
+            43.48611111111114
+          ],
+          "median_trend_mm_yr": -6.827427460426591
+        },
+        {
+          "units": 420,
+          "area_km2": 3468812.0,
+          "area_share_of_land": 0.026447905750627672,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -61.14395676017719,
+            -35.33547264163249
+          ],
+          "lat_range": [
+            -24.62471635606551,
+            -3.846082560221337
+          ],
+          "median_trend_mm_yr": -9.227928841157862
+        },
+        {
+          "units": 404,
+          "area_km2": 3103736.0999999996,
+          "area_share_of_land": 0.023664389954722448,
+          "paper_region": "2 northern Russia",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            67.38920691256939,
+            161.37842648264643
+          ],
+          "lat_range": [
+            61.27555262247723,
+            73.50419964260527
+          ],
+          "median_trend_mm_yr": -3.1803407136778183
+        },
+        {
+          "units": 417,
+          "area_km2": 3065530.4,
+          "area_share_of_land": 0.023373091160571385,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 0.932,
+          "lon_range": [
+            -136.83250786267797,
+            -93.96822699752366
+          ],
+          "lat_range": [
+            46.23885142008466,
+            69.92708333333334
+          ],
+          "median_trend_mm_yr": -9.159306227838925
+        },
+        {
+          "units": 310,
+          "area_km2": 2739979.7,
+          "area_share_of_land": 0.020890934667036752,
+          "paper_region": "4 MENA and Pan-Eurasia",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -10.489586667852244,
+            21.521079201609403
+          ],
+          "lat_range": [
+            22.8123233371311,
+            36.856919352213566
+          ],
+          "median_trend_mm_yr": -3.7683160279467662
+        },
+        {
+          "units": 137,
+          "area_km2": 1099456.8,
+          "area_share_of_land": 0.008382792098068935,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            114.53116579939834,
+            135.37094683840593
+          ],
+          "lat_range": [
+            -28.24166666666663,
+            -19.48096635606552
+          ],
+          "median_trend_mm_yr": -3.170130408057849
+        },
+        {
+          "units": 44,
+          "area_km2": 1024463.6,
+          "area_share_of_land": 0.0078110075546754115,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -75.33919784798246,
+            -65.30649043440712
+          ],
+          "lat_range": [
+            -22.416666666666636,
+            -4.598494466145807
+          ],
+          "median_trend_mm_yr": -3.3044955821329154
+        },
+        {
+          "units": 91,
+          "area_km2": 879233.3999999999,
+          "area_share_of_land": 0.006703702044389813,
+          "paper_region": null,
+          "share_inside_that_box": 0.019,
+          "lon_range": [
+            94.84281620123959,
+            107.12488995121257
+          ],
+          "lat_range": [
+            1.9526898701985917,
+            19.29287889268666
+          ],
+          "median_trend_mm_yr": -5.215085118516555
+        },
+        {
+          "units": 98,
+          "area_km2": 818788.9,
+          "area_share_of_land": 0.006242843848804751,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -71.6654370042,
+            -59.32604166666665
+          ],
+          "lat_range": [
+            -40.65857450697155,
+            -29.08541666666664
+          ],
+          "median_trend_mm_yr": -9.205336838628924
+        },
+        {
+          "units": 78,
+          "area_km2": 699388.7999999999,
+          "area_share_of_land": 0.005332479553646777,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 0.709,
+          "lon_range": [
+            -105.73963252691107,
+            -87.15465349418906
+          ],
+          "lat_range": [
+            46.35000000000002,
+            55.47334153917104
+          ],
+          "median_trend_mm_yr": -3.5343760349182425
+        },
+        {
+          "units": 90,
+          "area_km2": 669516.9,
+          "area_share_of_land": 0.005104721694243566,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -164.96770833333335,
+            -139.5018135255349
+          ],
+          "lat_range": [
+            58.64149000379777,
+            67.34166666666668
+          ],
+          "median_trend_mm_yr": -5.971378469784682
+        }
+      ]
+    }
+  }
+}

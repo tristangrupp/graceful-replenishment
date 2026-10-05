@@ -1,0 +1,404 @@
+{
+  "unit": "aquifer",
+  "n_units": 3291,
+  "threshold_cm_yr": -0.2,
+  "threshold_mm_yr": -2.0,
+  "source": "JPL mascon RL06.3Mv04 CRI, aggregated conservatively, no downscaling and no bias correction",
+  "paper": "Chandanpurkar et al. 2025, Science Advances 11(30) eadx0298, doi 10.1126/sciadv.adx0298",
+  "not_a_replication": "the paper contours a GLDAS-2.2-DA bias-corrected 0.25 degree field, which it does not release; this applies its threshold and its merge rule to the unmodified coarse solution on basin polygons",
+  "ice": "units over one fifth glacier or ice sheet are excluded, as the paper excludes Greenland and Antarctica; Natural Earth 10m",
+  "windows": {
+    "paper_2003_02_to_2024_04": {
+      "months": 222,
+      "n_with_trend": 2039,
+      "n_drying": 1012,
+      "n_drying_including_ice": 1128,
+      "drying_share_of_land_area_including_ice": 0.44248692835348413,
+      "n_units_over_one_fifth_ice": 162,
+      "drying_share_of_units": 0.49632172633643945,
+      "drying_area_km2": 57737213.74788791,
+      "drying_share_of_land_area": 0.4387760021514866,
+      "n_drying_significant_p05": 725,
+      "n_drying_significant_by_fdr": 492,
+      "by_fdr_p_cut": 0.0024673892484481604,
+      "median_trend_mm_yr_all": -2.434617139695554,
+      "median_trend_mm_yr_drying": -8.947422696503189,
+      "n_clusters_over_200k_km2": 10,
+      "clusters": [
+        {
+          "units": 293,
+          "area_km2": 34628791.1576609,
+          "area_share_of_land": 0.26316272568752114,
+          "paper_region": null,
+          "share_inside_that_box": 0.369,
+          "lon_range": [
+            -5.958120976221698,
+            130.60443053670463
+          ],
+          "lat_range": [
+            1.559005021000047,
+            71.29887883600006
+          ],
+          "median_trend_mm_yr": -7.643966484085269
+        },
+        {
+          "units": 113,
+          "area_km2": 9008817.267524617,
+          "area_share_of_land": 0.06846282610757833,
+          "paper_region": "3 southwestern North America and Central America",
+          "share_inside_that_box": 0.509,
+          "lon_range": [
+            -158.0273549261653,
+            -82.5637865364021
+          ],
+          "lat_range": [
+            8.37481992900004,
+            67.99082403550008
+          ],
+          "median_trend_mm_yr": -6.347286468099918
+        },
+        {
+          "units": 38,
+          "area_km2": 6177187.363162432,
+          "area_share_of_land": 0.04694375429310086,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -72.87075971088476,
+            -35.134976924957094
+          ],
+          "lat_range": [
+            -23.390279637999953,
+            -4.90305271449995
+          ],
+          "median_trend_mm_yr": -4.738008184740943
+        },
+        {
+          "units": 27,
+          "area_km2": 2548555.365602435,
+          "area_share_of_land": 0.01936783682467988,
+          "paper_region": "4 MENA and Pan-Eurasia",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -9.230707040366905,
+            10.696901477780417
+          ],
+          "lat_range": [
+            25.298458064000073,
+            36.98357494450005
+          ],
+          "median_trend_mm_yr": -7.57504012709083
+        },
+        {
+          "units": 32,
+          "area_km2": 1345612.4892455777,
+          "area_share_of_land": 0.010226029802102863,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -74.24346009221212,
+            -61.97714844962074
+          ],
+          "lat_range": [
+            -53.62069614899997,
+            -34.63807142549996
+          ],
+          "median_trend_mm_yr": -18.124649731127068
+        },
+        {
+          "units": 1,
+          "area_km2": 516789.8973481924,
+          "area_share_of_land": 0.003927363140536236,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -69.7359611762383,
+            -69.7359611762383
+          ],
+          "lat_range": [
+            67.85401547000006,
+            67.85401547000006
+          ],
+          "median_trend_mm_yr": -54.652756409591355
+        },
+        {
+          "units": 22,
+          "area_km2": 470249.41859922884,
+          "area_share_of_land": 0.0035736771228344643,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            43.607225572613785,
+            50.0754987429129
+          ],
+          "lat_range": [
+            -23.181126524499945,
+            -13.656969642499945
+          ],
+          "median_trend_mm_yr": -5.7000239176855985
+        },
+        {
+          "units": 1,
+          "area_km2": 252990.8752931954,
+          "area_share_of_land": 0.0019226131230832785,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -73.80909739030186,
+            -73.80909739030186
+          ],
+          "lat_range": [
+            59.50194429800004,
+            59.50194429800004
+          ],
+          "median_trend_mm_yr": -11.834510119219559
+        },
+        {
+          "units": 6,
+          "area_km2": 234517.39399927718,
+          "area_share_of_land": 0.0017822232472683545,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            29.823112001290646,
+            34.48624172365432
+          ],
+          "lat_range": [
+            -25.756437869999957,
+            -22.404303149999947
+          ],
+          "median_trend_mm_yr": -3.553423054153857
+        },
+        {
+          "units": 10,
+          "area_km2": 201126.88028277626,
+          "area_share_of_land": 0.00152847085488093,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -4.997677447676262,
+            -0.22400372101190513
+          ],
+          "lat_range": [
+            52.347265902500055,
+            56.977914835000036
+          ],
+          "median_trend_mm_yr": -5.791191605248228
+        }
+      ],
+      "drying_by_aquifer_class": {
+        "Local and shallow aquifer": {
+          "drying": 454,
+          "of": 785,
+          "share": 0.578343949044586
+        },
+        "Major groundwater basin": {
+          "drying": 367,
+          "of": 789,
+          "share": 0.46514575411913817
+        },
+        "Complex hydrogeological structure": {
+          "drying": 191,
+          "of": 465,
+          "share": 0.410752688172043
+        }
+      }
+    },
+    "full_record": {
+      "months": 257,
+      "n_with_trend": 2039,
+      "n_drying": 982,
+      "n_drying_including_ice": 1098,
+      "drying_share_of_land_area_including_ice": 0.4477638204856641,
+      "n_units_over_one_fifth_ice": 162,
+      "drying_share_of_units": 0.48160863168219714,
+      "drying_area_km2": 58436235.08929382,
+      "drying_share_of_land_area": 0.44408823960963506,
+      "n_drying_significant_p05": 739,
+      "n_drying_significant_by_fdr": 541,
+      "by_fdr_p_cut": 0.0027539451391060594,
+      "median_trend_mm_yr_all": -2.234347587533824,
+      "median_trend_mm_yr_drying": -9.14059421523945,
+      "n_clusters_over_200k_km2": 10,
+      "clusters": [
+        {
+          "units": 262,
+          "area_km2": 34378802.62807791,
+          "area_share_of_land": 0.2612629289970692,
+          "paper_region": null,
+          "share_inside_that_box": 0.35,
+          "lon_range": [
+            -5.705797675468936,
+            130.60443053670463
+          ],
+          "lat_range": [
+            22.23896403650005,
+            71.29887883600006
+          ],
+          "median_trend_mm_yr": -7.432918911597599
+        },
+        {
+          "units": 109,
+          "area_km2": 11035688.31989484,
+          "area_share_of_land": 0.08386610450474753,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 0.518,
+          "lon_range": [
+            -158.0273549261653,
+            -82.5637865364021
+          ],
+          "lat_range": [
+            8.37481992900004,
+            67.99082403550008
+          ],
+          "median_trend_mm_yr": -6.650876579331111
+        },
+        {
+          "units": 70,
+          "area_km2": 7918519.61143834,
+          "area_share_of_land": 0.060177070428726,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -74.24346009221212,
+            -35.47045657717025
+          ],
+          "lat_range": [
+            -53.62069614899997,
+            -4.90305271449995
+          ],
+          "median_trend_mm_yr": -9.303865028598313
+        },
+        {
+          "units": 26,
+          "area_km2": 988891.14607832,
+          "area_share_of_land": 0.007515113312081492,
+          "paper_region": "4 MENA and Pan-Eurasia",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -9.230707040366905,
+            10.696901477780417
+          ],
+          "lat_range": [
+            30.32514282850005,
+            36.98357494450005
+          ],
+          "median_trend_mm_yr": -7.334629504421329
+        },
+        {
+          "units": 28,
+          "area_km2": 860876.636813184,
+          "area_share_of_land": 0.006542262511937096,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            95.2124943831349,
+            105.87944872212711
+          ],
+          "lat_range": [
+            1.559005021000047,
+            18.812722330500065
+          ],
+          "median_trend_mm_yr": -5.215085118516555
+        },
+        {
+          "units": 1,
+          "area_km2": 516789.8973481924,
+          "area_share_of_land": 0.003927363140536236,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -69.7359611762383,
+            -69.7359611762383
+          ],
+          "lat_range": [
+            67.85401547000006,
+            67.85401547000006
+          ],
+          "median_trend_mm_yr": -51.560440804759956
+        },
+        {
+          "units": 21,
+          "area_km2": 458441.1089205883,
+          "area_share_of_land": 0.0034839394549313236,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            43.607225572613785,
+            50.0754987429129
+          ],
+          "lat_range": [
+            -23.181126524499945,
+            -13.656969642499945
+          ],
+          "median_trend_mm_yr": -5.135282074723264
+        },
+        {
+          "units": 4,
+          "area_km2": 316885.2342200529,
+          "area_share_of_land": 0.002408180568238774,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            27.823091715841823,
+            32.462296640682524
+          ],
+          "lat_range": [
+            -15.253937866499967,
+            -12.151795495999949
+          ],
+          "median_trend_mm_yr": -3.809142814223563
+        },
+        {
+          "units": 1,
+          "area_km2": 252990.8752931954,
+          "area_share_of_land": 0.0019226131230832785,
+          "paper_region": "1 northern Canada and Alaska",
+          "share_inside_that_box": 1.0,
+          "lon_range": [
+            -73.80909739030186,
+            -73.80909739030186
+          ],
+          "lat_range": [
+            59.50194429800004,
+            59.50194429800004
+          ],
+          "median_trend_mm_yr": -11.448053472835795
+        },
+        {
+          "units": 10,
+          "area_km2": 201126.88028277626,
+          "area_share_of_land": 0.00152847085488093,
+          "paper_region": null,
+          "share_inside_that_box": 0.0,
+          "lon_range": [
+            -4.997677447676262,
+            -0.22400372101190513
+          ],
+          "lat_range": [
+            52.347265902500055,
+            56.977914835000036
+          ],
+          "median_trend_mm_yr": -6.065279474441045
+        }
+      ],
+      "drying_by_aquifer_class": {
+        "Local and shallow aquifer": {
+          "drying": 456,
+          "of": 785,
+          "share": 0.5808917197452229
+        },
+        "Major groundwater basin": {
+          "drying": 346,
+          "of": 789,
+          "share": 0.4385297845373891
+        },
+        "Complex hydrogeological structure": {
+          "drying": 180,
+          "of": 465,
+          "share": 0.3870967741935484
+        }
+      }
+    }
+  }
+}
