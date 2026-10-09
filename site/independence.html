@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>GRACE Basin Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Rate of change</a>
+  <a href="years.html">Year by year</a>
+  <a href="red.html">Downscaling test</a>
+  <a href="wells.html">Against wells</a>
+  <a href="independence.html" aria-current="page">Shared signal</a>
+  <span class="site">Level 4, 1,283 basins</span>
+</nav>
+
+<header>
+  <div>
+    <h1>How many independent measurements is this map?</h1>
+    <p>Neighbouring basins report the same water. Counting them as separate findings overstates
+       the evidence twice over: in how much the map holds, and in how many basins pass a
+       significance test.</p>
+  </div>
+  <div class="window">
+    <div><span class="eyebrow">Effective units</span><b id="w-neff">&nbsp;</b></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="eyebrow">Layer</span>
+  <div class="seg" id="seg-product">
+    <button data-v="t" aria-pressed="true">Total water storage</button>
+    <button data-v="g" aria-pressed="false">Groundwater estimate</button>
+  </div>
+  <span class="eyebrow">Significance rule</span>
+  <div class="seg" id="seg-rule">
+    <button data-v="raw" aria-pressed="true">p &lt; 0.05</button>
+    <button data-v="bh" aria-pressed="false">Benjamini-Hochberg</button>
+    <button data-v="by" aria-pressed="false">Benjamini-Yekutieli</button>
+    <button data-v="bonferroni" aria-pressed="false">Bonferroni</button>
+  </div>
+  <span class="hint" id="hint"></span>
+</div>
+
+<div class="grid">
+  <section class="panel map-panel">
+    <div class="panel-head">
+      <h2 id="map-title">Which basins survive the rule</h2>
+      <span class="eyebrow" id="map-sub"></span>
+    </div>
+    <p class="panel-note" id="map-note"></p>
+    <svg id="map" class="map" role="img" aria-label="Level 4 basins, hatched where the trend fails the selected significance rule"></svg>
+    <div class="bar">
+      <div style="flex:1 1 260px;min-width:200px">
+        <div class="ramp" id="ramp"></div>
+        <div class="ticks"><span>&minus;30</span><span>&minus;15</span><span>0</span><span>+15</span><span>+30</span></div>
+      </div>
+      <div class="keys">
+        <span class="key"><span class="sw" id="sw-hatch"></span>fails the rule</span>
+        <span class="key"><span class="sw" style="background:var(--nodata)"></span>no value</span>
+        <span class="key">mm/yr, clipped at &plusmn;30</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel series-panel">
+    <div class="panel-head">
+      <h2>How far the resemblance reaches</h2>
+      <span class="eyebrow" id="corr-sub"></span>
+    </div>
+    <p class="panel-note">Moran's I by distance between basin centres. 1 is identical, 0 is no
+       resemblance. Every band is significant on 999 permutations unless marked.</p>
+    <svg id="corr" class="chart" role="img" aria-label="Moran's I by distance band"></svg>
+
+    <div class="panel-head" style="margin-top:14px">
+      <h2>The counts</h2>
+    </div>
+    <table>
+      <thead><tr><th>measure</th><th>total water storage</th><th>groundwater</th></tr></thead>
+      <tbody id="stats"></tbody>
+    </table>
+    <p class="panel-note" id="stats-note" style="margin-top:8px"></p>
+  </section>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<footer>
+  <h3>The rules</h3>
+  <ul>
+    <li><b>p &lt; 0.05.</b> One test per basin, nothing adjusted. On 1,283 basins with no real
+      signal, about 64 would pass by luck.</li>
+    <li><b>Benjamini-Hochberg.</b> Holds the false discovery rate, the share of wrong calls among
+      the basins you keep, at 5 percent. Valid when tests are independent or positively
+      dependent.</li>
+    <li><b>Benjamini-Yekutieli.</b> The same walk down the sorted p-values, divided by
+      c(m) = 1 + 1/2 + ... + 1/m, about 7.7 here. Valid under any dependence, which is why this
+      page leads with it.</li>
+    <li><b>Bonferroni.</b> Allows no false positive anywhere: p &lt; 0.05/m. Right for a drug
+      trial, far too strict for a map.</li>
+  </ul>
+
+  <h3>Method</h3>
+  <p>Moran's I on shared-border weights, 9,999 permutations, with island basins given their four
+  nearest neighbours. The correlogram repeats it in distance bands. The effective count fits
+  rho(d) = exp(-d/a) to those bands and takes n&sup2; divided by the sum of rho over every pair,
+  the spatial counterpart of the autocorrelation correction already applied in time.</p>
+  <p>Two limits. This cannot separate real hydroclimate clustering from the smoothing in a
+  regularized mascon solution. And an effective count describes how much independent information
+  the field holds, not which basins hold it.</p>
+
+  <h3>Sources</h3>
+  <ul>
+    <li>Moran 1950, <i>Biometrika</i> 37:17. Cliff and Ord 1981, <i>Spatial Processes</i>.</li>
+    <li>Oden 1984, <i>Geographical Analysis</i> 16:1, on testing a correlogram.</li>
+    <li>Clifford, Richardson and Hemon 1989, <i>Biometrics</i> 45:123. Dutilleul 1993,
+      <i>Biometrics</i> 49:305. Griffith 2005, <i>Annals AAG</i> 95:740.</li>
+    <li>Benjamini and Hochberg 1995, <i>JRSS B</i> 57:289. Benjamini and Yekutieli 2001,
+      <i>Annals of Statistics</i> 29:1165. Wilks 2016, <i>BAMS</i> 97:2263.</li>
+    <li><a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/scripts/40_spatial_autocorr.py">40_spatial_autocorr.py</a>,
+      <a href="https://github.com/tristangrupp/graceful-replenishment/blob/main/global/trends/spatial_autocorr_lev04.json">spatial_autocorr_lev04.json</a></li>
+  </ul>
+</footer>
+
+<script src="data.js"></script>
+<script src="independence_data.js"></script>
+<script src="independence.js"></script>
+</body>
+</html>
