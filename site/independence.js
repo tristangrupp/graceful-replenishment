@@ -91,7 +91,12 @@
       var missing = v === null || v === undefined;
       var pass = !missing && p !== null && p !== undefined && p <= c;
       if (!missing) { have++; if (pass) kept++; }
+      /* Failing the rule has to be visible at a glance, because the point of
+         the page is watching the map thin as the rule tightens. Hatching
+         alone moved too little between rules to read, so a basin that fails
+         also drops most of its colour. */
       fills[i].style.fill = missing ? "var(--nodata)" : colorFor(v);
+      fills[i].style.opacity = (missing || pass) ? "" : "0.2";
       hats[i].style.display = (!missing && !pass) ? "" : "none";
     });
     document.getElementById("ramp").style.background =
@@ -102,7 +107,8 @@
     var lay = IND.layers[state.product];
     document.getElementById("map-title").textContent = lay.label + ", level 4";
     document.getElementById("map-sub").textContent =
-      thousands(kept) + " of " + thousands(have) + " basins pass";
+      thousands(kept) + " of " + thousands(have) + " basins pass, " +
+      thousands(have - kept) + " faded out";
     document.getElementById("map-note").textContent =
       RULES[state.rule] + ". A basin needs p at or below " +
       (c < 0.0001 ? c.toExponential(1) : c.toFixed(4)) + "." +
